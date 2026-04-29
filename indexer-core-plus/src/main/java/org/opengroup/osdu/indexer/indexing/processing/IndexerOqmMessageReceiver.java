@@ -68,6 +68,10 @@ public abstract class IndexerOqmMessageReceiver implements OqmMessageReceiver {
             } else {
                 rescheduleMessage(oqmMessage, dpsHeaders, oqmAckReplier, getException(appException));
             }
+        } catch (SchemaProcessingException schemaException) {
+            log.warn("Event ID: {}. Schema processing failed, message will be skipped without rescheduling: {}",
+                oqmMessage.getId(), schemaException.getMessage());
+            oqmAckReplier.nack(false);
         } catch (Exception exception) {
             rescheduleMessage(oqmMessage, dpsHeaders, oqmAckReplier, exception);
         } catch (Throwable e) {
