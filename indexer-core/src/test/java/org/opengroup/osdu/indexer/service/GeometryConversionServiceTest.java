@@ -73,6 +73,46 @@ public class GeometryConversionServiceTest {
     }
 
     @Test
+    public void should_returnNull_given_longitudeExceedsMax_tryGetGeopointTest() {
+        LinkedTreeMap<String, Double> positionTreeMap = new LinkedTreeMap<>();
+        positionTreeMap.put("longitude", 200.0);
+        positionTreeMap.put("latitude", 20.0);
+
+        Map<String, Double> result = this.sut.tryGetGeopoint(positionTreeMap);
+        assertNull(result);
+    }
+
+    @Test
+    public void should_returnNull_given_longitudeBelowMin_tryGetGeopointTest() {
+        LinkedTreeMap<String, Double> positionTreeMap = new LinkedTreeMap<>();
+        positionTreeMap.put("longitude", -200.0);
+        positionTreeMap.put("latitude", 20.0);
+
+        Map<String, Double> result = this.sut.tryGetGeopoint(positionTreeMap);
+        assertNull(result);
+    }
+
+    @Test
+    public void should_returnNull_given_latitudeExceedsMax_tryGetGeopointTest() {
+        LinkedTreeMap<String, Double> positionTreeMap = new LinkedTreeMap<>();
+        positionTreeMap.put("longitude", 10.0);
+        positionTreeMap.put("latitude", 95.0);
+
+        Map<String, Double> result = this.sut.tryGetGeopoint(positionTreeMap);
+        assertNull(result);
+    }
+
+    @Test
+    public void should_returnNull_given_latitudeBelowMin_tryGetGeopointTest() {
+        LinkedTreeMap<String, Double> positionTreeMap = new LinkedTreeMap<>();
+        positionTreeMap.put("longitude", 10.0);
+        positionTreeMap.put("latitude", -95.0);
+
+        Map<String, Double> result = this.sut.tryGetGeopoint(positionTreeMap);
+        assertNull(result);
+    }
+
+    @Test
     public void should_returnLatLong_given_validTreeMap_tryGetGeopointTest() {
         LinkedTreeMap<String, Double> positionTreeMap = new LinkedTreeMap<>();
         positionTreeMap.put("longitude", 10.0);
@@ -120,5 +160,45 @@ public class GeometryConversionServiceTest {
 
         assertEquals(2, result.size());
         assertEquals("point", result.get(Constants.TYPE));
+    }
+
+    @Test
+    public void should_returnNull_given_longitudeExceedsMax_getGeopointGeometryTest() {
+        LinkedTreeMap<String, Double> positionTreeMap = new LinkedTreeMap<>();
+        positionTreeMap.put("longitude", 200.0);
+        positionTreeMap.put("latitude", 20.0);
+
+        Map<String, Object> result = this.sut.getGeopointGeometry(positionTreeMap);
+        assertNull(result);
+    }
+
+    @Test
+    public void should_returnNull_given_longitudeBelowMin_getGeopointGeometryTest() {
+        LinkedTreeMap<String, Double> positionTreeMap = new LinkedTreeMap<>();
+        positionTreeMap.put("longitude", -200.0);
+        positionTreeMap.put("latitude", 20.0);
+
+        Map<String, Object> result = this.sut.getGeopointGeometry(positionTreeMap);
+        assertNull(result);
+    }
+
+    @Test
+    public void should_returnNull_given_latitudeExceedsMax_getGeopointGeometryTest() {
+        LinkedTreeMap<String, Double> positionTreeMap = new LinkedTreeMap<>();
+        positionTreeMap.put("longitude", 10.0);
+        positionTreeMap.put("latitude", 95.0);
+
+        Map<String, Object> result = this.sut.getGeopointGeometry(positionTreeMap);
+        assertNull(result);
+    }
+
+    @Test
+    public void should_returnNull_given_latitudeBelowMin_getGeopointGeometryTest() {
+        LinkedTreeMap<String, Double> positionTreeMap = new LinkedTreeMap<>();
+        positionTreeMap.put("longitude", 10.0);
+        positionTreeMap.put("latitude", -95.0);
+
+        Map<String, Object> result = this.sut.getGeopointGeometry(positionTreeMap);
+        assertNull(result);
     }
 }
