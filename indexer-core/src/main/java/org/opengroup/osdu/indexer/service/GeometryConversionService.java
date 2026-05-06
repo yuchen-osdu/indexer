@@ -78,10 +78,10 @@ public class GeometryConversionService {
         try {
             Map<String, Double> position = new HashMap<>();
             double lon = new Double(DECIMAL_FORMAT.format(Optional.ofNullable(positionMap.get("longitude")).orElse(positionMap.get("lon"))));
-            if (lon > 180 && lon < -180)
+            if (lon > 180 || lon < -180)
                 throw new IllegalArgumentException("'longitude' value is out of the range [-180, 180]");
             double lat = new Double(DECIMAL_FORMAT.format(Optional.ofNullable(positionMap.get("latitude")).orElse(positionMap.get("lat"))));
-            if (lat > 90 && lat < -90)
+            if (lat > 90 || lat < -90)
                 throw new IllegalArgumentException("'latitude' value is out of the range [-90, 90]");
             position.put("lon", lon);
             position.put("lat", lat);
@@ -110,10 +110,10 @@ public class GeometryConversionService {
 
         try {
             double lon = new Double(DECIMAL_FORMAT.format(positionMap.get("longitude")));
-            if (lon > 180 && lon < -180)
+            if (lon > 180 || lon < -180)
                 throw new IllegalArgumentException("'longitude' value is out of the range [-180, 180]");
             double lat = new Double(DECIMAL_FORMAT.format(positionMap.get("latitude")));
-            if (lat > 90 && lat < -90)
+            if (lat > 90 || lat < -90)
                 throw new IllegalArgumentException("'latitude' value is out of the range [-90, 90]");
 
             Map<String, Object> inMap = new HashMap<>();
