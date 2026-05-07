@@ -17,6 +17,8 @@ package org.opengroup.osdu.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.UUID;
+
 import org.apache.http.HttpStatus;
 
 import com.google.gson.JsonArray;
@@ -29,7 +31,11 @@ public class LegalTagUtilsAws {
         this.httpClient = httpClient;
     }
     public String createRandomName() {
-        return Config.getDataPartitionIdTenant1() + "-" + System.currentTimeMillis();
+        // Include a UUID suffix so parallel Cucumber forks cannot collide on
+        // the same millisecond — prior timestamp-only form produced HTTP 409
+        // from /legal/v1/legaltags under parallel test execution.
+        return Config.getDataPartitionIdTenant1() + "-" + System.currentTimeMillis() + "-"
+                + UUID.randomUUID().toString().substring(0, 8);
     }
 
     public HttpResponse create(String legalTagName) throws Exception {
