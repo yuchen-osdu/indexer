@@ -481,6 +481,85 @@ public class PollingUtils {
     }
 
     /**
+     * Poll a query function until it returns the expected document count, refreshing the index
+     * between attempts so newly-indexed documents become visible to the query.
+     *
+     * <p>On the first health-check attempt the helper waits for the index to be ready (matching
+     * {@link #pollForExpectedCount}). This is important for queries against augmenter-generated
+     * fields (e.g. {@code bagOfWords}, virtual properties) which require the index to be fully
+     * established before the augmenter populates them.
+     *
+     * <p>Uses {@link PollingConfig#documentPollingWithExpectedCount()}; for a different timeout
+     * profile call the overload that accepts a {@link PollingConfig}.
+     *
+     * @param indexName     Index to refresh between attempts
+     * @param expectedCount Count the query should return
+     * @param queryCount    Supplier wrapping the actual fetch* call; should return -1L on exception
+     * @param elasticUtils  Used for periodic index refresh between polls and for the index-ready check
+     */
+    public static PollingResult<Long> pollForQueryResultCount(
+            String indexName,
+            long expectedCount,
+            Supplier<Long> queryCount,
+            ElasticUtils elasticUtils) throws InterruptedException {
+
+        return pollForQueryResultCount(indexName, expectedCount, queryCount, elasticUtils,
+            PollingConfig.documentPollingWithExpectedCount());
+    }
+
+    /**
+     * As {@link #pollForQueryResultCount(String, long, Supplier, ElasticUtils)} but with a
+     * caller-supplied {@link PollingConfig}. Use this when the default
+     * {@code documentPollingWithExpectedCount} timeout/backoff is not appropriate (e.g. a known-fast
+     * scenario that should fail faster on regression).
+     */
+    public static PollingResult<Long> pollForQueryResultCount(
+            String indexName,
+            long expectedCount,
+            Supplier<Long> queryCount,
+            ElasticUtils elasticUtils,
+            PollingConfig config) throws InterruptedException {
+
+        final boolean[] healthChecked = {false};
+
+        return pollWithRetry(
+            config,
+            queryCount,
+            count -> count != null && count == expectedCount,
+            context -> {
+                // Wait for the index to be ready before querying the first time.
+                // Without this, queries against augmenter-generated fields (bagOfWords,
+                // virtual properties) can race the augmenter and return 0 indefinitely.
+                if (config.shouldPerformHealthCheck(context.getAttempt()) && !healthChecked[0]) {
+                    try {
+                        if (elasticUtils.waitForIndexReady(indexName, 10)) {
+                            healthChecked[0] = true;
+                        } else {
+                            log.info(String.format("Index '%s' not ready at attempt %d",
+                                indexName, context.getAttempt() + 1));
+                            context.skipOperation();
+                        }
+                    } catch (IOException e) {
+                        log.warning(String.format("Health check error for %s: %s",
+                            indexName, e.getMessage()));
+                        context.skipOperation();
+                    }
+                }
+
+                // Periodic refresh so newly-augmented documents become visible to subsequent queries.
+                if (config.shouldPerformRefresh(context.getAttempt()) && context.getAttempt() > 0) {
+                    try {
+                        elasticUtils.refreshIndex(indexName);
+                    } catch (IOException e) {
+                        log.warning(String.format("Failed to refresh index %s: %s",
+                            indexName, e.getMessage()));
+                    }
+                }
+            }
+        );
+    }
+
+    /**
      * Context object passed to callbacks during polling.
      */
     public static class PollingContext {

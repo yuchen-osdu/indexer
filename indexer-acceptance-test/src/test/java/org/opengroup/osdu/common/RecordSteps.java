@@ -48,6 +48,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import lombok.extern.java.Log;
 import org.opengroup.osdu.core.common.http.CollaborationContextFactory;
@@ -233,26 +234,17 @@ public class RecordSteps extends TestsBase {
     }
 
     public void iShouldGetTheNumberDocumentsForTheIndexInTheElasticSearchWithOutSkippedAttribute(int expectedCount, String index, String skippedAttributes) throws Throwable {
-        index = generateActualName(index, timeStamp);
-        long numOfIndexedDocuments = createIndex(index);
-        long documentCountByQuery = elasticUtils.fetchRecordsByExistQuery(index, skippedAttributes);
-        assertEquals(expectedCount, documentCountByQuery);
+        final String idx = generateActualName(index, timeStamp);
+        assertQueryReturns(expectedCount, idx,
+            String.format("exist-query excluding %s", skippedAttributes),
+            () -> { try { return elasticUtils.fetchRecordsByExistQuery(idx, skippedAttributes); } catch (Exception e) { return -1L; } });
     }
 
     public void iShouldBeAbleToSearchRecordByTagKeyAndTagValue(String index, String tagKey, String tagValue, int expectedNumber) throws Throwable {
-        index = generateActualName(index, timeStamp);
-        final String idx = index;
-        PollingResult<Long> result = PollingUtils.pollWithRetry(
-            PollingConfig.documentPolling(),
-            () -> { try { return elasticUtils.fetchRecordsByTags(idx, tagKey, tagValue); } catch (IOException e) { return -1L; } },
-            count -> count == expectedNumber,
-            context -> {
-                if (context.getAttempt() > 0 && context.getAttempt() % 3 == 0) {
-                    try { elasticUtils.refreshIndex(idx); } catch (IOException e) { /* ignore */ }
-                }
-            }
-        );
-        assertEquals(expectedNumber, result.getValueOrThrow().longValue());
+        final String idx = generateActualName(index, timeStamp);
+        assertQueryReturns(expectedNumber, idx,
+            String.format("tag query %s=%s", tagKey, tagValue),
+            () -> { try { return elasticUtils.fetchRecordsByTags(idx, tagKey, tagValue); } catch (Exception e) { return -1L; } });
     }
 
     public void iShouldCleanupIndicesOfExtendedKinds(String extendedKinds) throws Throwable {
@@ -265,43 +257,43 @@ public class RecordSteps extends TestsBase {
     }
 
     public void iShouldBeAbleToSearchRecordByFieldAndFieldValue(String index, String fieldKey, String fieldValue, int expectedNumber) throws Throwable {
-        index = generateActualName(index, timeStamp);
-        long numOfIndexedDocuments = createIndex(index);
-        long actualNumberOfRecords = elasticUtils.fetchRecordsByFieldAndFieldValue(index, fieldKey, fieldValue);
-        assertEquals(expectedNumber, actualNumberOfRecords);
+        final String idx = generateActualName(index, timeStamp);
+        assertQueryReturns(expectedNumber, idx,
+            String.format("field query %s=%s", fieldKey, fieldValue),
+            () -> { try { return elasticUtils.fetchRecordsByFieldAndFieldValue(idx, fieldKey, fieldValue); } catch (Exception e) { return -1L; } });
     }
 
     public void i_should_get_the_documents_for_the_in_the_Elastic_Search_by_geoQuery (
             int expectedNumber, String index, Double topLatitude, Double topLongitude, Double bottomLatitude, Double bottomLongitude, String field) throws Throwable {
-        index = generateActualName(index, timeStamp);
-        long numOfIndexedDocuments = createIndex(index);
-        long actualNumberOfRecords = elasticUtils.fetchRecordsByGeoWithinQuery(index, field, topLatitude, topLongitude, bottomLatitude, bottomLongitude);
-        assertEquals(expectedNumber, actualNumberOfRecords);
+        final String idx = generateActualName(index, timeStamp);
+        assertQueryReturns(expectedNumber, idx,
+            String.format("geo bounding-box query on %s", field),
+            () -> { try { return elasticUtils.fetchRecordsByGeoWithinQuery(idx, field, topLatitude, topLongitude, bottomLatitude, bottomLongitude); } catch (Exception e) { return -1L; } });
     }
 
     public void i_should_get_the_documents_for_the_in_the_Elastic_Search_by_AsIngestedCoordinates(
             int expectedNumber, String index, Double topPointX, Double bottomPointX, String pointX, Double topPointY, Double bottomPointY, String pointY) throws Throwable {
-        index = generateActualName(index, timeStamp);
-        long numOfIndexedDocuments = createIndex(index);
-        long actualNumberOfRecords = elasticUtils.fetchRecordsByAsIngestedCoordinates(index, pointX, topPointX, bottomPointX, pointY, topPointY, bottomPointY);
-        assertEquals(expectedNumber, actualNumberOfRecords);
+        final String idx = generateActualName(index, timeStamp);
+        assertQueryReturns(expectedNumber, idx,
+            String.format("AsIngestedCoordinates bounding-box on (%s,%s)", pointX, pointY),
+            () -> { try { return elasticUtils.fetchRecordsByAsIngestedCoordinates(idx, pointX, topPointX, bottomPointX, pointY, topPointY, bottomPointY); } catch (Exception e) { return -1L; } });
     }
 
     public void i_should_get_the_documents_for_the_in_the_Elastic_Search_by_nestedQuery(
             int expectedNumber, String index, String path, String firstNestedField, String firstNestedValue, String secondNestedField, String secondNestedValue)
             throws Throwable {
-        index = generateActualName(index, timeStamp);
-        long numOfIndexedDocuments = createIndex(index);
-        long actualNumberOfRecords = elasticUtils.fetchRecordsByNestedQuery(index, path, firstNestedField, firstNestedValue, secondNestedField, secondNestedValue);
-        assertEquals(expectedNumber, actualNumberOfRecords);
+        final String idx = generateActualName(index, timeStamp);
+        assertQueryReturns(expectedNumber, idx,
+            String.format("nested query on %s (%s=%s, %s=%s)", path, firstNestedField, firstNestedValue, secondNestedField, secondNestedValue),
+            () -> { try { return elasticUtils.fetchRecordsByNestedQuery(idx, path, firstNestedField, firstNestedValue, secondNestedField, secondNestedValue); } catch (Exception e) { return -1L; } });
     }
 
     public void i_should_be_able_search_documents_for_the_by_flattened_inner_properties(int expectedCount, String index, String flattenedField,
                                                                                         String flattenedFieldValue) throws Throwable {
-        index = generateActualName(index, timeStamp);
-        long numOfIndexedDocuments = createIndex(index);
-        long actualNumberOfRecords = elasticUtils.fetchRecordsWithFlattenedFieldsQuery(index, flattenedField, flattenedFieldValue);
-        assertEquals(expectedCount, actualNumberOfRecords);
+        final String idx = generateActualName(index, timeStamp);
+        assertQueryReturns(expectedCount, idx,
+            String.format("flattened inner-property query %s=%s", flattenedField, flattenedFieldValue),
+            () -> { try { return elasticUtils.fetchRecordsWithFlattenedFieldsQuery(idx, flattenedField, flattenedFieldValue); } catch (Exception e) { return -1L; } });
     }
 
     public void i_should_get_object_in_search_response_without_hints_in_schema(String objectField, String index, String recordFile, String acl, String kind)
@@ -523,6 +515,25 @@ public class RecordSteps extends TestsBase {
             fail(String.format("Expected %d documents in index '%s', but polling failed: %s", expectedCount, index, result.getFailureReason()));
         }
         return result.getValue();
+    }
+
+    /**
+     * Polls a query function until it returns the expected document count, then asserts on it.
+     * On timeout, fails with a message that includes the index, query description, expected vs.
+     * last-seen count, attempts, and elapsed wait time so the JUnit failure tells you exactly
+     * what timed out.
+     */
+    private void assertQueryReturns(int expectedCount, String index, String queryDescription,
+                                    Supplier<Long> queryCount) throws InterruptedException {
+        PollingResult<Long> result = PollingUtils.pollForQueryResultCount(
+            index, expectedCount, queryCount, elasticUtils);
+        if (!result.isSuccess()) {
+            fail(String.format(
+                "Expected %d documents from %s on '%s' but got %s after %.1fs in %d attempts",
+                expectedCount, queryDescription, index,
+                result.getValue(), result.getTotalWaitTimeSeconds(), result.getAttempts()));
+        }
+        assertEquals(expectedCount, result.getValue().longValue());
     }
 
     private Boolean areJsonEqual(String firstJson, String secondJson) {
