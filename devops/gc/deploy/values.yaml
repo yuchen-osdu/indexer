@@ -8,6 +8,7 @@ global:
   logLevel: "ERROR"
   tier: ""
   autoscalingMode: "cpu"
+  otelJavaagentEnabled: "true"
 
 data:
   # Configmap
@@ -17,7 +18,6 @@ data:
   schemaHost: "http://schema"
   securityHttpsCertificateTrust: "true"
   storageHost: "http://storage"
-  otelJavaagentEnabled: "true"
   otelExporterEndpoint: "http://opentelemetry-collector.opentelemetry.svc.cluster.local:4318"
   # Deployment
   requestsCpu: "100m"
