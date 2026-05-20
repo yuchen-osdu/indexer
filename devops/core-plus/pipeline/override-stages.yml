@@ -2,3 +2,9 @@ variables:
   CIMPL_SERVICE: indexer
   CIMPL_BUILD_PATH: indexer-core-plus/cloudbuild/Dockerfile
   DISABLE_INTEGRATION_TEST: true
+
+#standby (Blue-Green): no per-service overrides required.
+# This service inherits cimpl-standby-deploy from the central
+# cimpl-standby-rosa.yml template. The top-level variables above apply to
+# all environments (dev1, dev2, standby). Enable standby deploys by setting
+# $CIMPL_STANDBY=1 in this project's CI/CD variables.
