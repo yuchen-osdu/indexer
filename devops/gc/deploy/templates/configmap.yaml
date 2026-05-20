@@ -35,8 +35,8 @@ data:
   SCHEMA_BASE_HOST: {{ .Values.data.schemaHost | quote }}
   SECURITY_HTTPS_CERTIFICATE_TRUST: {{ .Values.data.securityHttpsCertificateTrust | quote }}
   STORAGE_HOST: {{ .Values.data.storageHost | quote }}
-  {{- if .Values.data.otelJavaagentEnabled }}
-  OTEL_JAVAAGENT_ENABLED: {{.Values.data.otelJavaagentEnabled | quote}}
+  {{- if .Values.global.otelJavaagentEnabled }}
+  OTEL_JAVAAGENT_ENABLED: {{.Values.global.otelJavaagentEnabled | quote}}
   OTEL_EXPORTER_OTLP_ENDPOINT: {{.Values.data.otelExporterEndpoint | quote}}
   {{- end }}
 
