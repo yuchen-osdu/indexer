@@ -11,10 +11,6 @@ gc-acceptance-test:
     ELASTIC_8_HOST: $GC_ELASTIC_8_HOST
     SCHEMA_HOST: "https://${GC_DOMAIN}"
 
-gc-dev2-test:
-  variables:
-    CUCUMBER_OPTIONS: "--plugin io.qameta.allure.cucumberjvm.AllureCucumberJvm --tags @as-ingested-coordinates,@default,@bag-of-words,@keyword-lower,@indexer-extended"
-
 download_gc_plugins:
   image: maven:3.8.3-openjdk-17-slim
   stage: build
