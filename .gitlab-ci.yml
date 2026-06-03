@@ -107,3 +107,40 @@ download_plugins:
 aws-test-java:
   image: $CI_REGISTRY/osdu/platform/deployment-and-operations/base-containers-aws/aws-maven/aws-maven:v2.1
   tags: ["aws-internal-test-ubuntu22.04"]
+
+schemathesis-tests:
+  stage: acceptance
+  image:
+    name: community.opengroup.org:5555/osdu/platform/system/sdks/schemathesis-base:latest
+    entrypoint: [""]
+  needs:
+    - cimpl-deploy
+  extends: .cimpl-variables
+  variables:
+    GIT_STRATEGY: none
+    KEYCLOAK_ENDPOINT: ${TEST_OPENID_PROVIDER_URL}/protocol/openid-connect/token
+    CLIENT_ID: ${TEST_OPENID_PROVIDER_CLIENT_ID}
+    CLIENT_SECRET: ${TEST_OPENID_PROVIDER_CLIENT_SECRET}
+  script:
+    - |
+      cd /app
+      SCHEMA_LOCATION="https://osdu.${CIMPL_DOMAIN}${CIMPL_OPENAPI_YAML_ROUTE}"
+      echo "KEYCLOAK_ENDPOINT: $KEYCLOAK_ENDPOINT"
+      echo "CLIENT_ID is set: ${CLIENT_ID:+yes}"
+      echo "CLIENT_SECRET is set: ${CLIENT_SECRET:+yes}"
+      echo "Schema location: $SCHEMA_LOCATION"
+      TEST_EXIT_CODE=0
+      uv run run_schemathesis.py "$SCHEMA_LOCATION" || TEST_EXIT_CODE=$?
+      allure generate --single-file output/allure/results -o output/report --clean || echo "Allure report generation failed"
+      cp -r /app/output ${CI_PROJECT_DIR}/
+      exit "$TEST_EXIT_CODE"
+  artifacts:
+    when: always
+    expose_as: "Allure Report"
+    reports:
+      junit: output/junit/junit.xml
+    paths:
+      - output/report/index.html
+  only:
+    variables:
+      - $PROTECTED == '1'
