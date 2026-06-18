@@ -11,7 +11,7 @@ Feature: Text Search and Special Attributes
 
     Examples:
       | kind                                          | recordFile                   | number | index                                         | acl                            | field                            | value          | xcollab                                                   |
-      | "test:indexer<timestamp>:index-property--Wellbore:1.2.0" | "index-property-wellbore_v2" | 1      | "test-indexer<timestamp>-index-property--wellbore-1.2.0" | "data.default.viewers@tenant1" | "data.FacilityName.keywordLower" | "facility_456" | "id=a99cef48-2ed6-4beb-8a43-002373431f92,application=pws" |
+      | "test:indexer<timestamp>:index-property--Wellbore:1.2.0" | "index-property-wellbore_v2" | 1      | "test-indexer<timestamp>-index-property--wellbore-1.2.0" | "data.default.viewers@tenant1" | "data.FacilityName.keywordLower" | "facility_456" | "id=<uuid>,application=pws" |
 
   @keyword-lower
   Scenario Outline: Ingest record and Index in the Elastic Search with keywordLower attribute for text fields

@@ -47,6 +47,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.logging.Level;
@@ -77,6 +78,7 @@ public class RecordSteps extends TestsBase {
     private String timeStamp = String.valueOf(System.currentTimeMillis() + new Random().nextInt(10000));
     private List<Map<String, Object>> records;
     private Map<String, String> headers = httpClient.getCommonHeader();
+    private final Map<String, String> resolvedCollaborationHeaders = new HashMap<>();
 
     private UpsertRecords upsertedRecordsWithXcollab;
     public static final String DpsHeaders_COLLABORATION = "x-collaboration";
@@ -349,6 +351,7 @@ public class RecordSteps extends TestsBase {
                                                                                        String dataGroup,
                                                                                        String kind) {
         String actualKind = generateActualName(kind, timeStamp);
+        xCollab = resolveCollaborationHeader(xCollab);
         try {
             String fileContent = FileHandler.readFile(String.format("%s.%s", record, "json"));
             records = new Gson().fromJson(fileContent, new TypeToken<List<Map<String, Object>>>() {
@@ -415,6 +418,7 @@ public class RecordSteps extends TestsBase {
             int expectedNumber, String xcollab, String index) throws Exception {
 
         index = generateActualName(index, timeStamp);
+        xcollab = resolveCollaborationHeader(xcollab);
         // upsertedRecordsWithoutXcollab should have id received from previous steps
         String id = upsertedRecordsWithXcollab.getRecordIds().stream().findAny().get();
         log.log(Level.INFO, String.format("Try to find in Elastic a record with X collab with id : %s ", id));
@@ -459,6 +463,17 @@ public class RecordSteps extends TestsBase {
         DeleteResponse deleteResponse = elasticUtils.deleteRecordsById(index, elasticId);
         log.log(Level.INFO, String.format("Deleting record from Elasticsearch in index: %s with id: %s", index, elasticId));
         assertEquals(deleteResponse.result(), Result.Deleted);
+    }
+
+    // Each collaboration test run needs a fresh UUID so Storage does not attach the request to stale
+    // server-side WIP state from a previous run, but ingest and verification must still use the same
+    // resolved header value within the scenario.
+    // Examples:
+    // "id=<uuid>,application=pws" -> "id=123e4567-e89b-12d3-a456-426614174000,application=pws"
+    // "id=<uuid>,application=app-<timestamp>" -> "id=123e4567-e89b-12d3-a456-426614174000,application=app-1781678406809"
+    private String resolveCollaborationHeader(String rawXCollab) {
+        return resolvedCollaborationHeaders.computeIfAbsent(rawXCollab, key ->
+                generateActualName(key, timeStamp).replace("<uuid>", UUID.randomUUID().toString()));
     }
 
     private Map<String, Object> replaceValues(Map<String, Object> data, String timeStamp) {

@@ -185,43 +185,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.2</version>
-                <configuration>
-                    <!-- Exclude augmented tests by default; they require index-augmenter-enabled feature flag.
-                         To include: mvn verify -DincludeAugmentedTests=true -->
-                    <excludes>
-                        <exclude>${augmentedTestExclude}</exclude>
-                    </excludes>
-                </configuration>
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <!-- Default profile: exclude augmented tests -->
-            <id>exclude-augmented</id>
-            <activation>
-                <property>
-                    <name>!includeAugmentedTests</name>
-                </property>
-            </activation>
-            <properties>
-                <augmentedTestExclude>**/RunIndexerAugmentedTest.java</augmentedTestExclude>
-            </properties>
-        </profile>
-        <profile>
-            <!-- Opt-in profile: include augmented tests -->
-            <id>include-augmented</id>
-            <activation>
-                <property>
-                    <name>includeAugmentedTests</name>
-                    <value>true</value>
-                </property>
-            </activation>
-            <properties>
-                <augmentedTestExclude>none</augmentedTestExclude>
-            </properties>
-        </profile>
-    </profiles>
 
 </project>

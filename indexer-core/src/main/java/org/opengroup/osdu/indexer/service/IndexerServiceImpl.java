@@ -78,6 +78,7 @@ import org.opengroup.osdu.indexer.provider.interfaces.IPublisher;
 import org.opengroup.osdu.indexer.service.exception.ElasticsearchMappingException;
 import org.opengroup.osdu.indexer.util.AugmenterSetting;
 import org.opengroup.osdu.indexer.util.IndexerQueueTaskBuilder;
+import org.opengroup.osdu.indexer.util.PropertyUtil;
 import org.opengroup.osdu.indexer.util.RequestScopedElasticsearchClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
@@ -106,7 +107,7 @@ public class IndexerServiceImpl implements IndexerService {
     // we index a normalized kind (authority + source + entity type + major version) as a tags attribute for all records
     private static final String NORMALIZATION_KIND_TAG_ATTRIBUTE_NAME = "normalizedKind";
     private static final String VERTICAL_COORDINATE_REFERENCE_SYSTEM_ID = "VerticalCoordinateReferenceSystemID";
-    private static final String INDEX_PROPERTY_PATH_CONFIGURATION_KIND = "osdu:wks:reference-data--IndexPropertyPathConfiguration:1.0.0";
+    private static final String INDEX_PROPERTY_PATH_CONFIGURATION_KIND_WITH_MAJOR = "osdu:wks:reference-data--IndexPropertyPathConfiguration:1.";
 
     @Inject
     private JaxRsDpsLog jaxRsDpsLog;
@@ -211,9 +212,13 @@ public class IndexerServiceImpl implements IndexerService {
                     if (!upsertKindIds.isEmpty() || !deleteKindIds.isEmpty()) {
                         augmenterConfigurationService.updateAssociatedRecords(message, upsertKindIds, deleteKindIds, deletedRecordsWithParentReferred);
                     }
-                    if(upsertRecordMap.containsKey(INDEX_PROPERTY_PATH_CONFIGURATION_KIND)) {
-                        List<String> configurationIds = upsertRecordMap.get(INDEX_PROPERTY_PATH_CONFIGURATION_KIND).
-                                keySet().stream().filter(id -> !retryRecordIds.contains(id)).toList();
+                    List<String> configurationIds = upsertRecordMap.entrySet().stream()
+                            .filter(entry -> isIndexPropertyPathConfigurationKind(entry.getKey()))
+                            .flatMap(entry -> entry.getValue().keySet().stream())
+                            .filter(id -> !retryRecordIds.contains(id))
+                            .distinct()
+                            .toList();
+                    if (!configurationIds.isEmpty()) {
                         updateSchemaMappingOfRelatedKinds(configurationIds);
                     }
                 }
@@ -487,7 +492,7 @@ public class IndexerServiceImpl implements IndexerService {
                             // We cache the dataMap in case the update of this object will trigger update of the related objects.
                             augmenterConfigurationService.cacheDataRecord(storageRecord.getId(), storageRecord.getKind(), dataMap);
                         }
-                        else if(INDEX_PROPERTY_PATH_CONFIGURATION_KIND.equals(storageRecord.getKind())) {
+                        else if (isIndexPropertyPathConfigurationKind(storageRecord.getKind())) {
                             // We cache the dataMap that will be used to update the schema mapping of the related kinds
                             augmenterConfigurationService.cacheDataRecord(storageRecord.getId(), storageRecord.getKind(), dataMap);
                         }
@@ -867,5 +872,8 @@ public class IndexerServiceImpl implements IndexerService {
         }
     }
 
+    private boolean isIndexPropertyPathConfigurationKind(String kind) {
+        return INDEX_PROPERTY_PATH_CONFIGURATION_KIND_WITH_MAJOR.equals(PropertyUtil.getKindWithMajor(kind));
+    }
 
 }
