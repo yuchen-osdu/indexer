@@ -1,5 +1,4 @@
 /*
- *  Copyright 2020-2022 Google LLC
  *  Copyright 2020-2026 EPAM Systems, Inc
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,20 +22,20 @@ import org.junit.platform.suite.api.IncludeTags;
 import org.junit.platform.suite.api.SelectPackages;
 import org.junit.platform.suite.api.Suite;
 
+import static io.cucumber.junit.platform.engine.Constants.EXECUTION_MODE_FEATURE_PROPERTY_NAME;
 import static io.cucumber.junit.platform.engine.Constants.GLUE_PROPERTY_NAME;
 import static io.cucumber.junit.platform.engine.Constants.PARALLEL_EXECUTION_ENABLED_PROPERTY_NAME;
-import static io.cucumber.junit.platform.engine.Constants.EXECUTION_MODE_FEATURE_PROPERTY_NAME;
 
-// Parallel execution is enabled with EXECUTION_MODE_FEATURE = "concurrent". Different feature
-// files run in separate threads while scenarios within a feature run sequentially. All test data
-// uses persistent kinds against a shared environment, so feature-level concurrency provides
-// parallelism while avoiding intra-feature data conflicts.
+// Parallel execution is intentionally disabled for this focused suite. These tests use
+// persistent kinds and records in a shared environment, and concurrent feature execution can
+// race on setup, cleanup, and asynchronous indexing state. Keeping Cucumber parallel execution
+// disabled and forcing same_thread execution makes the tagged suite deterministic.
 @Suite
 @IncludeEngines("cucumber")
 @SelectPackages("features.indexrecord")
-@IncludeTags({"default"})
+@IncludeTags({"keyword-lower"})
 @ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "org.opengroup.osdu.step_definitions.record,org.opengroup.osdu.config")
-@ConfigurationParameter(key = PARALLEL_EXECUTION_ENABLED_PROPERTY_NAME, value = "true")
-@ConfigurationParameter(key = EXECUTION_MODE_FEATURE_PROPERTY_NAME, value = "concurrent")
-public class RunTest {
+@ConfigurationParameter(key = PARALLEL_EXECUTION_ENABLED_PROPERTY_NAME, value = "false")
+@ConfigurationParameter(key = EXECUTION_MODE_FEATURE_PROPERTY_NAME, value = "same_thread")
+public class RunKeywordLowerTest {
 }

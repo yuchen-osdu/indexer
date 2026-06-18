@@ -54,6 +54,15 @@ public class SchemaServiceRecordSteps extends RecordSteps {
 
         super.getInputIndexMap().put(testIndex.getKind(), testIndex);
 
+        // Delete any pre-existing index, then wait for the async schema event
+        // (fired by setupSchema above) to be processed and potentially recreate
+        // the index, then delete again to ensure a clean slate.
+        deleteIndex(testIndex.getKind());
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
         deleteIndex(testIndex.getKind());
     }
 

@@ -1,5 +1,5 @@
 [{
-        "id": "tenant1:index-property--Wellbore:testIngest1",
+        "id": "tenant1:index-property--Wellbore:testIngest-<timestamp>",
         "data": {
             "Location": {
                 "latitude": 29.170640,

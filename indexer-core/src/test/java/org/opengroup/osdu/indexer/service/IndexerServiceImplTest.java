@@ -335,7 +335,36 @@ public class IndexerServiceImplTest {
         }
     }
 
+    @Test
+    public void should_updateSchemaMappingOfRelatedKinds_forIndexPropertyConfigurationKindVersion_1_0_0() {
+        assertSchemaMappingTriggeredForIndexPropertyConfigurationKind("osdu:wks:reference-data--IndexPropertyPathConfiguration:1.0.0");
+    }
+
+    @Test
+    public void should_updateSchemaMappingOfRelatedKinds_forIndexPropertyConfigurationKindVersion_1_1_1() {
+        assertSchemaMappingTriggeredForIndexPropertyConfigurationKind("osdu:wks:reference-data--IndexPropertyPathConfiguration:1.1.1");
+    }
+
+    @Test
+    public void should_notUpdateSchemaMappingOfRelatedKinds_forIndexPropertyConfigurationKindVersion_2_0_0() {
+        try {
+            prepareTestDataAndEnv(this.pubsubMsg.replace(kind3, "osdu:wks:reference-data--IndexPropertyPathConfiguration:2.0.0"),
+                    "osdu:wks:reference-data--IndexPropertyPathConfiguration:2.0.0");
+
+            this.sut.processRecordChangedMessages(recordChangedMessages, recordInfos);
+
+            verify(this.augmenterConfigurationService, never()).getRelatedKindsOfConfigurations(any());
+            verify(this.schemaService, never()).processSchemaUpsertEvent(any(), anyString());
+        } catch (Exception e) {
+            fail("Should not throw this exception" + e.getMessage());
+        }
+    }
+
     private void prepareTestDataAndEnv(String pubsubMsg) throws IOException, URISyntaxException {
+        prepareTestDataAndEnv(pubsubMsg, kind3);
+    }
+
+    private void prepareTestDataAndEnv(String pubsubMsg, String indexPropertyConfigurationKind) throws IOException, URISyntaxException {
 
         // setup headers
         this.dpsHeaders = new DpsHeaders();
@@ -351,7 +380,7 @@ public class IndexerServiceImplTest {
 
         // setup schema
         Map<String, Object> schema = createSchema();
-        indexSchemaServiceMock(kind3, schema);
+        indexSchemaServiceMock(indexPropertyConfigurationKind, schema);
         indexSchemaServiceMock(kind2, schema);
         indexSchemaServiceMock(kind1, null);
 
@@ -361,7 +390,7 @@ public class IndexerServiceImplTest {
         List<Records.Entity> validRecords = new ArrayList<>();
         validRecords.add(Records.Entity.builder().id(recordId2).kind(kind2).data(storageData).build());
         validRecords.add(Records.Entity.builder().id(recordId3).kind(kind2).data(storageData).build());
-        validRecords.add(Records.Entity.builder().id(recordId4).kind(kind3).data(storageData).build());
+        validRecords.add(Records.Entity.builder().id(recordId4).kind(indexPropertyConfigurationKind).data(storageData).build());
         List<ConversionStatus> conversionStatus = new LinkedList<>();
         Records storageRecords = Records.builder().records(validRecords).conversionStatuses(conversionStatus).build();
         when(this.storageService.getStorageRecords(any(), any())).thenReturn(storageRecords);
@@ -384,6 +413,25 @@ public class IndexerServiceImplTest {
                 prepareFailed400Response(recordId3)
         );
         when(this.bulkResponse.items()).thenReturn(items);
+    }
+
+    private void assertSchemaMappingTriggeredForIndexPropertyConfigurationKind(String indexPropertyConfigurationKind) {
+        try {
+            prepareTestDataAndEnv(this.pubsubMsg.replace(kind3, indexPropertyConfigurationKind), indexPropertyConfigurationKind);
+
+            List<String> relatedKinds = Arrays.asList("related_kind:1.0.0", "related_kind:1.1.0", "related_kind:1.2.0");
+            ArgumentCaptor<List<String>> configurationIdArgumentCaptor = ArgumentCaptor.forClass(List.class);
+            when(this.augmenterConfigurationService.getRelatedKindsOfConfigurations(configurationIdArgumentCaptor.capture())).thenReturn(relatedKinds);
+
+            this.sut.processRecordChangedMessages(recordChangedMessages, recordInfos);
+
+            List<String> configurationIds = configurationIdArgumentCaptor.getValue();
+            assertEquals(1, configurationIds.size());
+            assertEquals(recordId4, configurationIds.get(0));
+            verify(this.schemaService, times(relatedKinds.size())).processSchemaUpsertEvent(any(), anyString());
+        } catch (Exception e) {
+            fail("Should not throw this exception" + e.getMessage());
+        }
     }
 
     private void preparePartiallyValidTestData(String pubsubMsg) throws Exception {
