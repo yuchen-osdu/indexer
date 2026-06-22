@@ -14,6 +14,7 @@
 
 package org.opengroup.osdu.indexer.model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Data;
 
@@ -21,7 +22,10 @@ import java.util.List;
 
 @Data
 @Builder
+@Schema(description = "Result of a re-index records request.")
 public class ReindexRecordsResponse {
+    @Schema(description = "Record IDs that were successfully queued for re-indexing.")
     private List<String> reIndexedRecords;
+    @Schema(description = "Record IDs that could not be found in storage and were not re-indexed.")
     private List<String> notFoundRecords;
 }

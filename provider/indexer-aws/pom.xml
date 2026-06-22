@@ -26,10 +26,8 @@
   <artifactId>indexer-aws</artifactId>
   <description>Indexer service on AWS</description>
   <packaging>jar</packaging>
-  <version>0.30.0-SNAPSHOT</version>
   
   <properties>
-      <deployment.environment>dev</deployment.environment>
       <mockito.version>3.11.2</mockito.version>
   </properties>
 
@@ -38,7 +36,6 @@
       <dependency>
           <groupId>org.opengroup.osdu</groupId>
           <artifactId>os-core-common</artifactId>
-          <version>${os-core-common.version}</version>
           <exclusions>
               <exclusion>
                   <groupId>org.springframework</groupId>
@@ -68,17 +65,19 @@
             </exclusion>
         </exclusions>
     </dependency>
+        <!-- os-core-common 7.x declares lettuce-core as provided (CVE-2025-58057); declare
+             it here so os-core-lib-aws's CacheFactory.getRedisCache resolves io.lettuce.core.RedisException -->
+        <dependency>
+            <groupId>io.lettuce</groupId>
+            <artifactId>lettuce-core</artifactId>
+            <version>${lettuce.version}</version>
+        </dependency>
 
     <!-- Third party Apache 2.0 license packages -->
       <dependency>
           <groupId>commons-beanutils</groupId>
           <artifactId>commons-beanutils</artifactId>
           <version>1.11.0</version>
-      </dependency>
-      <dependency>
-          <groupId>net.minidev</groupId>
-          <artifactId>json-smart</artifactId>
-          <version>2.5.2</version>
       </dependency>
     <dependency>
         <groupId>org.springframework.security</groupId>
@@ -124,16 +123,6 @@
       <artifactId>spring-boot-starter-security</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.springframework.security.oauth</groupId>
-      <artifactId>spring-security-oauth2</artifactId>
-      <version>2.5.1.RELEASE</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-jwt</artifactId>
-      <version>1.0.10.RELEASE</version>
-    </dependency>
-    <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-oauth2-client</artifactId>
     </dependency>
@@ -149,7 +138,6 @@
         <groupId>jakarta.inject</groupId>
         <artifactId>jakarta.inject-api</artifactId>
         <version>2.0.1</version>
-        <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
@@ -218,7 +206,6 @@
         <plugin>
           <groupId>org.springframework.boot</groupId>
           <artifactId>spring-boot-maven-plugin</artifactId>
-          <version>${spring-boot-maven-plugin.version}</version>
           <configuration>
             <classifier>spring-boot</classifier>
             <mainClass>org.opengroup.osdu.indexer.aws.IndexerAwsApplication</mainClass>
@@ -234,33 +221,12 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.21.0</version>
                 <configuration>
                     <argLine>
                         @{argLine} --add-opens java.base/java.util=ALL-UNNAMED
                         --add-opens java.base/java.lang=ALL-UNNAMED
-                        --add-opens java.base/jakarta.net.ssl=ALL-UNNAMED
                     </argLine>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.10</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>report</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
       </plugins>
   </build>

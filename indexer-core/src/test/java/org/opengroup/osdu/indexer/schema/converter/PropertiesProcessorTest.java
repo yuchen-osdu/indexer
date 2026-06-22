@@ -18,7 +18,10 @@ import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.opengroup.osdu.core.common.feature.IFeatureFlag;
 import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
 import org.opengroup.osdu.indexer.schema.converter.config.SchemaConverterPropertiesConfig;
 import org.opengroup.osdu.indexer.schema.converter.tags.AllOfItem;
@@ -26,6 +29,7 @@ import org.opengroup.osdu.indexer.schema.converter.tags.Definition;
 import org.opengroup.osdu.indexer.schema.converter.tags.Definitions;
 import org.opengroup.osdu.indexer.schema.converter.tags.Items;
 import org.opengroup.osdu.indexer.schema.converter.tags.TypeProperty;
+import org.opengroup.osdu.indexer.util.BooleanFeatureFlagClient;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -34,36 +38,24 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 import static org.opengroup.osdu.indexer.config.IndexerConfigurationProperties.MAP_BOOL2STRING_FEATURE_NAME;
-import org.opengroup.osdu.core.common.feature.IFeatureFlag;
-import org.opengroup.osdu.indexer.util.BooleanFeatureFlagClient;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
 
-@RunWith(SpringRunner.class)
-@Import({IFeatureFlag.class, BooleanFeatureFlagClient.class})
-@ContextConfiguration(classes = {PropertiesProcessorTest.class, IFeatureFlag.class, BooleanFeatureFlagClient.class})
-@SpringBootTest(classes = {IFeatureFlag.class, BooleanFeatureFlagClient.class})
+@RunWith(MockitoJUnitRunner.class)
 public class PropertiesProcessorTest {
 
     private static final String PATH = "given_path";
     private static final String DEFINITIONS_PREFIX = "#/definitions/";
 
-    @MockBean
+    @Mock
     private IFeatureFlag featureFlagChecker;
 
-    @MockBean
+    @Mock
     private BooleanFeatureFlagClient partitionFlagClient;
 
     private SchemaConverterPropertiesConfig schemaConverterConfig;
 
     @Before
     public void setup() throws IOException {
-        initMocks(this);
         schemaConverterConfig = new SchemaConverterPropertiesConfig(featureFlagChecker, partitionFlagClient);
     }
 

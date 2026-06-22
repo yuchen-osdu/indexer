@@ -21,13 +21,18 @@
 	<version>0.30.0-SNAPSHOT</version>
 	<description>Indexer Service Integration Test Root Project</description>
 	<properties>
-		<spring.version>5.3.30</spring.version>
-		<os-core-common.version>0.27.2</os-core-common.version>
+		<java.version>17</java.version>
+		<maven.compiler.release>${java.version}</maven.compiler.release>
+		<!-- Pin core test deps once here so CSP testing modules don't drift -->
+		<os-core-common.version>7.1.0</os-core-common.version>
+		<lombok.version>1.18.42</lombok.version>
+		<spring-boot.version>3.5.14</spring-boot.version>
 		<!-- Test framework versions -->
 		<cucumber.version>7.20.1</cucumber.version>
 		<junit.jupiter.version>5.11.3</junit.jupiter.version>
 		<junit.platform.version>1.11.3</junit.platform.version>
-		<maven.surefire.version>3.5.2</maven.surefire.version>
+		<maven.surefire.version>3.5.4</maven.surefire.version>
+		<elasticsearch.version>8.15.2</elasticsearch.version>
 	</properties>
 	<packaging>pom</packaging>
 
@@ -49,7 +54,55 @@
     </modules>
 
 	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.13.0</version>
+					<configuration>
+						<annotationProcessorPaths>
+							<path>
+								<groupId>org.projectlombok</groupId>
+								<artifactId>lombok</artifactId>
+								<version>${lombok.version}</version>
+							</path>
+						</annotationProcessorPaths>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-enforcer-plugin</artifactId>
+				<version>3.6.2</version>
+				<executions>
+					<execution>
+						<id>enforce-config-hygiene</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>enforce</goal>
+						</goals>
+						<configuration>
+							<rules>
+								<requireMavenVersion>
+									<version>[3.6.3,)</version>
+								</requireMavenVersion>
+								<requireJavaVersion>
+									<version>[17,)</version>
+								</requireJavaVersion>
+								<banDuplicatePomDependencyVersions/>
+								<requireSameVersions>
+									<plugins>
+										<plugin>org.apache.maven.plugins:maven-compiler-plugin</plugin>
+									</plugins>
+								</requireSameVersions>
+							</rules>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
@@ -68,19 +121,28 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-core</artifactId>
-				<version>${spring.version}</version>
+				<groupId>org.opengroup.osdu</groupId>
+				<artifactId>os-core-common</artifactId>
+				<version>${os-core-common.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-web</artifactId>
-				<version>${spring.version}</version>
+				<groupId>org.projectlombok</groupId>
+				<artifactId>lombok</artifactId>
+				<version>${lombok.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-webmvc</artifactId>
-				<version>${spring.version}</version>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-dependencies</artifactId>
+				<version>${spring-boot.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>io.cucumber</groupId>
+				<artifactId>cucumber-bom</artifactId>
+				<version>${cucumber.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

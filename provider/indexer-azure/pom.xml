@@ -30,10 +30,6 @@
   <properties>
     <!-- Core Dependencies -->
     <core-lib-azure.version>2.5.9</core-lib-azure.version>
-
-    <!-- Plugin Versions -->
-    <jacoco-plugin.version>0.8.12</jacoco-plugin.version>
-    <surefire-plugin.version>3.2.2</surefire-plugin.version>
   </properties>
 
   <dependencyManagement>
@@ -59,6 +55,15 @@
       <groupId>org.opengroup.osdu</groupId>
       <artifactId>core-lib-azure</artifactId>
       <version>${core-lib-azure.version}</version>
+    </dependency>
+    <!--
+        os-core-common 7.0.0 declares lettuce-core as provided (not propagated).
+        core-lib-azure's IRedisClientFactory uses lettuce types; Mockito mocking
+        and runtime instantiation require lettuce-core on the classpath.
+    -->
+    <dependency>
+      <groupId>io.lettuce</groupId>
+      <artifactId>lettuce-core</artifactId>
     </dependency>
 
     <!-- Spring Dependencies -->
@@ -133,7 +138,7 @@
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <version>${jacoco-plugin.version}</version>
+        <version>${jacoco.version}</version>
         <configuration>
           <excludes>
             <exclude>**/cache/*</exclude>
@@ -142,20 +147,6 @@
             <exclude>**/IndexerAzureApplication.class</exclude>
           </excludes>
         </configuration>
-        <executions>
-          <execution>
-            <goals>
-              <goal>prepare-agent</goal>
-            </goals>
-        </execution>
-        <execution>
-            <id>report</id>
-            <phase>prepare-package</phase>
-            <goals>
-              <goal>report</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
   </build>
