@@ -159,6 +159,14 @@
       <version>4.13.2</version>
       <scope>test</scope>
     </dependency>
+    <!-- surefire 3.5+ only discovers JUnit Platform engines. JUnit 4 tests
+         aren't picked up without the vintage engine, and EnforceTestExecution
+         catches the silent omission. -->
+    <dependency>
+      <groupId>org.junit.vintage</groupId>
+      <artifactId>junit-vintage-engine</artifactId>
+      <scope>test</scope>
+    </dependency>
   <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-test</artifactId>
