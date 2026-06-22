@@ -9,17 +9,32 @@
 	</parent>
 
 	<artifactId>indexer-core</artifactId>
-	<version>0.30.0-SNAPSHOT</version>
 	<name>indexer-core</name>
 	<description>Indexer Service Core</description>
 	<packaging>jar</packaging>
 
 	<properties>
 		<commons-beanutils.version>1.11.0</commons-beanutils.version>
-		<jetty.version>6.1.26</jetty.version>
 	</properties>
 
 	<dependencies>
+		<dependency>
+			<groupId>org.opengroup.osdu</groupId>
+			<artifactId>os-core-common</artifactId>
+		</dependency>
+
+		<!--
+			indexer-core production code imports io.lettuce.core.RedisException directly.
+			os-core-common 7.0.0 declares lettuce-core as provided scope, which Maven does
+			NOT propagate transitively, so consumers of os-core-common must declare lettuce-core
+			themselves. Library-level scope=provided so deployable consumers (indexer-core-plus,
+			indexer-aws, etc.) control the runtime version.
+		-->
+		<dependency>
+			<groupId>io.lettuce</groupId>
+			<artifactId>lettuce-core</artifactId>
+			<scope>provided</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.yaml</groupId>
 			<artifactId>snakeyaml</artifactId>
@@ -27,11 +42,6 @@
 		<dependency>
 			<groupId>org.hibernate.validator</groupId>
 			<artifactId>hibernate-validator</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.opengroup.osdu</groupId>
-			<artifactId>os-core-common</artifactId>
-			<version>${os-core-common.version}</version>
 		</dependency>
 
 		<!-- spring boot dependencies -->
@@ -68,18 +78,15 @@
 		<dependency>
 			<groupId>jakarta.servlet</groupId>
 			<artifactId>jakarta.servlet-api</artifactId>
-			<version>6.0.0</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.locationtech.spatial4j</groupId>
 			<artifactId>spatial4j</artifactId>
-			<version>0.7</version>
 		</dependency>
 		<dependency>
 			<groupId>org.locationtech.jts.io</groupId>
 			<artifactId>jts-io-common</artifactId>
-			<version>1.15.0</version>
 		</dependency>
 
 		<dependency>
@@ -95,7 +102,6 @@
 			<groupId>com.google.http-client</groupId>
 			<artifactId>google-http-client</artifactId>
 			<version>1.47.0</version>
-			<scope>compile</scope>
 		</dependency>
 
 		<dependency>
@@ -160,8 +166,9 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>1.18.28</version>
+			<version>${lombok.version}</version>
 			<scope>provided</scope>
+			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>xerces</groupId>
@@ -176,11 +183,6 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.mortbay.jetty</groupId>
-			<artifactId>jetty</artifactId>
-			<version>${jetty.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>net.sf.geographiclib</groupId>
 			<artifactId>GeographicLib-Java</artifactId>
 			<version>2.1</version>
@@ -188,14 +190,12 @@
     </dependencies>
 
 	<build>
-		<defaultGoal>test</defaultGoal>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>3.3.1</version>
 				<configuration>
-					<argLine>@{argLine} --add-opens java.base/java.lang=ALL_UNNAMED</argLine>
+					<argLine>@{argLine} --add-opens java.base/java.lang=ALL-UNNAMED</argLine>
 					<includes>
 						<include>**/*Test.java</include>
 					</includes>

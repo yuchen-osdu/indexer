@@ -153,8 +153,6 @@ The following software have components provided under the terms of this license:
 - Java Native Access Platform (from https://github.com/java-native-access/jna)
 - Javassist (from http://www.javassist.org/, https://www.javassist.org/)
 - JetBrains Java Annotations (from https://github.com/JetBrains/java-annotations)
-- Jetty :: Utilities (from http://jetty.mortbay.org, http://www.eclipse.org/jetty, https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-util, https://repo1.maven.org/maven2/org/mortbay/jetty/jetty-util)
-- Jetty Server (from http://jetty.mortbay.org, http://www.eclipse.org/jetty, https://repo1.maven.org/maven2/org/mortbay/jetty/jetty)
 - Joda-Time (from http://joda-time.sourceforge.net, http://www.joda.org/joda-time/, https://www.joda.org/joda-time/)
 - Kotlin Stdlib (from https://kotlinlang.org/, https://repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-stdlib)
 - Kotlin Stdlib Jdk7 (from <https://kotlinlang.org/>, https://kotlinlang.org/)
@@ -170,9 +168,13 @@ The following software have components provided under the terms of this license:
 - Netty Reactive Streams Implementation (from https://repo1.maven.org/maven2/com/typesafe/netty/netty-reactive-streams)
 - Netty/Buffer (from http://netty.io/, https://repo1.maven.org/maven2/io/netty/netty-buffer)
 - Netty/Codec (from http://netty.io/, https://repo1.maven.org/maven2/io/netty/netty-codec)
+- Netty/Codec/Base (from https://netty.io/)
+- Netty/Codec/Compression (from https://netty.io/)
 - Netty/Codec/DNS (from http://netty.io/, https://repo1.maven.org/maven2/io/netty/netty-codec-dns)
 - Netty/Codec/HTTP (from http://netty.io/, https://repo1.maven.org/maven2/io/netty/netty-codec-http)
 - Netty/Codec/HTTP2 (from http://netty.io/, https://repo1.maven.org/maven2/io/netty/netty-codec-http2)
+- Netty/Codec/Marshalling (from https://netty.io/)
+- Netty/Codec/Protobuf (from https://netty.io/)
 - Netty/Codec/Socks (from http://netty.io/, https://repo1.maven.org/maven2/io/netty/netty-codec-socks)
 - Netty/Common (from http://netty.io/, https://repo1.maven.org/maven2/io/netty/netty-common)
 - Netty/Handler (from http://netty.io/, https://repo1.maven.org/maven2/io/netty/netty-handler)
@@ -191,7 +193,6 @@ The following software have components provided under the terms of this license:
 - Nimbus LangTag (from https://bitbucket.org/connect2id/nimbus-language-tags)
 - Non-Blocking Reactive Foundation for the JVM (from https://github.com/reactor/reactor, https://github.com/reactor/reactor-core)
 - OAuth 2.0 SDK with OpenID Connect extensions (from https://bitbucket.org/connect2id/oauth-2.0-sdk-with-openid-connect-extensions)
-- OAuth2 for Spring Security (from https://docs.spring.io/spring-security/oauth)
 - Objenesis (from https://objenesis.org/, https://repo1.maven.org/maven2/org/objenesis/objenesis)
 - OkHttp (from https://repo1.maven.org/maven2/com/squareup/okhttp3/okhttp, https://square.github.io/okhttp/)
 - OkHttp Logging Interceptor (from https://github.com/square/okhttp, https://repo1.maven.org/maven2/com/squareup/okhttp3/logging-interceptor, https://square.github.io/okhttp/)
@@ -205,7 +206,6 @@ The following software have components provided under the terms of this license:
 - Redisson (from http://redisson.org, https://redisson.pro/)
 - Retrofit (from https://github.com/square/retrofit, https://repo1.maven.org/maven2/com/squareup/retrofit2/retrofit)
 - RxJava (from https://github.com/ReactiveX/RxJava)
-- Servlet API (from https://repo1.maven.org/maven2/org/mortbay/jetty/servlet-api)
 - Smithy :: Dafny :: Conversion (from https://github.com/smithy-lang/smithy)
 - SnakeYAML (from http://code.google.com/p/snakeyaml/, http://www.snakeyaml.org, https://bitbucket.org/snakeyaml/snakeyaml)
 - Spatial4J (from https://projects.eclipse.org/projects/locationtech.spatial4j)
@@ -242,7 +242,6 @@ The following software have components provided under the terms of this license:
 - Spring Security - Core (from http://spring.io/spring-security, https://repo1.maven.org/maven2/org/springframework/security/spring-security-core, https://spring.io/projects/spring-security, https://spring.io/spring-security)
 - Spring Security - Namespace Configuration Module (from http://spring.io/spring-security, https://repo1.maven.org/maven2/org/springframework/security/spring-security-config, https://spring.io/projects/spring-security, https://spring.io/spring-security)
 - Spring Security - Web Application Security Module (from http://spring.io/spring-security, https://repo1.maven.org/maven2/org/springframework/security/spring-security-web, https://spring.io/projects/spring-security, https://spring.io/spring-security)
-- Spring Security JWT Library (from http://github.com/spring-projects/spring-security-oauth, https://github.com/spring-projects/spring-security-oauth)
 - Spring TestContext Framework (from https://github.com/SpringSource/spring-framework, https://github.com/spring-projects/spring-framework)
 - Spring Transaction (from https://github.com/SpringSource/spring-framework, https://github.com/spring-projects/spring-framework)
 - Spring Web (from http://www.springframework.org, https://github.com/spring-projects/spring-framework, https://repo1.maven.org/maven2/org/springframework/spring-web)
@@ -288,10 +287,8 @@ The following software have components provided under the terms of this license:
 - springdoc-openapi-starter-common (from https://springdoc.org/)
 - springdoc-openapi-starter-webmvc-api (from https://springdoc.org/)
 - springdoc-openapi-starter-webmvc-ui (from https://springdoc.org/)
-- swagger-annotations (from https://github.com/swagger-api/swagger-core, https://repo1.maven.org/maven2/io/swagger/core/v3/swagger-annotations)
 - swagger-annotations-jakarta (from https://github.com/swagger-api/swagger-core)
 - swagger-core-jakarta (from https://github.com/swagger-api/swagger-core)
-- swagger-models (from https://github.com/swagger-api/swagger-core, https://repo1.maven.org/maven2/io/swagger/core/v3/swagger-models)
 - swagger-models-jakarta (from https://github.com/swagger-api/swagger-core)
 - tomcat-embed-core (from http://tomcat.apache.org/)
 - tomcat-embed-el (from http://tomcat.apache.org/, https://tomcat.apache.org/)
@@ -372,7 +369,6 @@ BouncyCastle
 ========================================================================
 The following software have components provided under the terms of this license:
 
-- Bouncy Castle PKIX, CMS, EAC, TSP, PKCS, OCSP, CMP, and CRMF APIs (from http://www.bouncycastle.org/java.html, https://www.bouncycastle.org/java.html)
 - Bouncy Castle Provider (from http://www.bouncycastle.org/java.html, https://www.bouncycastle.org/download/bouncy-castle-java/, https://www.bouncycastle.org/java.html)
 
 ========================================================================
@@ -432,7 +428,6 @@ CPL-1.0
 The following software have components provided under the terms of this license:
 
 - JUnit (from http://junit.org, http://junit.org/)
-- System Rules (from http://stefanbirkner.github.com/system-rules/, http://stefanbirkner.github.io/system-rules/)
 
 ========================================================================
 EDL-1.0
@@ -448,8 +443,6 @@ EPL-1.0
 The following software have components provided under the terms of this license:
 
 - JUnit Vintage Engine (from http://junit.org/junit5/, https://junit.org/junit5/)
-- Jetty :: Utilities (from http://jetty.mortbay.org, http://www.eclipse.org/jetty, https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-util, https://repo1.maven.org/maven2/org/mortbay/jetty/jetty-util)
-- Jetty Server (from http://jetty.mortbay.org, http://www.eclipse.org/jetty, https://repo1.maven.org/maven2/org/mortbay/jetty/jetty)
 - Logback Contrib :: JSON :: Classic (from https://repo1.maven.org/maven2/ch/qos/logback/contrib/logback-json-classic)
 - Logback Contrib :: JSON :: Core (from https://repo1.maven.org/maven2/ch/qos/logback/contrib/logback-json-core)
 - Logback Contrib :: Jackson (from https://repo1.maven.org/maven2/ch/qos/logback/contrib/logback-jackson)
@@ -575,7 +568,6 @@ The following software have components provided under the terms of this license:
 - Azure Java Client Authentication Library for AutoRest (from https://github.com/Azure/autorest-clientruntime-for-java)
 - Azure Java Client Runtime for ARM (from https://github.com/Azure/autorest-clientruntime-for-java)
 - Azure Java Client Runtime for AutoRest (from https://github.com/Azure/autorest-clientruntime-for-java)
-- Bouncy Castle Provider (from http://www.bouncycastle.org/java.html, https://www.bouncycastle.org/download/bouncy-castle-java/, https://www.bouncycastle.org/java.html)
 - Checker Qual (from https://checkerframework.org)
 - DafnyRuntime (from https://github.com/dafny-lang/dafny)
 - Extensions on Apache Proton-J library (from https://github.com/Azure/qpid-proton-j-extensions)
@@ -650,13 +642,6 @@ The following software have components provided under the terms of this license:
 - webjars-locator-lite (from https://webjars.org/)
 
 ========================================================================
-NCSA
-========================================================================
-The following software have components provided under the terms of this license:
-
-- Jetty Server (from http://jetty.mortbay.org, http://www.eclipse.org/jetty, https://repo1.maven.org/maven2/org/mortbay/jetty/jetty)
-
-========================================================================
 SAX-PD
 ========================================================================
 The following software have components provided under the terms of this license:
@@ -707,6 +692,7 @@ The following software have components provided under the terms of this license:
 
 - Guava: Google Core Libraries for Java (from http://code.google.com/p/guava-libraries, https://github.com/google/guava, https://repo1.maven.org/maven2/com/google/guava/guava)
 - Netty/Codec (from http://netty.io/, https://repo1.maven.org/maven2/io/netty/netty-codec)
+- Netty/Codec/Base (from https://netty.io/)
 
 ========================================================================
 efsl-1.0
@@ -745,4 +731,3 @@ unknown
 The following software have components provided under the terms of this license:
 
 - JUnit (from http://junit.org, http://junit.org/)
-- System Rules (from http://stefanbirkner.github.com/system-rules/, http://stefanbirkner.github.io/system-rules/)

@@ -9,7 +9,6 @@
     </parent>
 
     <artifactId>indexer-core-plus</artifactId>
-    <version>0.30.0-SNAPSHOT</version>
     <name>indexer-core-plus</name>
     <description>Indexer Core Plus Service</description>
     <packaging>jar</packaging>
@@ -25,14 +24,17 @@
             <artifactId>indexer-core</artifactId>
             <version>0.30.0-SNAPSHOT</version>
         </dependency>
+        <!--
+            os-core-common declares lettuce-core as provided. core-plus is packaged
+            as a self-contained Spring Boot jar, so include Lettuce explicitly.
+        -->
+        <dependency>
+            <groupId>io.lettuce</groupId>
+            <artifactId>lettuce-core</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-loader</artifactId>
-        </dependency>
-        <dependency>
-    		<groupId>org.mortbay.jetty</groupId>
-    		<artifactId>jetty</artifactId>
-    		<version>6.1.23</version>
         </dependency>
 
         <!-- Test Dependencies -->
@@ -46,39 +48,20 @@
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
-
-        <!-- Test Dependencies -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>5.10.1</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
-            <version>5.7.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.codehaus.plexus</groupId>
             <artifactId>plexus-utils</artifactId>
             <version>4.0.1</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.auth0</groupId>
-            <artifactId>java-jwt</artifactId>
-            <version>3.8.1</version>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/com.github.stefanbirkner/system-rules -->
-        <dependency>
-            <groupId>com.github.stefanbirkner</groupId>
-            <artifactId>system-rules</artifactId>
-            <version>1.2.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -113,7 +96,6 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>${spring-boot-maven-plugin.version}</version>
                 <executions>
                     <execution>
                         <goals>
@@ -131,7 +113,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.2.2</version>
                 <configuration>
                     <argLine>
                         @{argLine} --add-opens java.base/java.util=ALL-UNNAMED
@@ -139,25 +120,6 @@
                     </argLine>
                 </configuration>
             </plugin>
-            <plugin>
-				<groupId>org.jacoco</groupId>
-				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.10</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>prepare-agent</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>report</id>
-						<phase>prepare-package</phase>
-						<goals>
-							<goal>report</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
         </plugins>
     </build>
 </project>

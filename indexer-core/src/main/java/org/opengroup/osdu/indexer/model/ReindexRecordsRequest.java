@@ -14,6 +14,7 @@
 
 package org.opengroup.osdu.indexer.model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,8 +27,10 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Schema(description = "Request body for re-indexing specific records by their IDs.")
 public class ReindexRecordsRequest {
     @NotNull
     @Size(min = 1, max = 1000)
+    @Schema(description = "List of record IDs to re-index. Between 1 and 1000 entries.", example = "[\"tenant1:public:well:1.0.2\"]")
     private List<@NotBlank String> recordIds;
 }
