@@ -1,0 +1,62 @@
+{
+  "properties": {
+    "data": {
+      "allOf": [
+        {
+          "type": "object",
+          "properties": {
+            "Field": {
+              "type": "string"
+            },
+            "Location": {
+              "$ref": "#/definitions/opendes:wks:core_dl_geopoint:1.0.0",
+              "description": "The wellbore's position .",
+              "format": "core:dl:geopoint:1.0.0",
+              "title": "WGS 84 Position",
+              "type": "object"
+            },
+            "Basin": {
+              "type": "string"
+            },
+            "County": {
+              "type": "string"
+            },
+            "State": {
+              "type": "string"
+            },
+            "Country": {
+              "type": "string"
+            },
+            "WellStatus": {
+              "type": "string"
+            },
+            "OriginalOperator": {
+              "type": "string"
+            },
+            "WellName": {
+              "type": "string"
+            },
+            "WellType": {
+              "type": "string"
+            },
+            "EmptyAttribute": {
+              "type": "string"
+            },
+            "Rank": {
+              "type": "integer"
+            },
+            "Score": {
+              "type": "integer"
+            },
+            "Established": {
+              "type": "date-time"
+            },
+            "InvalidInteger": {
+              "type": "integer"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

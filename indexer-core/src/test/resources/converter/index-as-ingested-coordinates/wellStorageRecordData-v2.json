@@ -1,0 +1,113 @@
+{
+  "CurrentOperatorID": "osdu:master-data--Organisation:PERFAIGrJ:",
+  "DataSourceOrganisationID": "osdu:master-data--Organisation:DIRSUR03vSk:",
+  "FacilityDescription": "Test",
+  "FacilityEvents": [
+    {
+      "EffectiveDateTime": "2023-10-17T00:00:00.000Z",
+      "FacilityEventTypeID": "osdu:reference-data--FacilityEventType:Spud:",
+      "TerminationDateTime": "2023-10-17T00:00:00.000Z"
+    }
+  ],
+  "FacilityID": "714100041064",
+  "FacilityName": "well890",
+  "FacilityOperators": [
+    {
+      "EffectiveDateTime": "2023-10-03T00:00:00.000Z",
+      "FacilityOperatorOrganisationID": "osdu:master-data--Organisation:PERFAIGrJ:"
+    }
+  ],
+  "FacilitySpecifications": [
+    {
+      "FacilitySpecificationText": "test7",
+      "ParameterTypeID": "osdu:reference-data--ParameterType:SlotName:"
+    }
+  ],
+  "FacilityStates": [
+    {
+      "EffectiveDateTime": "2023-10-03T00:00:00.000Z",
+      "FacilityStateTypeID": "osdu:reference-data--FacilityStateType:Cancelled:"
+    }
+  ],
+  "FacilityTypeID": "osdu:reference-data--FacilityType:Well:",
+  "GeoContexts": [
+    {
+      "GeoPoliticalEntityID": "osdu:master-data--GeoPoliticalEntity:AE:",
+      "GeoTypeID": "osdu:reference-data--GeoPoliticalEntityType:Country:"
+    }
+  ],
+  "InterestTypeID": "osdu:reference-data--WellInterestType:Yes.FinancialNonOperated:",
+  "NameAliases": [
+    {
+      "AliasName": "well890",
+      "AliasNameTypeID": "osdu:reference-data--AliasNameType:RegulatoryName:",
+      "EffectiveDateTime": "2023-10-03T00:00:00.000Z"
+    },
+    {
+      "AliasName": "test",
+      "AliasNameTypeID": "osdu:reference-data--AliasNameType:CommonName:",
+      "EffectiveDateTime": "2023-10-03T00:00:00.000Z"
+    },
+    {
+      "AliasName": "test2",
+      "AliasNameTypeID": "osdu:reference-data--AliasNameType:LocalLanguageName:",
+      "EffectiveDateTime": "2023-10-03T00:00:00.000Z"
+    },
+    {
+      "AliasName": "12345668990",
+      "AliasNameTypeID": "osdu:reference-data--AliasNameType:Abbreviation:",
+      "DefinitionOrganisationID": "osdu:master-data--Organisation:3299:",
+      "EffectiveDateTime": "2023-10-03T00:00:00.000Z"
+    },
+    {
+      "AliasName": "714100041064",
+      "AliasNameTypeID": "osdu:reference-data--AliasNameType:UniqueIdentifier:",
+      "DefinitionOrganisationID": "osdu:reference-data--StandardsOrganisation:Shell:"
+    }
+  ],
+  "OperatingEnvironmentID": "osdu:reference-data--OperatingEnvironment:Onshore:",
+  "SpatialLocation": {
+    "AsIngestedCoordinates": {
+      "CoordinateReferenceSystemID": "osdu:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::29874_EPSG::1852:",
+      "VerticalCoordinateReferenceSystemID": "osdu:reference-data--CoordinateReferenceSystem:Vertical:EPSG::5714:",
+      "VerticalUnitID": "osdu:reference-data--UnitOfMeasure:ft:",
+      "features": [
+        {
+          "geometry": {
+            "type": "AnyCrsPolygon",
+            "coordinates": [
+              [
+                [30.0, 10.0],
+                [40.0, 40.0],
+                [20.0, 40.0],
+                [10.0, 20.0],
+                [30.0, 10.0]
+              ]
+            ]
+          },
+          "properties": {},
+          "type": "AnyCrsFeature"
+        }
+      ],
+      "persistableReferenceCrs": "",
+      "type": "AnyCrsFeatureCollection"
+    },
+    "CoordinateQualityCheckDateTime": "2023-10-03T00:00:00.000Z",
+    "CoordinateQualityCheckPerformedBy": "Test user",
+    "CoordinateQualityCheckRemarks": [
+      "#",
+      " Geographic ~Pass: Point is inside the BBOX area QC for CRS \"Timbalai 1948 [1852_4298] [EPSG::4298]\". ",
+      "Projected ~Pass: Point is inside the BBOX area QC for CRS \"Timbalai 1948 / RSO Sarawak [1852_29874] [EPSG::29874]\"."
+    ],
+    "QualitativeSpatialAccuracyTypeID": "osdu:reference-data--QualitativeSpatialAccuracyType:Unchecked:"
+  },
+  "VerticalMeasurements": [
+    {
+      "EffectiveDateTime": "2023-10-03T00:00:00.000Z",
+      "VerticalCRSID": "osdu:reference-data--CoordinateReferenceSystem:Vertical:EPSG::5714:",
+      "VerticalMeasurement": 400,
+      "VerticalMeasurementID": "658a117a-61a1-11ee-874e-9a1fc0e08da8",
+      "VerticalMeasurementTypeID": "osdu:reference-data--VerticalMeasurementType:DrillFloor:"
+    }
+  ]
+}

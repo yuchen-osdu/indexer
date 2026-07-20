@@ -1,0 +1,275 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GenericDocumentArtefact",
+  "type": "object",
+  "definitions": {
+    "documentData": {
+      "description": "The domain specific data container for a document.",
+      "title": "Document Data",
+      "type": "object",
+      "properties": {
+        "Description": {
+          "type": "string",
+          "description": "Description.  Summary of the work product component.  Not the same as Remark which captures thoughts of creator about the wpc."
+        },
+        "keywords": {
+          "title": "title",
+          "type": "string",
+          "description": "Represents some user defined keywords"
+        },
+        "originalLocation": {
+          "title": "title",
+          "type": "string",
+          "description": "Represents location of the file in tenant cloud storage"
+        },
+        "wellboreId": {
+          "x-osdu-relationship": [
+            {
+              "EntityType": "wellbore",
+              "GroupType": "master-data"
+            }
+          ],
+          "title": "wellboe id",
+          "type": "string"
+        },
+        "classification": {
+          "type": "object",
+          "title": "File Properties",
+          "properties": {
+            "summary": {
+              "title": "summary",
+              "type": "string",
+              "description": "Represents document summary"
+            },
+            "petro": {
+              "description": "Represents petro",
+              "title": "petro",
+              "type": "Object",
+              "properties": {
+                "inferred": {
+                  "description": "Represents value of inferred",
+                  "title": "inferred",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "accepted": {
+                  "description": "Represents value of accepted",
+                  "title": "accepted",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "geopoliticalContext": {
+                  "description": "Represents value of geopoliticalContext",
+                  "title": "geopoliticalContext",
+                  "type": "array",
+                  "x-osdu-indexing": {
+                    "type": "nested"
+                  },
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "country": {
+                        "title": "country",
+                        "type": "string",
+                        "description": "Represents country"
+                      },
+                      "taxNode": {
+                        "title": "taxNode",
+                        "type": "string",
+                        "description": "Represents taxNode"
+                      },
+                      "country_region": {
+                        "title": "country_region",
+                        "type": "string",
+                        "description": "Represents country_region"
+                      },
+                      "region": {
+                        "title": "region",
+                        "type": "string",
+                        "description": "Represents region"
+                      }
+                    }
+                  }
+                },
+                "otherTerms": {
+                  "description": "Represents value of otherTerms",
+                  "title": "otherTerms",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "ambiguousTerms": {
+              "type": "object",
+              "properties": {}
+            },
+            "context": {
+              "type": "object",
+              "properties": {}
+            },
+            "taxNodes": {
+              "description": "Represents concept-tag collection",
+              "title": "concept-tags",
+              "type": "array",
+              "x-osdu-indexing": {
+                "type": "nested"
+              },
+              "items": {
+                "type": "object",
+                "properties": {
+                  "score": {
+                    "title": "score",
+                    "type": "number",
+                    "description": "Represents score"
+                  },
+                  "taxNode": {
+                    "title": "taxNode",
+                    "type": "string",
+                    "description": "Represents taxNode"
+                  },
+                  "taxonomy": {
+                    "title": "taxonomy",
+                    "type": "string",
+                    "description": "Represents taxonomy"
+                  },
+                  "explanation": {
+                    "title": "explanation",
+                    "type": "string",
+                    "description": "Represents explanation"
+                  },
+                  "cf-score": {
+                    "title": "cf-score",
+                    "type": "integer",
+                    "description": "Represents cf-score"
+                  }
+                }
+              }
+            },
+            "concept-tags": {
+              "description": "Represents concept-tag collection",
+              "title": "concept-tags",
+              "type": "array",
+              "x-osdu-indexing": {
+                "type": "nested"
+              },
+              "items": {
+                "type": "object",
+                "properties": {
+                  "score": {
+                    "title": "score",
+                    "type": "number",
+                    "description": "Represents score"
+                  },
+                  "concept-tag": {
+                    "title": "concept-tag",
+                    "type": "string",
+                    "description": "Represents concept-tag"
+                  },
+                  "ttype": {
+                    "title": "tag type",
+                    "type": "string",
+                    "description": "Represents tag type"
+                  }
+                }
+              }
+            },
+            "title": {
+              "title": "title",
+              "type": "string",
+              "description": "Represents document title"
+            }
+          }
+        },
+        "Source": {
+          "title": "Data Source",
+          "type": "string",
+          "description": "The entity that produced the record, or from which it is received; could be an organization, agency, system, internal team, or individual. For informational purposes only, the list of sources is not governed."
+        },
+        "Name": {
+          "type": "string",
+          "description": "Name"
+        },
+        "size": {
+          "title": "title",
+          "type": "string",
+          "description": "Represents size of the original file"
+        },
+        "extractedTextFilePath": {
+          "description": "Represents Cloud Storage path of the file containing extracted text from the document",
+          "title": "extractedTextFilePath",
+          "type": "string"
+        },
+        "thumbnailPath": {
+          "description": "Represents Cloud Storage path of the thumbnail size image of the document",
+          "title": "thumbnailPath",
+          "type": "string"
+        },
+        "SubTitle": {
+          "type": "string",
+          "description": "The sub-title of the document."
+        }
+      },
+      "$id": "definitions/documentData"
+    }
+  },
+  "properties": {
+    "ancestry": {
+      "description": "The links to data, which constitute the inputs.",
+      "title": "Ancestry",
+      "$ref": "#/definitions/linkList"
+    },
+    "data": {
+      "description": "Document data container",
+      "title": "Document Data",
+      "$ref": "#/definitions/documentData"
+    },
+    "kind": {
+      "default": "osdu:wks:GenericDocumentArtefact:1.0.0",
+      "description": "OSDU demo document kind specification",
+      "title": "Document Kind",
+      "type": "string"
+    },
+    "meta": {
+      "description": "The meta data section linking the 'unitKey', 'crsKey' to self-contained definitions (persistableReference)",
+      "title": "Frame of Reference Meta Data",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/metaItem"
+      }
+    },
+    "legal": {
+      "description": "The geological interpretation's legal tags",
+      "title": "Legal Tags",
+      "$ref": "#/definitions/legal"
+    },
+    "acl": {
+      "description": "The access control tags associated with this entity.",
+      "title": "Access Control List",
+      "$ref": "#/definitions/tagDictionary"
+    },
+    "id": {
+      "description": "The unique identifier of the document",
+      "title": "Document ID",
+      "type": "string"
+    },
+    "type": {
+      "description": "The reference entity type as declared in common:metadata:entity:*.",
+      "title": "Entity Type",
+      "type": "string"
+    },
+    "version": {
+      "format": "int64",
+      "description": "The version number of this document; set by the framework.",
+      "title": "Entity Version Number",
+      "type": "number",
+      "example": "1040815391631285"
+    }
+  },
+  "$id": "osdu:wks:DataSet--GenericDocumentArtefact:1.0.0"
+}

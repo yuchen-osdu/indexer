@@ -1,0 +1,85 @@
+pipeline {
+ agent {
+   kubernetes {
+   cloud 'openshift'
+     label 'maven-openjdk18'
+	 yaml """
+spec:
+  containers:
+  - name: jnlp
+    image: quay.io/openshift/origin-jenkins-agent-maven:v4.0.0
+    volumeMounts:
+    - mountPath: "/tmp"
+      name: "workspace-volume"
+      readOnly: false
+    workingDir: "/tmp"
+    securityContext:
+      privileged: false	
+    tty: false
+    resources:
+      limits: 
+        cpu: 200m
+        memory: 2Gi
+      requests: 
+        cpu: 200m
+        memory: 2Gi    
+  restartPolicy: "Never"
+"""		 
+   }
+ }
+
+ environment { 
+  
+ //Cluster environment variable(CLS_ENV). Like QA, DEV, PERF, PROD etc.
+ CLS_ENV = "dev"
+ 
+ //Service variable(CORE_SERVICE). Like indexer, search, delivery, storage, legal etc.
+ CORE_SERVICE = "indexer"
+
+ //GitHub repo URL credential ID for Environment variable files which saved as Secure text in Jenkins Credential.
+ GIT_ENV_VAR_PATH_URL =  credentials('GitRepo-URL-For-Environment-variables') 
+ 
+ //Personal token variable ID which saved as Secure text in Jenkins Credential. Like: GitHub-PRIVATE-TOKEN.
+ PRIVATE_TOKEN  = credentials('GitHub-PRIVATE-TOKEN')
+ 
+ def runShell =  sh (returnStdout: true, script: "curl --header 'PRIVATE-TOKEN: $PRIVATE_TOKEN' ''$GIT_ENV_VAR_PATH_URL'%2F'$CORE_SERVICE'_'$CLS_ENV'_env.json/raw?ref=master' -s -o env.json")
+
+ }
+
+   stages {
+      stage('Integration_test') {
+          environment {
+            def readContent = readJSON file: 'env.json'
+
+			AUTH_USER_ACCESS = "${readContent['AUTH_USER_ACCESS']}"
+			AUTH_USER_ACCESS_PASSWORD = "${readContent['AUTH_USER_ACCESS_PASSWORD']}"
+			DEFAULT_DATA_PARTITION_ID_TENANT1 = "${readContent['DEFAULT_DATA_PARTITION_ID_TENANT1']}"
+			DEFAULT_DATA_PARTITION_ID_TENANT2 = "${readContent['DEFAULT_DATA_PARTITION_ID_TENANT2']}"
+			ELASTIC_HOST = "${readContent['ELASTIC_HOST']}"
+			ELASTIC_PASSWORD = "${readContent['ELASTIC_PASSWORD']}"
+			ELASTIC_PORT = "${readContent['ELASTIC_PORT']}"
+			ELASTIC_USER_NAME = "${readContent['ELASTIC_USER_NAME']}"
+			ENTITLEMENTS_DOMAIN = "${readContent['ENTITLEMENTS_DOMAIN']}"
+			KEYCLOAK_CLIENT_ID = "${readContent['KEYCLOAK_CLIENT_ID']}"
+			KEYCLOAK_CLIENT_SECRET = "${readContent['KEYCLOAK_CLIENT_SECRET']}"
+			KEYCLOAK_REALM = "${readContent['KEYCLOAK_REALM']}"
+			KEYCLOAK_URL = "${readContent['KEYCLOAK_URL']}"
+			LEGAL_TAG = "${readContent['LEGAL_TAG']}"
+			OTHER_RELEVANT_DATA_COUNTRIES = "${readContent['OTHER_RELEVANT_DATA_COUNTRIES']}"
+			STORAGE_HOST = "${readContent['STORAGE_HOST']}"
+			SEARCH_HOST = "${readContent['SEARCH_HOST']}"
+			LEGAL_HOST = "${readContent['LEGAL_HOST']}"
+			INDEXER_HOST = "${readContent['INDEXER_HOST']}"
+			ENTITLEMENT_URL = "${readContent['ENTITLEMENT_URL']}"
+
+          }  
+            steps {
+               script {
+                  sh 'mvn -f testing/indexer-test-ibm/pom.xml test'
+               }
+            }
+       }
+    }
+
+
+}

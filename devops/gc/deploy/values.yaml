@@ -1,0 +1,75 @@
+# Default values for indexer-deploy.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+global:
+  domain: ""
+  limitsEnabled: true
+  logLevel: "ERROR"
+  tier: ""
+  autoscalingMode: "cpu"
+  otelJavaagentEnabled: "true"
+
+data:
+  # Configmap
+  entitlementsHost: "http://entitlements"
+  logLevel: ""
+  partitionHost: "http://partition"
+  schemaHost: "http://schema"
+  securityHttpsCertificateTrust: "true"
+  storageHost: "http://storage"
+  otelExporterEndpoint: "http://opentelemetry-collector.opentelemetry.svc.cluster.local:4318"
+  # Deployment
+  requestsCpu: "100m"
+  requestsMemory: "640Mi"
+  limitsCpu: "1"
+  limitsMemory: "1G"
+  image: ""
+  imagePullPolicy: "IfNotPresent"
+  serviceAccountName: "indexer"
+  affinityLabelsSpot:
+    cloud.google.com/gke-provisioning:
+      - spot
+  affinityLabelsStandard:
+    cloud.google.com/gke-provisioning:
+      - standard
+  # redis connection. Change it if you want to use external redis
+  redisIndexerHost: ""
+  redisIndexerPort: 6379
+  redisImage: "docker.io/library/redis:7.2-alpine"
+
+conf:
+  appName: "indexer"
+  configmap: "indexer-config"
+  elasticSecretName: "indexer-elastic-secret"
+  indexerRedisSecretName: "indexer-redis-secret"
+
+istio:
+  proxyCPU: "10m"
+  proxyCPULimit: "200m"
+  proxyMemory: "100Mi"
+  proxyMemoryLimit: "256Mi"
+  sidecarInject: true
+
+hpa:
+  minReplicas: 1
+  maxReplicas: 6
+  cpu:
+    utilization: 200
+    scaleUpStabilizationWindowSeconds: 30
+    scaleUpValue: 200
+    scaleUpPeriod: 15
+    scaleDownStabilizationWindowSeconds: 150
+    scaleDownValue: 100
+    scaleDownPeriod: 15
+  pubsub:
+    minReplicas: 6
+    maxReplicas: 15
+    targetType: "AverageValue"
+    targetValue: 50
+    scaleUpStabilizationWindowSeconds: 10
+    scaleUpValue: 50
+    scaleUpPeriod: 15
+    scaleDownStabilizationWindowSeconds: 60
+    scaleDownValue: 25
+    scaleDownPeriod: 60

@@ -1,0 +1,8 @@
+# The IBM provider environment is no longer actively maintained.
+# Allow deploy and integration test jobs to fail without blocking the pipeline.
+
+ibm-deploy:
+  allow_failure: true
+
+ibm-test:
+  allow_failure: true

@@ -1,0 +1,27 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {{ .Values.conf.appName | quote }}
+  namespace: {{ .Release.Namespace | quote }}
+spec:
+  hosts:
+    - {{ printf "osdu.%s" .Values.global.domain | quote }}
+  gateways:
+    - service-gateway
+  http:
+    # FIXME: use it when migrate to istio 1.6
+    # - match:
+    #     - uri:
+    #         prefix: "/api/indexer/v2/_dps"
+    #   directResponse:
+    #     status: 403
+    #     body:
+    #       string: "Forbidden"
+    - match:
+        - uri:
+            prefix: "/api/indexer/v2"
+      route:
+        - destination:
+            port:
+              number: 80
+            host: {{ printf "%s.%s.svc.cluster.local" .Values.conf.appName .Release.Namespace | quote }}

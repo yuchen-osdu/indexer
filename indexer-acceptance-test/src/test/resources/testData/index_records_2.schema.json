@@ -1,0 +1,102 @@
+{
+  "schemaInfo": {
+    "schemaIdentity": {
+      "authority": "tenant1",
+      "source": "indexer<timestamp>",
+      "entityType": "test-data--Integration",
+      "schemaVersionMajor": "2",
+      "schemaVersionMinor": "0",
+      "schemaVersionPatch": "1"
+    },
+    "status": "DEVELOPMENT"
+  },
+  "schema": {
+    "properties": {
+      "data": {
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "Field": {
+                "type": "string"
+              },
+              "Location": {
+                "$ref": "#/definitions/opendes:wks:core_dl_geopoint:1.0.0",
+                "description": "The wellbore's position .",
+                "format": "core:dl:geopoint:1.0.0",
+                "title": "WGS 84 Position",
+                "type": "object"
+              },
+              "Basin": {
+                "type": "string"
+              },
+              "County": {
+                "type": "string"
+              },
+              "State": {
+                "type": "string"
+              },
+              "Country": {
+                "type": "string"
+              },
+              "WellStatus": {
+                "type": "string"
+              },
+              "OriginalOperator": {
+                "type": "string"
+              },
+              "WellName": {
+                "type": "string"
+              },
+              "WellType": {
+                "type": "string"
+              },
+              "EmptyAttribute": {
+                "type": "string"
+              },
+              "Rank": {
+                "type": "integer"
+              },
+              "Score": {
+                "type": "integer"
+              },
+              "Established": {
+                "type": "date-time"
+              },
+              "InvalidInteger": {
+                "type": "integer"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "definitions": {
+      "opendes:wks:core_dl_geopoint:1.0.0": {
+        "description": "A 2D point location in latitude and longitude referenced to WGS 84 if not specified otherwise.",
+        "properties": {
+          "latitude": {
+            "description": "The latitude value in degrees of arc (dega). Value range [-90, 90].",
+            "maximum": 90,
+            "minimum": -90,
+            "title": "Latitude",
+            "type": "number"
+          },
+          "longitude": {
+            "description": "The longitude value in degrees of arc (dega). Value range [-180, 180]",
+            "maximum": 180,
+            "minimum": -180,
+            "title": "Longitude",
+            "type": "number"
+          }
+        },
+        "required": [
+          "latitude",
+          "longitude"
+        ],
+        "title": "2D Map Location",
+        "type": "object"
+      }
+    }
+  }
+}

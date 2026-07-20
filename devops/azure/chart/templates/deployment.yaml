@@ -1,0 +1,130 @@
+#  Copyright © Microsoft Corporation
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  namespace: osdu
+spec:
+  replicas: {{ .Values.global.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}
+        aadpodidbinding: osdu-identity
+    spec:
+{{- if .Values.global.isAutoscalingEnabled }}
+      nodeSelector:
+        nodepool: {{ .Values.global.nodepool }} 
+{{- end }}   
+      volumes:
+      - name: azure-keyvault
+        csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: azure-keyvault
+      containers:
+      - name: {{ .Chart.Name }}
+        image: {{ .Values.image.repository }}/{{ .Chart.Name }}-{{ .Values.image.branch }}:{{ .Values.image.tag | default .Chart.AppVersion }}
+        imagePullPolicy: Always
+        lifecycle:
+          preStop:
+            exec:
+              command: ["sleep","90"]
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: "100m"
+          limits:
+            cpu: "500m"
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8081
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8081
+          initialDelaySeconds: 250
+          periodSeconds: 10
+        volumeMounts:
+        - name: azure-keyvault
+          mountPath: "/mnt/azure-keyvault"
+          readOnly: true
+        env:
+        - name: spring_application_name
+          value: {{ .Chart.Name }}
+        - name: server.servlet.contextPath
+          value: /api/indexer/v2/
+        - name: server_port
+          value: "80"
+        - name: ACCEPT_HTTP  # TEMPORARY UNTIL HTTPS
+          value: "true"
+        - name: KEYVAULT_URI
+          valueFrom:
+            configMapKeyRef:
+              name: osdu-svc-properties
+              key: ENV_KEYVAULT
+        - name: aad_client_id
+          valueFrom:
+            secretKeyRef:
+              name: active-directory
+              key: application-appid
+        - name: appinsights_key
+          valueFrom:
+            secretKeyRef:
+              name: central-logging
+              key: appinsights
+        - name: REDIS_DATABASE
+          valueFrom:
+            configMapKeyRef:
+              name: redis-configmap
+              key: indexer-service
+        - name: cosmosdb_database
+          value: osdu-db
+        - name: servicebus_topic_name
+          value: indexing-progress
+        - name: reindex_topic_name
+          value: reindextopic
+        - name: entitlements_service_endpoint
+          value: http://entitlements/api/entitlements/v2
+        - name: entitlements_service_api_key
+          value: "OBSOLETE"
+        - name: schema_service_url
+          value: http://schema-service/api/schema-service/v1
+        - name: storage_service_url
+          value: http://storage/api/storage/v2
+        - name: STORAGE_SCHEMA_HOST
+          value: http://storage/api/storage/v2/schemas
+        - name: STORAGE_QUERY_RECORD_FOR_CONVERSION_HOST
+          value: http://storage/api/storage/v2/query/records:batch
+        - name: STORAGE_QUERY_RECORD_HOST
+          value: http://storage/api/storage/v2/query/records
+        - name: partition_service_endpoint
+          value: http://partition/api/partition/v1
+        - name: azure_istioauth_enabled
+          value: "true"
+        - name: azure_activedirectory_AppIdUri
+          value: "api://$(aad_client_id)"
+        - name: SPRING_CONFIG_NAME
+          value: "common,application"
+        - name: search_service_url
+          value: http://search-service/api/search/v2
+      terminationGracePeriodSeconds: 101

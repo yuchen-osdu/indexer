@@ -1,0 +1,312 @@
+{
+  "license": "Copyright 2017-2020, Schlumberger\n\nLicensed under the Apache License, Version 2.0 (the \"License\");\nyou may not use this file except in compliance with the License.\nYou may obtain a copy of the License at\n\nhttp://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software\ndistributed under the License is distributed on an \"AS IS\" BASIS,\nWITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\nSee the License for the specific language governing permissions and\nlimitations under the License.\n",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "The wellbore schema. Used to capture the general information about a wellbore. This information is sometimes called a \"wellbore header\". A wellbore represents the path from surface to a unique bottomhole location. The wellbore object is uniquely identified within the context of one well object.",
+  "title": "Wellbore",
+  "type": "object",
+  "definitions": {
+    "legal": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "legal",
+      "type": "object"
+    },
+    "metaItem": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "metaItem",
+      "type": "object"
+    },
+    "tagDictionary": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "tagDictionary",
+      "type": "object"
+    },
+    "linkList": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "link": "string"
+        }
+      }
+    },
+    "wellboreData": {
+      "description": "The domain specific data container for a wellbore.",
+      "title": "Wellbore Data",
+      "type": "object",
+      "properties": {
+        "WB_NAME": {
+          "description": "TBD",
+          "title": "Wellbore Name",
+          "type": "string",
+          "example": "SMP G09995 001S0B1"
+        },
+        "SPUD_DATE": {
+          "format": "date",
+          "description": "The date and time when activities to drill the borehole begin to create a hole in the earth. For a sidetrack, this is the date kickoff operations began. The format follows ISO 8601 YYYY-MM-DD extended format",
+          "title": "Spud Date",
+          "type": "string",
+          "example": "2013-03-22"
+        },
+        "TVD": {
+          "description": "TBD",
+          "title": "True Vertical Depth",
+          "type": "string",
+          "example": [
+            20711,
+            "TBD"
+          ]
+        },
+        "PERMIT_NUMBER": {
+          "description": "Ther permit number for the wellbore",
+          "title": "Permit Number",
+          "type": "string",
+          "example": "SMP-09995"
+        },
+        "CRS": {
+          "description": "Wellbore location CRS",
+          "title": "CRS",
+          "type": "string",
+          "example": "World Geodetic System 1984"
+        },
+        "LONGUITUDE": {
+          "description": "TBD",
+          "title": "Longuitude",
+          "type": "number",
+          "example": [
+            -119.2,
+            "TBD"
+          ]
+        },
+        "STATE": {
+          "description": "The state, in which the wellbore is located.",
+          "title": "State",
+          "type": "string",
+          "example": [
+            "Texas"
+          ]
+        },
+        "CLASS": {
+          "description": "The current class of the wellbore",
+          "title": "class",
+          "type": "string",
+          "example": "NEW FIELD WILDCAT"
+        },
+        "WELLBORE_SHAPE": {
+          "description": "The shape of the wellbore",
+          "title": "Wellbore Shape",
+          "type": "string",
+          "example": [
+            "DIRECTIONAL",
+            "VERTICAL"
+          ]
+        },
+        "FORMATION_AT_TD": {
+          "description": "The formation name at the wellbore total depth",
+          "title": "Formation at TD",
+          "type": "string",
+          "example": "MIOCENE LOWER"
+        },
+        "PERMIT_DATE": {
+          "format": "date",
+          "description": "The date and time when the wellbore permit was issued. The format follows ISO 8601 YYYY-MM-DD extended format",
+          "title": "Permit Date",
+          "type": "string",
+          "example": "2013-03-22"
+        },
+        "STATUS": {
+          "description": "The current status of the wellbore",
+          "title": "Status",
+          "type": "string",
+          "example": "DRY & ABANDONED"
+        },
+        "COUNTRY": {
+          "description": "The country, in which the wellbore is located. The country name follows the convention in ISO 3166-1 'English short country name', see https://en.wikipedia.org/wiki/ISO_3166-1",
+          "title": "Country",
+          "type": "string",
+          "example": [
+            "United States of America"
+          ]
+        },
+        "WB_NUMBER": {
+          "description": "TBD",
+          "title": "Wellbore Number",
+          "type": "string",
+          "example": "001S0B1"
+        },
+        "MD": {
+          "description": "TBD",
+          "title": "Measured Depth",
+          "type": "string",
+          "example": "12.20"
+        },
+        "ORIGINAL_OPERATOR": {
+          "description": "The original operator of the wellbore.",
+          "title": "Original Operator",
+          "type": "string",
+          "example": "Anadarko Petroleum"
+        },
+        "BASIN": {
+          "description": "The basin name, to which the wellbore belongs.",
+          "title": "Basin",
+          "type": "string",
+          "example": "ATWATER"
+        },
+        "EPSG_CODE": {
+          "description": "EPSG code of the CRS",
+          "title": "EPSG Code",
+          "type": "string",
+          "example": "4326"
+        },
+        "COUNTY": {
+          "description": "The county, in which the wellbore is located.",
+          "title": "County",
+          "type": "string",
+          "example": [
+            "ATWATER VALLEY"
+          ]
+        },
+        "UNIT_SYSTEM": {
+          "description": "Unit system used for the wellbore measurements",
+          "title": "Unit Sustem",
+          "type": "string",
+          "example": "English"
+        },
+        "UWI": {
+          "description": "The unique wellbore identifier, aka. API number, US well number or UBHI. Codes can have 10, 12 or 14 digits depending on the availability of directional sidetrack (2 digits) and event sequence codes (2 digits).",
+          "title": "Unique Wellbore Identifier",
+          "type": "string",
+          "x-osdu-natural-key": 1,
+          "example": [
+            "SP435844921288",
+            "42-501-20130-01-02"
+          ]
+        },
+        "FIELD": {
+          "description": "The field name, to which the wellbore belongs.",
+          "title": "Field",
+          "type": "string",
+          "example": "ATWATER VLLY B 8"
+        },
+        "INITIAL_COMPLETION_DATE": {
+          "format": "date",
+          "description": "The date and time of the initial completion of the wellbore. The format follows ISO 8601 YYYY-MM-DD extended format",
+          "title": "Initial Completion Date",
+          "type": "string",
+          "example": "2013-03-22"
+        },
+        "ELEVATION": {
+          "description": "TBD",
+          "title": "Elevation",
+          "type": "string",
+          "example": [
+            84,
+            "TBD"
+          ]
+        },
+        "STATUS_DATE": {
+          "format": "date",
+          "description": "The date and time of the current status of the wellbore. The format follows ISO 8601 YYYY-MM-DD extended format",
+          "title": "Status Date",
+          "type": "string",
+          "example": "2013-03-22"
+        },
+        "OPERATOR": {
+          "description": "The operator of the wellbore.",
+          "title": "Operator",
+          "type": "string",
+          "example": "Anadarko Petroleum"
+        },
+        "LEASE": {
+          "description": "The lease name, to which the wellbore belongs.",
+          "title": "LEASE",
+          "type": "string",
+          "example": "SMP G09995"
+        },
+        "API": {
+          "description": "Second parameter used for relationship tests",
+          "title": "Api relationship test",
+          "type": "string",
+          "example": "test-wellbore-api"
+        },
+        "LATITUDE": {
+          "description": "TBD",
+          "title": "Latitude",
+          "type": "number",
+          "example": [
+            60.2,
+            "TBD"
+          ]
+        },
+        "ELEVATION_REF": {
+          "description": "Elevation reference used for the measurements",
+          "title": "Elevation reference",
+          "type": "string",
+          "example": "MSL"
+        },
+        "Wellbores": {
+          "pattern": ".*U1A1NjA3MDM2Mzk5MzUy:.*",
+          "description": "The Well ID reference.",
+          "x-osdu-relationship": [
+            {
+              "EntityType": "Wellbore",
+              "GroupType": "master-data"
+            }
+          ],
+          "type": "array"
+        }
+      },
+      "$id": "definitions/wellboreData"
+    }
+  },
+  "properties": {
+    "ancestry": {
+      "description": "The links to data, which constitute the inputs.",
+      "title": "Ancestry",
+      "$ref": "#/definitions/linkList"
+    },
+    "data": {
+      "description": "Wellbore data container",
+      "title": "Wellbore Data",
+      "$ref": "#/definitions/wellboreData"
+    },
+    "kind": {
+      "description": "OSDU demo wellbore kind specification",
+      "title": "Wellbore Kind",
+      "type": "string"
+    },
+    "meta": {
+      "description": "The meta data section linking the 'unitKey', 'crsKey' to self-contained definitions (persistableReference)",
+      "title": "Frame of Reference Meta Data",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/metaItem"
+      }
+    },
+    "legal": {
+      "description": "The geological interpretation's legal tags",
+      "title": "Legal Tags",
+      "$ref": "#/definitions/legal"
+    },
+    "acl": {
+      "description": "The access control tags associated with this entity.",
+      "title": "Access Control List",
+      "$ref": "#/definitions/tagDictionary"
+    },
+    "id": {
+      "description": "The unique identifier of the wellbore",
+      "title": "Wellbore ID",
+      "type": "string"
+    },
+    "type": {
+      "description": "The reference entity type as declared in common:metadata:entity:*.",
+      "title": "Entity Type",
+      "type": "string"
+    },
+    "version": {
+      "format": "int64",
+      "description": "The version number of this wellbore; set by the framework.",
+      "title": "Entity Version Number",
+      "type": "number",
+      "example": "1040815391631285"
+    }
+  }
+}

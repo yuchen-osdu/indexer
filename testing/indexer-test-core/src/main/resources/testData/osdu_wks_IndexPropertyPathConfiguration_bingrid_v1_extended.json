@@ -1,0 +1,29 @@
+[{
+    "id": "tenant1:reference-data--IndexPropertyPathConfiguration:bingrid<timestamp>",
+    "kind": "osdu:wks:reference-data--IndexPropertyPathConfiguration:1.1.0",
+    "data": {
+        "Name": "SeismicBinGrid-IndexPropertyPathConfiguration-<timestamp>",
+        "Description": "The index property list for bingrid<timestamp>:1., valid for all bingrid kinds for major version 1.",
+        "Code": "test:indexer<timestamp>:bingrid:1.",
+        "AttributionAuthority": "OSDU",
+        "Configurations": [{
+            "Name": "Extent",
+            "Policy": "ExtractFirstMatch",
+            "UseCase": "As a user I want to know the extent of a geodetic shape and use it to search data.",
+            "Paths": [{
+                "ValueExtraction": {
+                    "ValuePath": "Extent(data.VirtualProperties.DefaultLocation.Wgs84Coordinates)"
+                }
+            }]
+        }, {
+            "Name": "Area",
+            "Policy": "ExtractFirstMatch",
+            "UseCase": "As a user I want to find area of the regions with unit square meter.",
+            "Paths": [{
+                "ValueExtraction": {
+                    "ValuePath": "Area(data.VirtualProperties.DefaultLocation.Wgs84Coordinates)"
+                }
+            }]
+        }]
+    }
+}]

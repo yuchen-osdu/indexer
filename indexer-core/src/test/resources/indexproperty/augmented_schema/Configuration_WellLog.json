@@ -1,0 +1,267 @@
+{
+    "AttributionPublication": null,
+    "InactiveIndicator": null,
+    "Description": "The index property list for WellLog:1., valid for all WellLog kinds for major version 1.",
+    "ResourceLifecycleStatus": null,
+    "ResourceCurationStatus": null,
+    "TechnicalAssuranceID": null,
+    "Code": "osdu:wks:work-product-component--WellLog:1.",
+    "Source": null,
+    "Name": "WellLogIndex-PropertyPathConfiguration",
+    "AttributionAuthority": "OSDU",
+    "ResourceHomeRegionID": null,
+    "VirtualProperties.DefaultName": "WellLogIndex-PropertyPathConfiguration",
+    "AttributionRevision": null,
+    "ResourceSecurityClassification": null,
+    "ID": null,
+    "ExistenceKind": null,
+    "Configurations": [{
+            "Policy": "ExtractFirstMatch",
+            "UseCase": "As a user I want to discover WellLog instances by the wellbore's name value.",
+            "Paths": [{
+                    "RelatedObjectsSpec.RelatedObjectID": "data.WellboreID",
+                    "ValueExtraction.ValuePath": "data.CountryNames",
+                    "RelatedObjectsSpec.RelatedObjectKind": "osdu:wks:master-data--Wellbore:1.",
+                    "RelatedObjectsSpec.RelatedConditionProperty": null,
+                    "RelatedObjectsSpec.RelationshipDirection": "ChildToParent",
+                    "ValueExtraction.RelatedConditionProperty": null
+                }
+            ],
+            "Name": "CountryNames"
+        }, {
+            "Policy": "ExtractFirstMatch",
+            "UseCase": "As a user I want to discover WellLog instances by the wellbore's UWI value.",
+            "Paths": [{
+                    "RelatedObjectsSpec.RelatedObjectID": "data.WellboreID",
+                    "ValueExtraction.ValuePath": "data.WellUWI",
+                    "RelatedObjectsSpec.RelatedObjectKind": "osdu:wks:master-data--Wellbore:1.",
+                    "RelatedObjectsSpec.RelatedConditionProperty": null,
+                    "RelatedObjectsSpec.RelationshipDirection": "ChildToParent",
+                    "ValueExtraction.RelatedConditionProperty": null
+                }
+            ],
+            "Name": "WellUWI"
+        }, {
+            "Policy": "ExtractFirstMatch",
+            "UseCase": "As a user I want to discover WellLog instances by the wellbore's name value.",
+            "Paths": [{
+                    "RelatedObjectsSpec.RelatedObjectID": "data.WellboreID",
+                    "ValueExtraction.ValuePath": "data.FacilityName",
+                    "RelatedObjectsSpec.RelatedObjectKind": "osdu:wks:master-data--Wellbore:1.",
+                    "RelatedObjectsSpec.RelatedConditionProperty": null,
+                    "RelatedObjectsSpec.RelationshipDirection": "ChildToParent",
+                    "ValueExtraction.RelatedConditionProperty": null
+                }
+            ],
+            "Name": "WellboreName"
+        }, {
+            "Policy": "ExtractFirstMatch",
+            "UseCase": "As a user I want to discover WellLog instances by the country name.",
+            "Paths": [{
+                    "RelatedObjectsSpec.RelatedObjectID": "data.WellboreID",
+                    "ValueExtraction.ValuePath": "data.CountryName",
+                    "RelatedObjectsSpec.RelatedObjectKind": "osdu:wks:master-data--Wellbore:1.",
+                    "RelatedObjectsSpec.RelatedConditionProperty": null,
+                    "RelatedObjectsSpec.RelationshipDirection": "ChildToParent",
+                    "ValueExtraction.RelatedConditionProperty": null
+                }
+            ],
+            "Name": "CountryName"
+        }, {
+            "Policy": "ExtractFirstMatch",
+            "UseCase": "As a user I want to discover WellLog instances by the region name.",
+            "Paths": [{
+                    "RelatedObjectsSpec.RelatedObjectID": "data.WellboreID",
+                    "ValueExtraction.ValuePath": "data.RegionName",
+                    "RelatedObjectsSpec.RelatedObjectKind": "osdu:wks:master-data--Wellbore:1.",
+                    "RelatedObjectsSpec.RelatedConditionProperty": null,
+                    "RelatedObjectsSpec.RelationshipDirection": "ChildToParent",
+                    "ValueExtraction.RelatedConditionProperty": null
+                }
+            ],
+            "Name": "RegionName"
+        }, {
+            "Policy": "ExtractFirstMatch",
+            "UseCase": "As a user I want to discover WellLog instances by the block name.",
+            "Paths": [{
+                    "RelatedObjectsSpec.RelatedObjectID": "data.WellboreID",
+                    "ValueExtraction.ValuePath": "data.BlockName",
+                    "RelatedObjectsSpec.RelatedObjectKind": "osdu:wks:master-data--Wellbore:1.",
+                    "RelatedObjectsSpec.RelatedConditionProperty": null,
+                    "RelatedObjectsSpec.RelationshipDirection": "ChildToParent",
+                    "ValueExtraction.RelatedConditionProperty": null
+                }
+            ],
+            "Name": "BlockName"
+        }, {
+            "Policy": "ExtractFirstMatch",
+            "UseCase": "As a user I want to discover WellLog instances by the country name.",
+            "Paths": [{
+                    "RelatedObjectsSpec.RelatedObjectID": "data.WellboreID",
+                    "ValueExtraction.ValuePath": "data.FieldName",
+                    "RelatedObjectsSpec.RelatedObjectKind": "osdu:wks:master-data--Wellbore:1.",
+                    "RelatedObjectsSpec.RelatedConditionProperty": null,
+                    "RelatedObjectsSpec.RelationshipDirection": "ChildToParent",
+                    "ValueExtraction.RelatedConditionProperty": null
+                }
+            ],
+            "Name": "FieldName"
+        }, {
+            "Policy": "ExtractFirstMatch",
+            "UseCase": "As a user I want to discover WellLog instances by the well name.",
+            "Paths": [{
+                    "RelatedObjectsSpec.RelatedObjectID": "data.WellboreID",
+                    "ValueExtraction.ValuePath": "data.WellName",
+                    "RelatedObjectsSpec.RelatedObjectKind": "osdu:wks:master-data--Wellbore:1.",
+                    "RelatedObjectsSpec.RelatedConditionProperty": null,
+                    "RelatedObjectsSpec.RelationshipDirection": "ChildToParent",
+                    "ValueExtraction.RelatedConditionProperty": null
+                }
+            ],
+            "Name": "WellName"
+        }, {
+            "Policy": "ExtractFirstMatch",
+            "UseCase": "As a user I want to discover WellLog instances by the uwi.",
+            "Paths": [{
+                    "RelatedObjectsSpec.RelatedObjectID": "data.WellboreID",
+                    "ValueExtraction.ValuePath": "data.UWI",
+                    "RelatedObjectsSpec.RelatedObjectKind": "osdu:wks:master-data--Wellbore:1.",
+                    "RelatedObjectsSpec.RelatedConditionProperty": null,
+                    "RelatedObjectsSpec.RelationshipDirection": "ChildToParent",
+                    "ValueExtraction.RelatedConditionProperty": null
+                }
+            ],
+            "Name": "UWI"
+        }, {
+            "Policy": "ExtractFirstMatch",
+            "UseCase": "As a user I want to discover WellLog instances by the ubhi.",
+            "Paths": [{
+                    "RelatedObjectsSpec.RelatedObjectID": "data.WellboreID",
+                    "ValueExtraction.ValuePath": "data.FacilityID",
+                    "RelatedObjectsSpec.RelatedObjectKind": "osdu:wks:master-data--Wellbore:1.",
+                    "RelatedObjectsSpec.RelatedConditionProperty": null,
+                    "RelatedObjectsSpec.RelationshipDirection": "ChildToParent",
+                    "ValueExtraction.RelatedConditionProperty": null
+                }
+            ],
+            "Name": "UBHI"
+        }, {
+            "Policy": "ExtractFirstMatch",
+            "UseCase": "As a user I want to discover WellLog instances by the wellbore status.",
+            "Paths": [{
+                    "RelatedObjectsSpec.RelatedObjectID": "data.WellboreID",
+                    "ValueExtraction.ValuePath": "data.WellboreStatus",
+                    "RelatedObjectsSpec.RelatedObjectKind": "osdu:wks:master-data--Wellbore:1.",
+                    "RelatedObjectsSpec.RelatedConditionProperty": null,
+                    "RelatedObjectsSpec.RelationshipDirection": "ChildToParent",
+                    "ValueExtraction.RelatedConditionProperty": null
+                }
+            ],
+            "Name": "WellboreStatus"
+        }, {
+            "Policy": "ExtractFirstMatch",
+            "UseCase": "As a user I want to discover WellLog instances by the current operator.",
+            "Paths": [{
+                    "RelatedObjectsSpec.RelatedObjectID": "data.WellboreID",
+                    "ValueExtraction.ValuePath": "data.CurrentOperator",
+                    "RelatedObjectsSpec.RelatedObjectKind": "osdu:wks:master-data--Wellbore:1.",
+                    "RelatedObjectsSpec.RelatedConditionProperty": null,
+                    "RelatedObjectsSpec.RelationshipDirection": "ChildToParent",
+                    "ValueExtraction.RelatedConditionProperty": null
+                }
+            ],
+            "Name": "CurrentOperator"
+        }, {
+            "Policy": "ExtractFirstMatch",
+            "UseCase": "As a user I want to discover WellLog instances by the Wellbore Classification.",
+            "Paths": [{
+                    "RelatedObjectsSpec.RelatedObjectID": "data.WellboreID",
+                    "ValueExtraction.ValuePath": "data.WellboreClassification",
+                    "RelatedObjectsSpec.RelatedObjectKind": "osdu:wks:master-data--Wellbore:1.",
+                    "RelatedObjectsSpec.RelatedConditionProperty": null,
+                    "RelatedObjectsSpec.RelationshipDirection": "ChildToParent",
+                    "ValueExtraction.RelatedConditionProperty": null
+                }
+            ],
+            "Name": "WellboreClassification"
+        }, {
+            "Policy": "ExtractFirstMatch",
+            "UseCase": "As a user I want to discover WellLog instances by the Wellbore Phase.",
+            "Paths": [{
+                    "RelatedObjectsSpec.RelatedObjectID": "data.WellboreID",
+                    "ValueExtraction.ValuePath": "data.WellborePhase",
+                    "RelatedObjectsSpec.RelatedObjectKind": "osdu:wks:master-data--Wellbore:1.",
+                    "RelatedObjectsSpec.RelatedConditionProperty": null,
+                    "RelatedObjectsSpec.RelationshipDirection": "ChildToParent",
+                    "ValueExtraction.RelatedConditionProperty": null
+                }
+            ],
+            "Name": "WellborePhase"
+        }, {
+            "Policy": "ExtractFirstMatch",
+            "UseCase": "As a user I want to discover WellLog instances by the Wellbore Hydrocarbon Type.",
+            "Paths": [{
+                    "RelatedObjectsSpec.RelatedObjectID": "data.WellboreID",
+                    "ValueExtraction.ValuePath": "data.WellboreHydrocarbonType",
+                    "RelatedObjectsSpec.RelatedObjectKind": "osdu:wks:master-data--Wellbore:1.",
+                    "RelatedObjectsSpec.RelatedConditionProperty": null,
+                    "RelatedObjectsSpec.RelationshipDirection": "ChildToParent",
+                    "ValueExtraction.RelatedConditionProperty": null
+                }
+            ],
+            "Name": "WellboreHydrocarbonType"
+        }, {
+            "Policy": "ExtractFirstMatch",
+            "UseCase": "As a user I want to discover WellLog instances by the Wellbore Situation.",
+            "Paths": [{
+                    "RelatedObjectsSpec.RelatedObjectID": "data.WellboreID",
+                    "ValueExtraction.ValuePath": "data.WellboreSituation",
+                    "RelatedObjectsSpec.RelatedObjectKind": "osdu:wks:master-data--Wellbore:1.",
+                    "RelatedObjectsSpec.RelatedConditionProperty": null,
+                    "RelatedObjectsSpec.RelationshipDirection": "ChildToParent",
+                    "ValueExtraction.RelatedConditionProperty": null
+                }
+            ],
+            "Name": "WellboreSituation"
+        }, {
+            "Policy": "ExtractFirstMatch",
+            "UseCase": "As a user I want to discover WellLog instances by the Wellbore Trajectory Type.",
+            "Paths": [{
+                    "RelatedObjectsSpec.RelatedObjectID": "data.WellboreID",
+                    "ValueExtraction.ValuePath": "data.WellboreTrajectoryType",
+                    "RelatedObjectsSpec.RelatedObjectKind": "osdu:wks:master-data--Wellbore:1.",
+                    "RelatedObjectsSpec.RelatedConditionProperty": null,
+                    "RelatedObjectsSpec.RelationshipDirection": "ChildToParent",
+                    "ValueExtraction.RelatedConditionProperty": null
+                }
+            ],
+            "Name": "WellboreTrajectoryType"
+        }, {
+            "Policy": "ExtractFirstMatch",
+            "UseCase": "As a user I want to discover WellLog instances by spatial location.",
+            "Paths": [{
+                    "RelatedObjectsSpec.RelatedObjectID": "data.WellboreID",
+                    "ValueExtraction.ValuePath": "data.SpatialLocation",
+                    "RelatedObjectsSpec.RelatedObjectKind": "osdu:wks:master-data--Wellbore:1.",
+                    "RelatedObjectsSpec.RelatedConditionProperty": null,
+                    "RelatedObjectsSpec.RelationshipDirection": "ChildToParent",
+                    "ValueExtraction.RelatedConditionProperty": null
+                }
+            ],
+            "Name": "SpatialLocation"
+        }, {
+            "Policy": "ExtractFirstMatch",
+            "UseCase": "As a user I want to discover WellLog instances by spatial location.",
+            "Paths": [{
+                    "RelatedObjectsSpec.RelatedObjectID": "data.WellboreID",
+                    "ValueExtraction.ValuePath": "data.SpatialLocation",
+                    "RelatedObjectsSpec.RelatedObjectKind": "osdu:wks:master-data--Wellbore:1.",
+                    "RelatedObjectsSpec.RelatedConditionProperty": null,
+                    "RelatedObjectsSpec.RelationshipDirection": "ChildToParent",
+                    "ValueExtraction.RelatedConditionProperty": null
+                }
+            ],
+            "Name": "VirtualProperties.DefaultLocation"
+        }
+    ]
+}

@@ -1,0 +1,136 @@
+{
+    "VirtualProperties.DefaultLocation.QuantitativeAccuracyBandID": null,
+    "ResourceLifecycleStatus": null,
+    "DefaultVerticalMeasurementID": "KB",
+    "WasBusinessInterestObligatory": null,
+    "SpatialLocation.Wgs84Coordinates": {
+        "type": "geometrycollection",
+        "geometries": [{
+                "type": "point",
+                "coordinates": [171.8745361, -41.2456122]
+            }
+        ]
+    },
+    "ResourceCurationStatus": null,
+    "TechnicalAssuranceID": "opendes:reference-data--TechnicalAssuranceType:Unsuitable:",
+    "VirtualProperties.DefaultLocation.SpatialGeometryTypeID": "opendes:reference-data--SpatialGeometryType:Point:",
+    "RoleID": null,
+    "FacilityName": "Kongahu-2",
+    "Source": null,
+    "FacilityID": null,
+    "OutcomeID": null,
+    "VirtualProperties.DefaultName": "Kongahu-2",
+    "VerticalMeasurements": [{
+            "WellboreTVDTrajectoryID": null,
+            "VerticalCRSID": null,
+            "VerticalReferenceID": null,
+            "VerticalMeasurementSourceID": null,
+            "VerticalMeasurementID": "MB",
+            "VerticalMeasurementPathID": "opendes:reference-data--VerticalMeasurementPath:ELEV:",
+            "VerticalMeasurement": 26.0,
+            "VerticalMeasurementTypeID": "opendes:reference-data--VerticalMeasurementType:KB:",
+            "VerticalMeasurementDescription": null,
+            "VerticalMeasurementUnitOfMeasureID": "opendes:reference-data--UnitOfMeasure:m:",
+            "VerticalReferenceEntityID": null,
+            "RigID": null
+        }, {
+            "WellboreTVDTrajectoryID": null,
+            "VerticalCRSID": null,
+            "VerticalReferenceID": null,
+            "VerticalMeasurementSourceID": null,
+            "VerticalMeasurementID": "Well Head Elevation",
+            "VerticalMeasurementPathID": "opendes:reference-data--VerticalMeasurementPath:ELEV:",
+            "VerticalMeasurement": 26.0,
+            "VerticalMeasurementTypeID": null,
+            "VerticalMeasurementDescription": null,
+            "VerticalMeasurementUnitOfMeasureID": "opendes:reference-data--UnitOfMeasure:m:",
+            "VerticalReferenceEntityID": null,
+            "RigID": null
+        }, {
+            "WellboreTVDTrajectoryID": null,
+            "VerticalCRSID": null,
+            "VerticalReferenceID": null,
+            "VerticalMeasurementSourceID": null,
+            "VerticalMeasurementID": "Water Depth",
+            "VerticalMeasurementPathID": "opendes:reference-data--VerticalMeasurementPath:ELEV:",
+            "VerticalMeasurement": 94.0,
+            "VerticalMeasurementTypeID": null,
+            "VerticalMeasurementDescription": null,
+            "VerticalMeasurementUnitOfMeasureID": "opendes:reference-data--UnitOfMeasure:m:",
+            "VerticalReferenceEntityID": null,
+            "RigID": null
+        }
+    ],
+    "VirtualProperties.DefaultLocation.CoordinateQualityCheckPerformedBy": null,
+    "VersionCreationReason": null,
+    "ResourceSecurityClassification": null,
+    "InterestTypeID": null,
+    "DataSourceOrganisationID": null,
+    "SpatialLocation.SpatialParameterTypeID": null,
+    "ExistenceKind": null,
+    "SpatialLocation.CoordinateQualityCheckPerformedBy": null,
+    "FacilityOperators": [{
+            "FacilityOperatorID": "Operator",
+            "FacilityOperatorOrganisationID": "opendes:master-data--Organisation:HOME%20ENERGY%20NZ%20LTD:"
+        }
+    ],
+    "FacilityTypeID": "opendes:reference-data--FacilityType:Well:",
+    "BusinessIntentionID": null,
+    "NameAliases": [{
+            "AliasName": "100000113552",
+            "AliasNameTypeID": "opendes:reference-data--AliasNameType:UniqueIdentifier:",
+            "DefinitionOrganisationID": null
+        }, {
+            "AliasName": "Well1",
+            "AliasNameTypeID": "opendes:reference-data--AliasNameType:CommonName:",
+            "DefinitionOrganisationID": null
+        }
+    ],
+    "DefaultVerticalCRSID": null,
+    "FacilityEvents": [{
+            "EffectiveDateTime": "1984-06-21T00:00:00+0000",
+            "FacilityEventTypeID": "opendes:reference-data--FacilityEventType:Spud:"
+        }
+    ],
+    "VirtualProperties.DefaultLocation.IsDecimated": false,
+    "TechnicalAssuranceTypeID": null,
+    "GeoContexts": [{
+            "BasinID": null,
+            "FieldID": null,
+            "PlayID": null,
+            "GeoPoliticalEntityID": "opendes:master-data--GeoPoliticalEntity:New%20Zealand:",
+            "GeoTypeID": "opendes:reference-data--GeoPoliticalEntityType:Country:",
+            "ProspectID": null
+        }, {
+            "BasinID": null,
+            "FieldID": null,
+            "PlayID": null,
+            "GeoPoliticalEntityID": "opendes:master-data--GeoPoliticalEntity:38058:",
+            "GeoTypeID": "opendes:reference-data--GeoPoliticalEntityType:LicenseBlock:",
+            "ProspectID": null
+        }
+    ],
+	"FakeGeoContexts": ["opendes:reference-data--GeoPoliticalEntityType:Country:","opendes:reference-data--GeoPoliticalEntityType:LicenseBlock:","opendes:reference-data--GeoPoliticalEntityType:Country:"],
+    "WasBusinessInterestFinancialNonOperated": null,
+    "CurrentOperatorID": null,
+    "SpatialLocation.QualitativeSpatialAccuracyTypeID": null,
+    "WasBusinessInterestTechnical": null,
+    "SpatialLocation.SpatialGeometryTypeID": "opendes:reference-data--SpatialGeometryType:Point:",
+    "OperatingEnvironmentID": "opendes:reference-data--OperatingEnvironment:Offshore:",
+    "VirtualProperties.DefaultLocation.SpatialParameterTypeID": null,
+    "ResourceHomeRegionID": null,
+    "StatusSummaryID": null,
+    "VirtualProperties.DefaultLocation.QualitativeSpatialAccuracyTypeID": null,
+    "ConditionID": null,
+    "InitialOperatorID": null,
+    "WasBusinessInterestFinancialOperated": null,
+    "VirtualProperties.DefaultLocation.Wgs84Coordinates": {
+        "type": "geometrycollection",
+        "geometries": [{
+                "type": "point",
+                "coordinates": [171.8745361, -41.2456122]
+            }
+        ]
+    },
+    "SpatialLocation.QuantitativeAccuracyBandID": null
+}

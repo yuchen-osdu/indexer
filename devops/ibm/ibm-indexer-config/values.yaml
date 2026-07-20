@@ -1,0 +1,72 @@
+data:
+# common
+  javaAppJar: "/deployments/*-spring-boot.jar"
+  serverPort: 8080
+  contextPath: "/api/indexer/v2"
+  envPrefix: ibm-iks
+  envPrefixProject: ibm-ibm-build
+  
+# log
+  logPrefix: indexer
+  loggingLevelOsdu: debug
+  loggingLevelSpring: debug
+
+# ibm 
+  beanDefOverriding: true
+  healthCheckUri: "/api/indexer/v2/info,/api/indexer/v2/liveness_check,/api/indexer/v2/readiness_check"
+ 
+#authorization
+  #check cm template
+  authorizeAPI: http://TBD:8080/api/entitlements/v2
+  deployEnv: CLOUD
+  
+#elastic
+  elasticHost: elasticsearch-master
+  elasticPort: 9200
+  elasticUserPassword: tbd
+  ibmElasticSSLSecurity: true
+  
+#db 
+  dbURL: http://tbd:5984
+  dbUser: admin
+  dbPassw: tbd
+  
+  
+#keycloack
+  keycloakUrl: tbd
+  keycloakRealm: OSDU
+  keycloakUserEmail: admin-sa@ibm.com
+  keycloakUsername: admin-sa
+  keycloakPassword: changeit
+  keycloakClientId: osdu-login
+  keycloakClientSecret: referenv 
+  
+# AmQP
+  amqpUrl: amqp://ex-aao-amqp-0-svc:5672 
+  amqpUsername: tbd
+  amqpUserPassword: tbd
+  indexerQueueKey: abcd
+   
+ 
+
+#apikey
+  indexerApiKey: this_123_is_456_dev_789_key
+  storageRecordsBatchSize: 20
+  storageRecordsByKindBatchSize: 100
+  
+
+#tenant-validation
+  pKCEndPointHost: referenv
+  pKCClientId: partition-service
+  pKCClientSecret: referenv
+  grantType: password
+  pKCPassword: changeit
+  pKCUser: partition-service-admin
+  pKAcceptHttp: true
+  tenantCacheExpiryInSec: 10000
+  #refer-cm-template
+  patitionAPI: refer-configmap-template
+
+
+conf:
+  configmap: "indexer-config"

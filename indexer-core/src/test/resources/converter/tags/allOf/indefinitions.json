@@ -1,0 +1,29 @@
+{
+  "definitions": {
+    "wellboreData1": {
+      "properties": {
+        "prop1": {
+          "type": "string"
+        }
+      }
+    },
+    "wellboreData2": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/wellboreData1"
+        }
+      ]
+    }
+  },
+  "properties": {
+    "data": {
+      "type": "object",
+      "properties": {
+        "Field": {
+          "$ref": "#/definitions/wellboreData2"
+        }
+      }
+    }
+  }
+}
+

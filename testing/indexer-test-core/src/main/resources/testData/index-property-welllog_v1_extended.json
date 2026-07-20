@@ -1,0 +1,7 @@
+[{
+    "id": "tenant1:indexer<timestamp>:welllog:testIngest2",
+    "data": {
+        "Name": "Log_ABC",
+        "WellboreID": "tenant1:indexer<timestamp>:wellbore:testIngest1"
+    }
+}]

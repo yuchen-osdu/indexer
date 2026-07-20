@@ -1,0 +1,780 @@
+{
+    "schemaInfo": {
+        "schemaIdentity": {
+            "authority": "osdu",
+            "source": "wks<timestamp>",
+            "entityType": "reference-data--IndexPropertyPathConfiguration",
+            "schemaVersionMajor": 1,
+            "schemaVersionMinor": 1,
+            "schemaVersionPatch": 1,
+            "id": "osdu:wks:reference-data--IndexPropertyPathConfiguration:1.1.1"
+        },
+        "status": "DEVELOPMENT"
+    },
+    "schema": {
+        "x-osdu-governance-model": "OPEN",
+        "x-osdu-inheriting-from-kind": [{
+                "kind": "osdu:wks:AbstractReferenceType:1.0.0",
+                "name": "ReferenceType"
+            }
+        ],
+        "x-osdu-license": "Copyright 2023, The Open Group \\nLicensed under the Apache License, Version 2.0 (the \"License\"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 . Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.",
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "x-osdu-schema-source": "osdu:wks:reference-data--IndexPropertyPathConfiguration:1.1.1",
+        "description": "IndexPropertyPathConfiguration contains the de-normalization configuration settings for the Search index. The record id contains the kind so that there is a unique relationship between the kind and the kind's index extensions.",
+        "title": "IndexPropertyPathConfiguration",
+        "type": "object",
+        "x-osdu-review-status": "Accepted",
+        "required": [
+            "kind",
+            "acl",
+            "legal"
+        ],
+        "x-osdu-governance-authorities": [
+            "OSDU"
+        ],
+        "x-osdu-virtual-properties": {
+            "data.VirtualProperties.DefaultName": {
+                "type": "string",
+                "priority": [{
+                        "path": "data.Name"
+                    }
+                ]
+            }
+        },
+        "additionalProperties": false,
+        "definitions": {
+            "osdu:wks:AbstractCommonResources:1.0.0": {
+                "x-osdu-inheriting-from-kind": [],
+                "x-osdu-license": "Copyright 2022, The Open Group \\nLicensed under the Apache License, Version 2.0 (the \"License\"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 . Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.",
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "x-osdu-schema-source": "osdu:wks:AbstractCommonResources:1.0.0",
+                "description": "Common resources to be injected at root 'data' level for every entity, which is persistable in Storage. The insertion is performed by the OsduSchemaComposer script.",
+                "x-osdu-review-status": "Accepted",
+                "title": "OSDU Common Resources",
+                "type": "object",
+                "properties": {
+                    "ResourceHomeRegionID": {
+                        "x-osdu-relationship": [{
+                                "EntityType": "OSDURegion",
+                                "GroupType": "reference-data"
+                            }
+                        ],
+                        "pattern": "^[\\w\\-\\.]+:reference-data\\-\\-OSDURegion:[\\w\\-\\.\\:\\%]+:[0-9]*$",
+                        "description": "The name of the home [cloud environment] region for this OSDU resource object.",
+                        "type": "string",
+                        "title": "Resource Home Region ID"
+                    },
+                    "ResourceHostRegionIDs": {
+                        "description": "The name of the host [cloud environment] region(s) for this OSDU resource object.",
+                        "type": "array",
+                        "title": "Resource Host Region ID",
+                        "items": {
+                            "x-osdu-relationship": [{
+                                    "EntityType": "OSDURegion",
+                                    "GroupType": "reference-data"
+                                }
+                            ],
+                            "pattern": "^[\\w\\-\\.]+:reference-data\\-\\-OSDURegion:[\\w\\-\\.\\:\\%]+:[0-9]*$",
+                            "type": "string"
+                        }
+                    },
+                    "ResourceLifecycleStatus": {
+                        "x-osdu-relationship": [{
+                                "EntityType": "ResourceLifecycleStatus",
+                                "GroupType": "reference-data"
+                            }
+                        ],
+                        "pattern": "^[\\w\\-\\.]+:reference-data\\-\\-ResourceLifecycleStatus:[\\w\\-\\.\\:\\%]+:[0-9]*$",
+                        "description": "Describes the current Resource Lifecycle status.",
+                        "type": "string",
+                        "title": "Resource Lifecycle Status"
+                    },
+                    "ResourceSecurityClassification": {
+                        "x-osdu-relationship": [{
+                                "EntityType": "ResourceSecurityClassification",
+                                "GroupType": "reference-data"
+                            }
+                        ],
+                        "pattern": "^[\\w\\-\\.]+:reference-data\\-\\-ResourceSecurityClassification:[\\w\\-\\.\\:\\%]+:[0-9]*$",
+                        "description": "Classifies the security level of the resource.",
+                        "type": "string",
+                        "title": "Resource Security Classification"
+                    },
+                    "ResourceCurationStatus": {
+                        "x-osdu-relationship": [{
+                                "EntityType": "ResourceCurationStatus",
+                                "GroupType": "reference-data"
+                            }
+                        ],
+                        "pattern": "^[\\w\\-\\.]+:reference-data\\-\\-ResourceCurationStatus:[\\w\\-\\.\\:\\%]+:[0-9]*$",
+                        "description": "Describes the current Curation status.",
+                        "type": "string",
+                        "title": "Resource Curation Status"
+                    },
+                    "ExistenceKind": {
+                        "x-osdu-relationship": [{
+                                "EntityType": "ExistenceKind",
+                                "GroupType": "reference-data"
+                            }
+                        ],
+                        "pattern": "^[\\w\\-\\.]+:reference-data\\-\\-ExistenceKind:[\\w\\-\\.\\:\\%]+:[0-9]*$",
+                        "description": "Where does this data resource sit in the cradle-to-grave span of its existence?",
+                        "type": "string",
+                        "title": "Existence Kind"
+                    },
+                    "TechnicalAssuranceID": {
+                        "x-osdu-relationship": [{
+                                "EntityType": "TechnicalAssuranceType",
+                                "GroupType": "reference-data"
+                            }
+                        ],
+                        "pattern": "^[\\w\\-\\.]+:reference-data\\-\\-TechnicalAssuranceType:[\\w\\-\\.\\:\\%]+:[0-9]*$",
+                        "description": "DEPRECATED: Describes a record's overall suitability for general business consumption based on data quality. Clarifications: Since Certified is the highest classification of suitable quality, any further change or versioning of a Certified record should be carefully considered and justified. If a Technical Assurance value is not populated then one can assume the data has not been evaluated or its quality is unknown (=Unevaluated). Technical Assurance values are not intended to be used for the identification of a single \"preferred\" or \"definitive\" record by comparison with other records.",
+                        "type": "string",
+                        "title": "Technical Assurance ID"
+                    },
+                    "Source": {
+                        "description": "The entity that produced the record, or from which it is received; could be an organization, agency, system, internal team, or individual. For informational purposes only, the list of sources is not governed.",
+                        "type": "string",
+                        "title": "Data Source"
+                    }
+                },
+                "$id": "https://schema.osdu.opengroup.org/json/abstract/AbstractCommonResources.1.0.0.json"
+            },
+            "osdu:wks:AbstractMetaItem:1.0.0": {
+                "x-osdu-inheriting-from-kind": [],
+                "oneOf": [{
+                        "title": "FrameOfReferenceUOM",
+                        "type": "object",
+                        "properties": {
+                            "persistableReference": {
+                                "description": "The self-contained, persistable reference string uniquely identifying the Unit.",
+                                "title": "UOM Persistable Reference",
+                                "type": "string",
+                                "example": "{\"abcd\":{\"a\":0.0,\"b\":1200.0,\"c\":3937.0,\"d\":0.0},\"symbol\":\"ft[US]\",\"baseMeasurement\":{\"ancestry\":\"L\",\"type\":\"UM\"},\"type\":\"UAD\"}"
+                            },
+                            "kind": {
+                                "const": "Unit",
+                                "description": "The kind of reference, 'Unit' for FrameOfReferenceUOM.",
+                                "title": "UOM Reference Kind",
+                                "type": "string"
+                            },
+                            "propertyNames": {
+                                "description": "The list of property names, to which this meta data item provides Unit context to. A full path like \"StructureA.PropertyB\" is required to define a unique context; \"data\" is omitted since frame-of reference normalization only applies to the data block.",
+                                "title": "UOM Property Names",
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                },
+                                "example": [
+                                    "HorizontalDeflection.EastWest",
+                                    "HorizontalDeflection.NorthSouth"
+                                ]
+                            },
+                            "name": {
+                                "description": "The unit symbol or name of the unit.",
+                                "title": "UOM Unit Symbol",
+                                "type": "string",
+                                "example": "ft[US]"
+                            },
+                            "unitOfMeasureID": {
+                                "x-osdu-relationship": [{
+                                        "EntityType": "UnitOfMeasure",
+                                        "GroupType": "reference-data"
+                                    }
+                                ],
+                                "pattern": "^[\\w\\-\\.]+:reference-data\\-\\-UnitOfMeasure:[\\w\\-\\.\\:\\%]+:[0-9]*$",
+                                "description": "SRN to unit of measure reference.",
+                                "type": "string",
+                                "example": "namespace:reference-data--UnitOfMeasure:ftUS:"
+                            }
+                        },
+                        "required": [
+                            "kind",
+                            "persistableReference"
+                        ]
+                    }, {
+                        "title": "FrameOfReferenceCRS",
+                        "type": "object",
+                        "properties": {
+                            "coordinateReferenceSystemID": {
+                                "x-osdu-relationship": [{
+                                        "EntityType": "CoordinateReferenceSystem",
+                                        "GroupType": "reference-data"
+                                    }
+                                ],
+                                "pattern": "^[\\w\\-\\.]+:reference-data\\-\\-CoordinateReferenceSystem:[\\w\\-\\.\\:\\%]+:[0-9]*$",
+                                "description": "SRN to CRS reference.",
+                                "type": "string",
+                                "example": "namespace:reference-data--CoordinateReferenceSystem:Projected:EPSG::32615:"
+                            },
+                            "persistableReference": {
+                                "description": "The self-contained, persistable reference string uniquely identifying the CRS.",
+                                "title": "CRS Persistable Reference",
+                                "type": "string",
+                                "example": "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"32615\"},\"name\":\"WGS_1984_UTM_Zone_15N\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"PROJCS[\\\"WGS_1984_UTM_Zone_15N\\\",GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],PROJECTION[\\\"Transverse_Mercator\\\"],PARAMETER[\\\"False_Easting\\\",500000.0],PARAMETER[\\\"False_Northing\\\",0.0],PARAMETER[\\\"Central_Meridian\\\",-93.0],PARAMETER[\\\"Scale_Factor\\\",0.9996],PARAMETER[\\\"Latitude_Of_Origin\\\",0.0],UNIT[\\\"Meter\\\",1.0],AUTHORITY[\\\"EPSG\\\",32615]]\"}"
+                            },
+                            "kind": {
+                                "const": "CRS",
+                                "description": "The kind of reference, constant 'CRS' for FrameOfReferenceCRS.",
+                                "title": "CRS Reference Kind",
+                                "type": "string"
+                            },
+                            "propertyNames": {
+                                "description": "The list of property names, to which this meta data item provides CRS context to. A full path like \"StructureA.PropertyB\" is required to define a unique context; \"data\" is omitted since frame-of reference normalization only applies to the data block.",
+                                "title": "CRS Property Names",
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                },
+                                "example": [
+                                    "KickOffPosition.X",
+                                    "KickOffPosition.Y"
+                                ]
+                            },
+                            "name": {
+                                "description": "The name of the CRS.",
+                                "title": "CRS Name",
+                                "type": "string",
+                                "example": "WGS 84 / UTM zone 15N"
+                            }
+                        },
+                        "required": [
+                            "kind",
+                            "persistableReference"
+                        ]
+                    }, {
+                        "title": "FrameOfReferenceDateTime",
+                        "type": "object",
+                        "properties": {
+                            "persistableReference": {
+                                "description": "The self-contained, persistable reference string uniquely identifying DateTime reference.",
+                                "title": "DateTime Persistable Reference",
+                                "type": "string",
+                                "example": "{\"format\":\"yyyy-MM-ddTHH:mm:ssZ\",\"timeZone\":\"UTC\",\"type\":\"DTM\"}"
+                            },
+                            "kind": {
+                                "const": "DateTime",
+                                "description": "The kind of reference, constant 'DateTime', for FrameOfReferenceDateTime.",
+                                "title": "DateTime Reference Kind",
+                                "type": "string"
+                            },
+                            "propertyNames": {
+                                "description": "The list of property names, to which this meta data item provides DateTime context to. A full path like \"StructureA.PropertyB\" is required to define a unique context; \"data\" is omitted since frame-of reference normalization only applies to the data block.",
+                                "title": "DateTime Property Names",
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                },
+                                "example": [
+                                    "Acquisition.StartTime",
+                                    "Acquisition.EndTime"
+                                ]
+                            },
+                            "name": {
+                                "description": "The name of the DateTime format and reference.",
+                                "title": "DateTime Name",
+                                "type": "string",
+                                "example": "UTC"
+                            }
+                        },
+                        "required": [
+                            "kind",
+                            "persistableReference"
+                        ]
+                    }, {
+                        "title": "FrameOfReferenceAzimuthReference",
+                        "type": "object",
+                        "properties": {
+                            "persistableReference": {
+                                "description": "The self-contained, persistable reference string uniquely identifying AzimuthReference.",
+                                "title": "AzimuthReference Persistable Reference",
+                                "type": "string",
+                                "example": "{\"code\":\"TrueNorth\",\"type\":\"AZR\"}"
+                            },
+                            "kind": {
+                                "const": "AzimuthReference",
+                                "description": "The kind of reference, constant 'AzimuthReference', for FrameOfReferenceAzimuthReference.",
+                                "title": "AzimuthReference Reference Kind",
+                                "type": "string"
+                            },
+                            "propertyNames": {
+                                "description": "The list of property names, to which this meta data item provides AzimuthReference context to. A full path like \"StructureA.PropertyB\" is required to define a unique context; \"data\" is omitted since frame-of reference normalization only applies to the data block.",
+                                "title": "AzimuthReference Property Names",
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                },
+                                "example": [
+                                    "Bearing"
+                                ]
+                            },
+                            "name": {
+                                "description": "The name of the CRS or the symbol/name of the unit.",
+                                "title": "AzimuthReference Name",
+                                "type": "string",
+                                "example": "TrueNorth"
+                            }
+                        },
+                        "required": [
+                            "kind",
+                            "persistableReference"
+                        ]
+                    }
+                ],
+                "x-osdu-license": "Copyright 2022, The Open Group \\nLicensed under the Apache License, Version 2.0 (the \"License\"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 . Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.",
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "x-osdu-schema-source": "osdu:wks:AbstractMetaItem:1.0.0",
+                "description": "A meta data item, which allows the association of named properties or property values to a Unit/Measurement/CRS/Azimuth/Time context.",
+                "title": "Frame of Reference Meta Data Item",
+                "$id": "https://schema.osdu.opengroup.org/json/abstract/AbstractMetaItem.1.0.0.json"
+            },
+            "osdu:wks:AbstractLegalTags:1.0.0": {
+                "x-osdu-inheriting-from-kind": [],
+                "x-osdu-license": "Copyright 2022, The Open Group \\nLicensed under the Apache License, Version 2.0 (the \"License\"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 . Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.",
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "x-osdu-schema-source": "osdu:wks:AbstractLegalTags:1.0.0",
+                "description": "Legal meta data like legal tags, relevant other countries, legal status. This structure is included by the SystemProperties \"legal\", which is part of all OSDU records. Not extensible.",
+                "additionalProperties": false,
+                "title": "Legal Meta Data",
+                "type": "object",
+                "properties": {
+                    "legaltags": {
+                        "description": "The list of legal tags, which resolve to legal properties (like country of origin, export classification code, etc.) and rules with the help of the Compliance Service.",
+                        "title": "Legal Tags",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "otherRelevantDataCountries": {
+                        "description": "The list of other relevant data countries as an array of two-letter country codes, see https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2.",
+                        "title": "Other Relevant Data Countries",
+                        "type": "array",
+                        "items": {
+                            "pattern": "^[A-Z]{2}$",
+                            "type": "string"
+                        }
+                    },
+                    "status": {
+                        "pattern": "^(compliant|uncompliant)$",
+                        "description": "The legal status. Set by the system after evaluation against the compliance rules associated with the \"legaltags\" using the Compliance Service.",
+                        "title": "Legal Status",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "legaltags",
+                    "otherRelevantDataCountries"
+                ],
+                "$id": "https://schema.osdu.opengroup.org/json/abstract/AbstractLegalTags.1.0.0.json"
+            },
+            "osdu:wks:AbstractReferenceType:1.0.0": {
+                "x-osdu-inheriting-from-kind": [],
+                "x-osdu-license": "Copyright 2022, The Open Group \\nLicensed under the Apache License, Version 2.0 (the \"License\"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 . Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.",
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "x-osdu-schema-source": "osdu:wks:AbstractReferenceType:1.0.0",
+                "description": "Generic reference object containing the universal properties of reference data, especially the ones commonly thought of as Types",
+                "x-osdu-review-status": "Accepted",
+                "title": "AbstractReferenceType",
+                "type": "object",
+                "properties": {
+                    "AttributionAuthority": {
+                        "description": "Name of the authority, or organisation, which governs the entity value and from which it is sourced.",
+                        "type": "string"
+                    },
+                    "AttributionPublication": {
+                        "description": "Name, URL, or other identifier of the publication, or repository, of the attribution source organisation from which the entity value is sourced.",
+                        "type": "string"
+                    },
+                    "InactiveIndicator": {
+                        "description": "By default reference values are considered as 'active'. An absent 'InactiveIndicator' property value means the reference value is in active use. When 'InactiveIndicator' is set true the reverence value is no longer in use and should no longer be offered as a choice.",
+                        "type": "boolean",
+                        "title": "Inactive Indicator"
+                    },
+                    "Description": {
+                        "description": "The text which describes a NAME TYPE in detail.",
+                        "type": "string"
+                    },
+                    "NameAlias": {
+                        "x-osdu-indexing": {
+                            "type": "nested"
+                        },
+                        "description": "Alternative names, including historical, by which this entity instance is/has been known.",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/osdu:wks:AbstractAliasNames:1.0.0"
+                        }
+                    },
+                    "AttributionRevision": {
+                        "description": "The distinct instance of the attribution publication, by version number, sequence number, date of publication, etc., that was used for the entity value.",
+                        "type": "string"
+                    },
+                    "ID": {
+                        "description": "Native identifier from a Master Data Management System or other trusted source external to OSDU - stored here in order to allow for multi-system connection and synchronization. If used, the \"Source\" property should identify that source system.",
+                        "type": "string",
+                        "title": "External Identifier"
+                    },
+                    "Code": {
+                        "description": "The abbreviation or mnemonic for a reference type if defined. Example: WELL and WLBR.",
+                        "type": "string",
+                        "x-osdu-natural-key": 0
+                    },
+                    "CommitDate": {
+                        "format": "date-time",
+                        "description": "For reference values published and governed by OSDU: The date and time the record was committed into the OSDU member GitLab reference-values repository. The sole purpose of this date is to optimise the OSDU milestone upgrades. It allows the upgrade code to figure out whether or not the record must be PUT into reference value storage.",
+                        "type": "string",
+                        "title": "Commit Date",
+                        "example": "2021-02-08T21:36:40-05:00"
+                    },
+                    "Name": {
+                        "description": "The name of the entity instance.",
+                        "type": "string",
+                        "x-osdu-natural-key": 1
+                    }
+                },
+                "$id": "https://schema.osdu.opengroup.org/json/abstract/AbstractReferenceType.1.0.0.json"
+            },
+            "osdu:wks:AbstractLegalParentList:1.0.0": {
+                "x-osdu-inheriting-from-kind": [],
+                "x-osdu-license": "Copyright 2022, The Open Group \\nLicensed under the Apache License, Version 2.0 (the \"License\"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 . Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.",
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "x-osdu-schema-source": "osdu:wks:AbstractLegalParentList:1.0.0",
+                "description": "A list of entity id:version references to record instances recorded in the data platform, from which the current record is derived and from which the legal tags must be derived. This structure is included by the SystemProperties \"ancestry\", which is part of all OSDU records. Not extensible.",
+                "additionalProperties": false,
+                "title": "Parent List",
+                "type": "object",
+                "properties": {
+                    "parents": {
+                        "description": "An array of none, one or many entity references of 'direct parents' in the data platform, which mark the current record as a derivative. In contrast to other relationships, the source record version is required. During record creation or update the ancestry.parents[] relationships are used to collect the legal tags from the sources and aggregate them in the legal.legaltags[] array. As a consequence, should e.g., one or more of the legal tags of the source data expire, the access to the derivatives is also terminated. For details, see ComplianceService tutorial, 'Creating derivative Records'.",
+                        "title": "Parents",
+                        "type": "array",
+                        "items": {
+                            "x-osdu-relationship": [],
+                            "pattern": "^[\\w\\-\\.]+:[\\w\\-\\.]+:[\\w\\-\\.\\:\\%]+:[0-9]+$",
+                            "type": "string"
+                        },
+                        "example": []
+                    }
+                },
+                "$id": "https://schema.osdu.opengroup.org/json/abstract/AbstractLegalParentList.1.0.0.json"
+            },
+            "osdu:wks:AbstractAliasNames:1.0.0": {
+                "x-osdu-inheriting-from-kind": [],
+                "x-osdu-license": "Copyright 2022, The Open Group \\nLicensed under the Apache License, Version 2.0 (the \"License\"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 . Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.",
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "x-osdu-schema-source": "osdu:wks:AbstractAliasNames:1.0.0",
+                "description": "A list of alternative names for an object.  The preferred name is in a separate, scalar property.  It may or may not be repeated in the alias list, though a best practice is to include it if the list is present, but to omit the list if there are no other names.  Note that the abstract entity is an array so the $ref to it is a simple property reference.",
+                "x-osdu-review-status": "Accepted",
+                "title": "AbstractAliasNames",
+                "type": "object",
+                "properties": {
+                    "AliasNameTypeID": {
+                        "pattern": "^[\\w\\-\\.]+:reference-data\\-\\-AliasNameType:[\\w\\-\\.\\:\\%]+:[0-9]*$",
+                        "description": "A classification of alias names such as by role played or type of source, such as regulatory name, regulatory code, company code, international standard name, etc.",
+                        "x-osdu-relationship": [{
+                                "EntityType": "AliasNameType",
+                                "GroupType": "reference-data"
+                            }
+                        ],
+                        "type": "string"
+                    },
+                    "EffectiveDateTime": {
+                        "format": "date-time",
+                        "type": "string",
+                        "description": "The date and time when an alias name becomes effective."
+                    },
+                    "AliasName": {
+                        "type": "string",
+                        "description": "Alternative Name value of defined name type for an object."
+                    },
+                    "TerminationDateTime": {
+                        "format": "date-time",
+                        "type": "string",
+                        "description": "The data and time when an alias name is no longer in effect."
+                    },
+                    "DefinitionOrganisationID": {
+                        "pattern": "^[\\w\\-\\.]+:(reference-data\\-\\-StandardsOrganisation|master-data\\-\\-Organisation):[\\w\\-\\.\\:\\%]+:[0-9]*$",
+                        "description": "The StandardsOrganisation (reference-data) or Organisation (master-data) that provided the name (the source).",
+                        "x-osdu-relationship": [{
+                                "EntityType": "StandardsOrganisation",
+                                "GroupType": "reference-data"
+                            }, {
+                                "EntityType": "Organisation",
+                                "GroupType": "master-data"
+                            }
+                        ],
+                        "type": "string"
+                    }
+                },
+                "$id": "https://schema.osdu.opengroup.org/json/abstract/AbstractAliasNames.1.0.0.json"
+            },
+            "osdu:wks:AbstractAccessControlList:1.0.0": {
+                "x-osdu-inheriting-from-kind": [],
+                "x-osdu-license": "Copyright 2022, The Open Group \\nLicensed under the Apache License, Version 2.0 (the \"License\"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 . Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.",
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "x-osdu-schema-source": "osdu:wks:AbstractAccessControlList:1.0.0",
+                "description": "The access control tags associated with this entity. This structure is included by the SystemProperties \"acl\", which is part of all OSDU records. Not extensible.",
+                "additionalProperties": false,
+                "title": "Access Control List",
+                "type": "object",
+                "properties": {
+                    "viewers": {
+                        "description": "The list of viewers to which this data record is accessible/visible/discoverable formatted as an email (core.common.model.storage.validation.ValidationDoc.EMAIL_REGEX).",
+                        "title": "List of Viewers",
+                        "type": "array",
+                        "items": {
+                            "pattern": "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$",
+                            "type": "string"
+                        }
+                    },
+                    "owners": {
+                        "description": "The list of owners of this data record formatted as an email (core.common.model.storage.validation.ValidationDoc.EMAIL_REGEX).",
+                        "title": "List of Owners",
+                        "type": "array",
+                        "items": {
+                            "pattern": "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$",
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "owners",
+                    "viewers"
+                ],
+                "$id": "https://schema.osdu.opengroup.org/json/abstract/AbstractAccessControlList.1.0.0.json"
+            }
+        },
+        "properties": {
+            "ancestry": {
+                "description": "The links to data, which constitute the inputs, from which this record instance is derived.",
+                "title": "Ancestry",
+                "$ref": "#/definitions/osdu:wks:AbstractLegalParentList:1.0.0"
+            },
+            "data": {
+                "allOf": [{
+                        "$ref": "#/definitions/osdu:wks:AbstractCommonResources:1.0.0"
+                    }, {
+                        "$ref": "#/definitions/osdu:wks:AbstractReferenceType:1.0.0"
+                    }, {
+                        "type": "object",
+                        "title": "IndividualProperties",
+                        "properties": {
+                            "Configurations": {
+                                "x-osdu-indexing": {
+                                    "type": "nested"
+                                },
+                                "description": "The list of index property configurations for the specific kind.",
+                                "type": "array",
+                                "title": "Configurations",
+                                "items": {
+                                    "description": "One single configuration to derive an Search index property value and assign it to the index 'column' with Name.",
+                                    "type": "object",
+                                    "title": "Configuration",
+                                    "properties": {
+                                        "Policy": {
+                                            "pattern": "^(ExtractFirstMatch|ExtractAllMatches)$",
+                                            "description": "Current supported policies are 'ExtractAllMatches' resulting in an array of values or 'ExtractFirstMatch' single value. The policy applies only to the Paths[].ValueExtraction.",
+                                            "type": "string",
+                                            "title": "Extraction Policy",
+                                            "example": "ExtractAllMatches"
+                                        },
+                                        "UseCase": {
+                                            "description": "The use case description this configuration satisfies.",
+                                            "type": "string",
+                                            "title": "Use Case",
+                                            "example": "As a user I want to find objects by a country name, with the understanding that an object may extend over country boundaries."
+                                        },
+                                        "Paths": {
+                                            "x-osdu-indexing": {
+                                                "type": "nested"
+                                            },
+                                            "description": "The list of path definitions to derive the property value from.",
+                                            "type": "array",
+                                            "title": "Paths",
+                                            "items": {
+                                                "description": "A single path definition to derive a property value from.",
+                                                "type": "object",
+                                                "title": "Path",
+                                                "properties": {
+                                                    "RelatedObjectsSpec": {
+                                                        "description": "The specification to extract related objects, from which to derive the ValueExtraction. If this property is empty or absent, the ValueExtraction is done on the current object to be indexed.",
+                                                        "type": "object",
+                                                        "title": "Related Objects Specification",
+                                                        "properties": {
+                                                            "RelatedObjectID": {
+                                                                "description": "The path to the property containing the ID of the target record to chase. This property is only populated if the property is extracted from a related object, which must be chased. If the property is derived from 'within' the same record, which triggered the indexing, the RelatedObjectID is left absent.",
+                                                                "type": "string",
+                                                                "title": "Related Object ID",
+                                                                "example": "GeoContexts[].GeoPoliticalEntityID"
+                                                            },
+                                                            "RelatedObjectKind": {
+                                                                "pattern": "^[\\w\\-\\.]+:[\\w\\-\\.]+:[\\w\\-\\.]+:[0-9]+.$",
+                                                                "description": "The kind or schema id expected as the target object type. This property is only populated if the property is extracted from a related object, which must be chased. If the property is derived from 'within' the same record, which triggered the indexing, the RelatedObjectKind is left absent.",
+                                                                "type": "string",
+                                                                "title": "Related Object Kind",
+                                                                "example": "osdu:wks:master-data--GeoPoliticalEntity:1."
+                                                            },
+                                                            "RelationshipDirection": {
+                                                                "pattern": "^(ChildToParent|ParentToChildren)$",
+                                                                "description": "The direction of the relationship definition seen from the object being indexed.  'ChildToParent' assumes an outgoing relationship with the target record defined in the object being indexed. 'ParentToChildren' assumes that the related objects have a relationship by RelatedObjectID to the id of the record being indexed.",
+                                                                "type": "string",
+                                                                "title": "Relationship Direction",
+                                                                "example": "ChildToParent"
+                                                            },
+                                                            "RelatedConditionMatches": {
+                                                                "description": "The RelatedConditionProperty values, which need to match in order to be accepted as de-normalized value(s). If the Policy is ExtractFirstMatch, the list is prioritized and the first match is accepted as final value. Policy ExtractAllMatches collects all matching values as array.",
+                                                                "type": "array",
+                                                                "title": "Related Condition Matches",
+                                                                "items": {
+                                                                    "type": "string"
+                                                                },
+                                                                "example": [
+                                                                    "namespace:reference-data--GeoPoliticalEntityType:Country:"
+                                                                ]
+                                                            },
+                                                            "RelatedConditionProperty": {
+                                                                "description": "The property path of the target record data block, which needs subjected to the conditional matching. The data prefix is not required.",
+                                                                "type": "string",
+                                                                "title": "Related Condition Property",
+                                                                "example": "GeoContexts[].GeoTypeID"
+                                                            }
+                                                        }
+                                                    },
+                                                    "ValueExtraction": {
+                                                        "description": "The instructions from where to derive the value.",
+                                                        "type": "object",
+                                                        "title": "Value Extraction",
+                                                        "properties": {
+                                                            "RelatedConditionMatches": {
+                                                                "description": "The RelatedConditionProperty values, which need to match in order to be accepted as de-normalized value(s). If the Policy is ExtractFirstMatch, the list is prioritized and the first match is accepted as final value. Policy ExtractAllMatches collects all matching values as array.",
+                                                                "type": "array",
+                                                                "title": "Related Condition Matches",
+                                                                "items": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "ValuePath": {
+                                                                "description": "The path to the property from where to extract the de-normalized value. The data prefix is not required in the path.",
+                                                                "type": "string",
+                                                                "title": "Value Path",
+                                                                "example": "GeoPoliticalEntityName"
+                                                            },
+                                                            "RelatedConditionProperty": {
+                                                                "description": "The property path of the target record data block, which needs to be subjected to the conditional matching. The data prefix is not required in the path.",
+                                                                "type": "string",
+                                                                "title": "Related Condition Property"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "ValuePath"
+                                                        ]
+                                                    }
+                                                },
+                                                "required": [
+                                                    "ValueExtraction"
+                                                ]
+                                            }
+                                        },
+                                        "Name": {
+                                            "description": "The name of the indexed property, i.e., this is the property name used in Search.",
+                                            "type": "string",
+                                            "title": "Name",
+                                            "example": "CountryNames"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }, {
+                        "type": "object",
+                        "title": "ExtensionProperties",
+                        "properties": {
+                            "ExtensionProperties": {
+                                "type": "object"
+                            }
+                        }
+                    }
+                ]
+            },
+            "kind": {
+                "pattern": "^[\\w\\-\\.]+:[\\w\\-\\.]+:[\\w\\-\\.]+:[0-9]+.[0-9]+.[0-9]+$",
+                "description": "The schema identification for the OSDU resource object following the pattern {Namespace}:{Source}:{Type}:{VersionMajor}.{VersionMinor}.{VersionPatch}. The versioning scheme follows the semantic versioning, https://semver.org/.",
+                "title": "Entity Kind",
+                "type": "string",
+                "example": "osdu:wks:reference-data--IndexPropertyPathConfiguration:1.1.1"
+            },
+            "acl": {
+                "description": "The access control tags associated with this entity.",
+                "title": "Access Control List",
+                "$ref": "#/definitions/osdu:wks:AbstractAccessControlList:1.0.0"
+            },
+            "version": {
+                "format": "int64",
+                "description": "The version number of this OSDU resource; set by the framework.",
+                "title": "Version Number",
+                "type": "integer",
+                "example": 1562066009929332
+            },
+            "tags": {
+                "description": "A generic dictionary of string keys mapping to string value. Only strings are permitted as keys and values.",
+                "additionalProperties": {
+                    "type": "string"
+                },
+                "title": "Tag Dictionary",
+                "type": "object",
+                "example": {
+                    "NameOfKey": "String value"
+                }
+            },
+            "modifyUser": {
+                "description": "The user reference, which created this version of this resource object. Set by the System.",
+                "title": "Resource Object Version Creation User Reference",
+                "type": "string",
+                "example": "some-user@some-company-cloud.com"
+            },
+            "modifyTime": {
+                "format": "date-time",
+                "description": "Timestamp of the time at which this version of the OSDU resource object was created. Set by the System. The value is a combined date-time string in ISO-8601 given in UTC.",
+                "title": "Resource Object Version Creation DateTime",
+                "type": "string",
+                "example": "2020-12-16T11:52:24.477Z"
+            },
+            "createTime": {
+                "format": "date-time",
+                "description": "Timestamp of the time at which initial version of this OSDU resource object was created. Set by the System. The value is a combined date-time string in ISO-8601 given in UTC.",
+                "title": "Resource Object Creation DateTime",
+                "type": "string",
+                "example": "2020-12-16T11:46:20.163Z"
+            },
+            "meta": {
+                "description": "The Frame of Reference meta data section linking the named properties to self-contained definitions.",
+                "title": "Frame of Reference Meta Data",
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/osdu:wks:AbstractMetaItem:1.0.0"
+                }
+            },
+            "legal": {
+                "description": "The entity's legal tags and compliance status. The actual contents associated with the legal tags is managed by the Compliance Service.",
+                "title": "Legal Tags",
+                "$ref": "#/definitions/osdu:wks:AbstractLegalTags:1.0.0"
+            },
+            "createUser": {
+                "description": "The user reference, which created the first version of this resource object. Set by the System.",
+                "title": "Resource Object Creation User Reference",
+                "type": "string",
+                "example": "some-user@some-company-cloud.com"
+            },
+            "id": {
+                "pattern": "^[\\w\\-\\.]+:reference-data\\-\\-IndexPropertyPathConfiguration:[\\w\\-\\.\\:\\%]+$",
+                "description": "Previously called ResourceID or SRN which identifies this OSDU resource object without version.",
+                "title": "Entity ID",
+                "type": "string",
+                "example": "namespace:reference-data--IndexPropertyPathConfiguration:c9d84708-2b1b-5e0b-954e-9621132f7154"
+            }
+        },
+        "$id": "https://schema.osdu.opengroup.org/json/reference-data/IndexPropertyPathConfiguration.1.0.0.json"
+    }
+}

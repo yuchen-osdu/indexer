@@ -1,0 +1,18 @@
+{
+    "items": {
+        "data.VirtualProperties.DefaultLocation": {
+            "type": "object",
+            "priorities": [{
+                    "path": "data.SpatialLocation"
+                }
+            ]
+        },
+        "data.VirtualProperties.DefaultName": {
+            "type": "string",
+            "priorities": [{
+                    "path": "data.ProjectName"
+                }
+            ]
+        }
+    }
+}

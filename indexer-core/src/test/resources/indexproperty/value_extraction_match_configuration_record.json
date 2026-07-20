@@ -1,0 +1,52 @@
+{
+    "AttributionPublication": null,
+    "InactiveIndicator": null,
+    "Description": "valid for all master-data--Wellbore kinds for major version 1.",
+    "ResourceLifecycleStatus": null,
+    "ResourceCurationStatus": null,
+    "TechnicalAssuranceID": null,
+    "Code": "osdu:wks:master-data--Wellbore:1.",
+    "Source": null,
+    "Name": "Wellbore-IndexPropertyPathConfiguration",
+    "AttributionAuthority": "OSDU",
+    "ResourceHomeRegionID": null,
+    "VirtualProperties.DefaultName": "Wellbore-IndexPropertyPathConfiguration",
+    "AttributionRevision": null,
+    "ResourceSecurityClassification": null,
+    "ID": null,
+    "ExistenceKind": null,
+    "Configurations": [{
+            "Policy": "ExtractFirstMatch",
+            "UseCase": "As a user I want to discover and match Wellbore records by their custom field value.",
+            "Paths": [{
+                    "RelatedObjectsSpec.RelatedObjectID": null,
+                    "ValueExtraction.ValuePath": "data.VerticalMeasurements[].VerticalMeasurement",
+                    "RelatedObjectsSpec.RelatedObjectKind": null,
+                    "RelatedObjectsSpec.RelatedConditionProperty": null,
+                    "RelatedObjectsSpec.RelationshipDirection": null,
+                    "ValueExtraction.RelatedConditionMatches": [
+                        "^[\\w\\-\\.]+:reference-data--VerticalMeasurementType:GroundLevel:"
+                    ],
+                    "ValueExtraction.RelatedConditionProperty": "data.VerticalMeasurements[].VerticalMeasurementTypeID"
+                }
+            ],
+            "Name": "DCGroundlevel"
+        }, {
+            "Policy": "ExtractFirstMatch",
+            "UseCase": "As a user I want to discover and match Wellbore records by their custom field value.",
+            "Paths": [{
+                    "RelatedObjectsSpec.RelatedObjectID": null,
+                    "ValueExtraction.ValuePath": "data.VerticalMeasurements[].VerticalMeasurement",
+                    "RelatedObjectsSpec.RelatedObjectKind": null,
+                    "RelatedObjectsSpec.RelatedConditionProperty": null,
+                    "RelatedObjectsSpec.RelationshipDirection": null,
+                    "ValueExtraction.RelatedConditionMatches": [
+                        "^[\\w\\-\\.]+:reference-data--VerticalMeasurementType:TotalDepth:"
+                    ],
+                    "ValueExtraction.RelatedConditionProperty": "data.VerticalMeasurements[].VerticalMeasurementTypeID"
+                }
+            ],
+            "Name": "DCTotalDepth"
+        }
+    ]
+}

@@ -1,0 +1,11 @@
+{
+    "id": "6523155266469533",
+    "data": "{\"url\":\"/api/indexer/v2/_dps/task-handlers/reindex-worker\",\"message\":\"{\\\"kind\\\":\\\"osdu:wks:reference-data--AgreementType:1.0.0\\\",\\\"cursor\\\":\\\"12345\\\\u003d\\\\u003d\\\"}\",\"initialDelayMillis\":30000}",
+    "attributes": {
+        "data-partition-id": "osdu",
+        "account-id": "osdu",
+        "correlation-id": "46086b67-541a-449e-ae75-5e52659a775c",
+        "user": "gcp-integration-tester@nice-etching-277309.iam.gserviceaccount.com",
+        "googclient_deliveryattempt": "1"
+    }
+}

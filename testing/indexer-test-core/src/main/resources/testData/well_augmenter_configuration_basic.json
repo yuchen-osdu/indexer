@@ -1,0 +1,53 @@
+[{
+    "id": "tenant1:reference-data--IndexPropertyPathConfiguration:index-property--Well<timestamp>:1",
+    "kind": "osdu:wks:reference-data--IndexPropertyPathConfiguration:1.1.0",
+    "data": {
+        "Name": "Well-IndexPropertyPathConfiguration",
+        "Description": "The index property list for master-data--Well:1., valid for all master-data--Well kinds for major version 1.",
+        "Code": "osdu:wks:master-data--Well:1.",
+        "AttributionAuthority": "CustomAttributionAuthority",
+        "Configurations": [
+            {
+                "Name": "CountryNames",
+                "Policy": "ExtractAllMatches",
+                "Paths": [
+                    {
+                        "RelatedObjectsSpec": {
+                            "RelationshipDirection": "ChildToParent",
+                            "RelatedObjectID": "data.GeoContexts[].GeoPoliticalEntityID",
+                            "RelatedObjectKind": "osdu:wks:master-data--GeoPoliticalEntity:1.",
+                            "RelatedConditionMatches": [
+                                "opendes:reference-data--GeoPoliticalEntityType:Country:"
+                            ],
+                            "RelatedConditionProperty": "data.GeoContexts[].GeoTypeID"
+                        },
+                        "ValueExtraction": {
+                            "ValuePath": "data.GeoPoliticalEntityName"
+                        }
+                    }
+                ],
+                "UseCase": "As a user I want to find objects by a country name, with the understanding that an object may extend over country boundaries."
+            },
+            {
+                "Name": "WellUWI",
+                "Policy": "ExtractFirstMatch",
+                "Paths": [
+                    {
+                        "ValueExtraction": {
+                            "RelatedConditionMatches": [
+                                "opendes:reference-data--AliasNameType:UniqueIdentifier:",
+                                "opendes:reference-data--AliasNameType:RegulatoryName:",
+                                "opendes:reference-data--AliasNameType:PreferredName:",
+                                "opendes:reference-data--AliasNameType:CommonName:",
+                                "opendes:reference-data--AliasNameType:ShortName:"
+                            ],
+                            "RelatedConditionProperty": "data.NameAliases[].AliasNameTypeID",
+                            "ValuePath": "data.NameAliases[].AliasName"
+                        }
+                    }
+                ],
+                "UseCase": "As a user I want to discover and match Wells by their UWI. I am aware that this is not globally reliable, however, I am able to specify a prioritized AliasNameType list to look up value in the NameAliases array."
+            }
+        ]
+    }
+}]

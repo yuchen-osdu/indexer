@@ -1,0 +1,14 @@
+[{
+    "id": "tenant1:indexer<timestamp>:wellbore:testIngest1",
+    "data": {
+        "Location": {
+            "latitude": 29.170640,
+            "longitude": -95.002875
+        },
+        "FacilityName": "Facility_123",
+        "NameAliases": [{
+            "AliasName": "123454321",
+            "AliasNameTypeID": "tenant1:reference-data--AliasNameType:UniqueIdentifier:"
+        }]
+    }
+}]

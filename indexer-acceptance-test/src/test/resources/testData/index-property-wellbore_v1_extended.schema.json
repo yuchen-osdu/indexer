@@ -1,0 +1,82 @@
+{
+    "schemaInfo": {
+        "schemaIdentity": {
+            "authority": "test",
+            "source": "indexer<timestamp>",
+            "entityType": "wellbore",
+            "schemaVersionMajor": 1,
+            "schemaVersionMinor": 1,
+            "schemaVersionPatch": 0,
+            "id": "test:indexer<timestamp>:wellbore:1.1.0"
+        },
+        "status": "DEVELOPMENT"
+    },
+    "schema": {
+        "definitions": {
+            "opendes:wks:core_dl_geopoint:1.0.0": {
+                "description": "A 2D point location in latitude and longitude.",
+                "properties": {
+                    "latitude": {
+                        "description": "Latitude in degrees.",
+                        "maximum": 90,
+                        "minimum": -90,
+                        "title": "Latitude",
+                        "type": "number"
+                    },
+                    "longitude": {
+                        "description": "Longitude in degrees.",
+                        "maximum": 180,
+                        "minimum": -180,
+                        "title": "Longitude",
+                        "type": "number"
+                    }
+                },
+                "required": ["latitude", "longitude"],
+                "title": "2D Map Location",
+                "type": "object"
+            },
+            "opendes:wks:AbstractAliasNames:1.0.0": {
+                "title": "AbstractAliasNames",
+                "type": "object",
+                "properties": {
+                    "AliasNameTypeID": {
+                        "pattern": "^[\\w\\-\\.]+:reference-data\\-\\-AliasNameType:[\\w\\-\\.\\:\\%]+:[0-9]*$",
+                        "description": "A classification of alias names.",
+                        "x-osdu-relationship": [{"EntityType": "AliasNameType", "GroupType": "reference-data"}],
+                        "type": "string"
+                    },
+                    "AliasName": {
+                        "type": "string",
+                        "description": "Alternative name value."
+                    }
+                }
+            }
+        },
+        "properties": {
+            "data": {
+                "allOf": [{
+                    "type": "object",
+                    "properties": {
+                        "Location": {
+                            "$ref": "#/definitions/opendes:wks:core_dl_geopoint:1.0.0",
+                            "description": "The wellbore's position.",
+                            "format": "core:dl:geopoint:1.0.0",
+                            "type": "object",
+                            "x-osdu-indexing": {"type": "geo_point"}
+                        },
+                        "NameAliases": {
+                            "x-osdu-indexing": {"type": "nested"},
+                            "description": "Alternative names.",
+                            "type": "array",
+                            "items": {"$ref": "#/definitions/opendes:wks:AbstractAliasNames:1.0.0"}
+                        },
+                        "FacilityName": {
+                            "description": "Name of the Facility.",
+                            "type": "string"
+                        }
+                    }
+                }]
+            }
+        }
+    }
+}

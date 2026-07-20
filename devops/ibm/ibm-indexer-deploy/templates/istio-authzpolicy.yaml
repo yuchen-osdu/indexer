@@ -1,0 +1,22 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: {{ .Values.conf.appName }}-authz-policy
+spec:
+  selector:
+    matchLabels:
+      {{- include "ibm-indexer-deploy.selectorLabels" . | nindent 6 }}
+  action: DENY
+  rules:
+  - from:
+    - source:
+        notRequestPrincipals:
+        - '*'
+    to:
+    - operation:
+        notPaths:
+        - '*/v2/api-docs'
+        - /api/indexer/v2/info
+        - /api/indexer/v2/liveness_check
+        - /api/indexer/v2/readiness_check
+        - /api/indexer/v2/_dps/task-handlers/index-worker

@@ -1,0 +1,167 @@
+{
+    "kind": "osdu:wks:master-data--SeismicAcquisitionSurvey:1.0.0",
+    "type": "master-data--SeismicAcquisitionSurvey",
+    "dataSchema": {
+        "ProjectBeginDate": "date",
+        "SpatialLocation.AppliedOperations": "text_array",
+        "VirtualProperties.DefaultLocation.QuantitativeAccuracyBandID": "text",
+        "ResourceCurationStatus": "text",
+        "FundsAuthorizations": {
+            "type": "nested",
+            "properties": {
+                "AuthorizationID": "text",
+                "FundsAmount": "double",
+                "EffectiveDateTime": "date",
+                "CurrencyID": "text"
+            }
+        },
+        "ProjectSpecifications": "flattened",
+        "VirtualProperties.DefaultLocation.AppliedOperations": "text_array",
+        "VirtualProperties.DefaultName": "text",
+        "CableSpacingDistance": "double",
+        "AreaCalculated": "double",
+        "VirtualProperties.DefaultLocation.CoordinateQualityCheckPerformedBy": "text",
+        "ResourceSecurityClassification": "text",
+        "SpatialLocation.SpatialParameterTypeID": "text",
+        "ExistenceKind": "text",
+        "ProjectNames": "object",
+        "SpatialLocation.CoordinateQualityCheckRemarks": "text_array",
+        "ContractIDs": "text_array",
+        "MinOffsetDistance": "double",
+        "VirtualProperties.DefaultLocation.IsDecimated": "boolean",
+        "Contractors": {
+            "type": "nested",
+            "properties": {
+                "ContractorCrew": "text",
+                "ContractorOrganisationID": "text",
+                "ContractorTypeID": "text"
+            }
+        },
+        "TechnicalAssuranceTypeID": "text",
+        "SpatialLocation.CoordinateQualityCheckDateTime": "date",
+        "SpatialLocation.SpatialGeometryTypeID": "text",
+        "OperatingEnvironmentID": "text",
+        "SeismicGeometryTypeID": "text",
+        "ResourceHostRegionIDs": "text_array",
+        "AreaNominal": "double",
+        "VirtualProperties.DefaultLocation.QualitativeSpatialAccuracyTypeID": "text",
+        "SampleInterval": "double",
+        "EnergySourceTypeID": "text",
+        "Operator": "text",
+        "SourceArrayCount": "integer",
+        "ProjectName": "text",
+        "ShotpointIncrementDistance": "double",
+        "ResourceLifecycleStatus": "text",
+        "ProjectID": "text",
+        "CableCount": "integer",
+        "SpatialLocation.Wgs84Coordinates": "geo_shape",
+        "CableLength": "double",
+        "TechnicalAssuranceID": "text",
+        "Personnel": "flattened",
+        "VirtualProperties.DefaultLocation.SpatialLocationCoordinatesDate": "date",
+        "VirtualProperties.DefaultLocation.SpatialGeometryTypeID": "text",
+        "Source": "text",
+        "ProjectEndDate": "date",
+        "SourceArraySeparationDistance": "double",
+        "VersionCreationReason": "text",
+        "SpatialLocation.CoordinateQualityCheckPerformedBy": "text",
+        "VesselNames": "text_array",
+        "VirtualProperties.DefaultLocation.CoordinateQualityCheckRemarks": "text_array",
+        "ShootingAzimuthAngle": "double",
+        "NameAliases": {
+            "type": "nested",
+            "properties": {
+                "AliasName": "text",
+                "TerminationDateTime": "date",
+                "AliasNameTypeID": "text",
+                "EffectiveDateTime": "date",
+                "DefinitionOrganisationID": "text"
+            }
+        },
+        "ProjectStates": "flattened",
+        "MaxOffsetDistance": "double",
+        "SpatialLocation.SpatialLocationCoordinatesDate": "date",
+        "GeoContexts": {
+            "type": "nested",
+            "properties": {
+                "BasinID": "text",
+                "FieldID": "text",
+                "PlayID": "text",
+                "GeoPoliticalEntityID": "text",
+                "GeoTypeID": "text",
+                "ProspectID": "text"
+            }
+        },
+        "Purpose": "text",
+        "RecordLength": "double",
+        "FoldCount": "integer",
+        "VirtualProperties.DefaultLocation.CoordinateQualityCheckDateTime": "date",
+        "SpatialLocation.QualitativeSpatialAccuracyTypeID": "text",
+        "VirtualProperties.DefaultLocation.SpatialParameterTypeID": "text",
+        "ResourceHomeRegionID": "text",
+        "VirtualProperties.DefaultLocation.Wgs84Coordinates": "geo_shape",
+        "SpatialLocation.QuantitativeAccuracyBandID": "text"
+    },
+    "metaSchema": {
+        "ancestry": {
+            "properties": {
+                "parents": {
+                    "type": "keyword"
+                }
+            }
+        },
+        "x-acl": "keyword",
+        "kind": "keyword",
+        "index": {
+            "properties": {
+                "trace": {
+                    "type": "text"
+                },
+                "statusCode": {
+                    "type": "integer"
+                },
+                "lastUpdateTime": {
+                    "type": "date"
+                }
+            }
+        },
+        "acl": {
+            "properties": {
+                "viewers": {
+                    "type": "keyword"
+                },
+                "owners": {
+                    "type": "keyword"
+                }
+            }
+        },
+        "source": {
+            "type": "constant_keyword"
+        },
+        "type": "keyword",
+        "version": "long",
+        "tags": "flattened",
+        "modifyUser": "keyword",
+        "modifyTime": "date",
+        "createTime": "date",
+        "authority": {
+            "type": "constant_keyword"
+        },
+        "namespace": "keyword",
+        "legal": {
+            "properties": {
+                "legaltags": {
+                    "type": "keyword"
+                },
+                "otherRelevantDataCountries": {
+                    "type": "keyword"
+                },
+                "status": {
+                    "type": "keyword"
+                }
+            }
+        },
+        "createUser": "keyword",
+        "id": "keyword"
+    }
+}

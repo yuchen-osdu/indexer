@@ -1,0 +1,77 @@
+#  Copyright © Microsoft Corporation
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
+# Maven
+# Build your Java project and run tests with Apache Maven.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/java
+
+trigger:
+  branches:
+    include:
+    - master
+  paths:
+    exclude:
+      - README.md
+      - .gitignore
+
+pool:
+  name: dps-build
+  demands: maven
+
+steps:
+- task: Maven@3
+  displayName: 'build, test, code coverage'
+  inputs:
+    mavenPomFile: 'pom.xml'
+    options: '--settings ./indexer-core/maven/settings.xml -DVSTS_FEED_TOKEN=$(VSTS_FEED_TOKEN) -U'
+    testResultsFiles: '**/*/TEST-*.xml'
+    codeCoverageToolOption: JaCoCo
+    goals: 'install'
+
+- task: Maven@3
+  displayName: 'build, test, code coverage'
+  inputs:
+    mavenPomFile: 'pom.xml'
+    options: '--settings ./provider/indexer-azure/maven/settings.xml -DVSTS_FEED_TOKEN=$(VSTS_FEED_TOKEN) -U -P indexer-azure'
+    testResultsFiles: '**/*/TEST-*.xml'
+    codeCoverageToolOption: JaCoCo
+    goals: 'package'
+
+- task: CopyFiles@2
+  displayName: 'Copy Azure artifacts for maven deploy to: $(build.artifactstagingdirectory)'
+  inputs:
+    SourceFolder:
+    Contents: |
+      pom.xml
+      provider/indexer-azure/maven/settings.xml
+      provider/indexer-azure/pom.xml
+      provider/indexer-azure/target/*-spring-boot.jar
+    TargetFolder: '$(build.artifactstagingdirectory)'
+
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: 'testing'
+    includeRootFolder: true
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/indexer-integration-tests.zip'
+    replaceExistingArchive: true
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact: drop'
+  inputs:
+    PathtoPublish: '$(build.artifactstagingdirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
+  condition: succeededOrFailed()

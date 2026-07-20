@@ -1,0 +1,143 @@
+[
+  {
+    "id": "tenant1:<kindSubType>:testIngest61<timestamp>",
+    "data": {
+      "NameAliases": [
+        {
+          "AliasName": "1001",
+          "AliasNameTypeID": "osdu:reference-data--AliasNameType:UWI:"
+        },
+        {
+          "AliasName": "AHM-01",
+          "AliasNameTypeID": "osdu:reference-data--AliasNameType:Borehole%20Code:"
+        },
+        {
+          "AliasName": "ARNHEM-01",
+          "AliasNameTypeID": "osdu:reference-data--AliasNameType:Borehole:"
+        }
+      ],
+      "GeoContexts": [
+        {
+          "GeoPoliticalEntityID": "osdu:master-data--GeoPoliticalEntity:Gelderland:",
+          "GeoTypeID": "osdu:reference-data--GeoPoliticalEntityType:Province:"
+        },
+        {
+          "GeoPoliticalEntityID": "osdu:master-data--GeoPoliticalEntity:Lingewaard:",
+          "GeoTypeID": "osdu:reference-data--GeoPoliticalEntityType:Municipality:"
+        }
+      ],
+      "SpatialLocation": {
+        "AsIngestedCoordinates": {
+          "type": "AnyCrsFeatureCollection",
+          "CoordinateReferenceSystemID": "osdu:reference-data--CoordinateReferenceSystem:ED_1950_UTM_Zone_31N:",
+          "features": [
+            {
+              "type": "AnyCrsFeature",
+              "geometry": {
+                "type": "AnyCrsPoint",
+                "coordinates": [
+                  700113.0,
+                  5757315.0
+                ]
+              },
+              "properties": {}
+            }
+          ],
+          "persistableReferenceCrs": ""
+        },
+        "Wgs84Coordinates": {
+          "type": "FeatureCollection",
+          "features": [
+            {
+              "type": "Feature",
+              "geometry": {
+                "type": "Point",
+                "coordinates": [
+                  5.90929597,
+                  51.92868061
+                ]
+              },
+              "properties": {}
+            }
+          ]
+        }
+      },
+      "InitialOperatorID": "osdu:master-data--Organisation:Bataafse%20Petroleum%20Maatschappij:",
+      "CurrentOperatorID": "osdu:master-data--Organisation:Nederlandse%20Aardolie%20Maatschappij%20B.V.:",
+      "OperatingEnvironmentID": "osdu:reference-data--OperatingEnvironment:ON:",
+      "FacilityStates": [
+        {
+          "FacilityStateTypeID": "osdu:reference-data--FacilityStateType:Abandoned:"
+        }
+      ],
+      "FacilityEvents": [
+        {
+          "FacilityEventTypeID": "osdu:reference-data--FacilityEventType:Drilling%20Start:",
+          "EffectiveDateTime": "1944-03-01T00:00:00"
+        },
+        {
+          "FacilityEventTypeID": "osdu:reference-data--FacilityEventType:Drilling%20Finish:",
+          "EffectiveDateTime": "1944-10-02T00:00:00"
+        }
+      ],
+      "WellID": "osdu:master-data--Well:1001:",
+      "SequenceNumber": 1,
+      "VerticalMeasurements": [
+        {
+          "VerticalMeasurementID": "TD-Original",
+          "VerticalMeasurement": 662.0,
+          "VerticalMeasurementTypeID": "osdu:reference-data--VerticalMeasurementType:Total%20Depth:",
+          "VerticalMeasurementPathID": "osdu:reference-data--VerticalMeasurementPath:Measured%20Depth:",
+          "VerticalMeasurementUnitOfMeasureID": "osdu:reference-data--UnitOfMeasure:M:",
+          "VerticalReferenceID": "Measured_From"
+        },
+        {
+          "VerticalMeasurementID": "TVD",
+          "VerticalMeasurement": 662.0,
+          "VerticalMeasurementTypeID": "osdu:reference-data--VerticalMeasurementType:TD:",
+          "VerticalMeasurementPathID": "osdu:reference-data--VerticalMeasurementPath:True%20Vertical%20Depth:",
+          "VerticalMeasurementUnitOfMeasureID": "osdu:reference-data--UnitOfMeasure:M:",
+          "VerticalReferenceID": "Measured_From"
+        },
+        {
+          "VerticalMeasurementID": "Measured_From",
+          "VerticalMeasurement": 11.01,
+          "VerticalMeasurementTypeID": "osdu:reference-data--VerticalMeasurementType:Rotary%20Table:",
+          "VerticalMeasurementPathID": "osdu:reference-data--VerticalMeasurementPath:Elevation:",
+          "VerticalMeasurementUnitOfMeasureID": "osdu:reference-data--UnitOfMeasure:M:",
+          "VerticalCRSID": "osdu:reference-data--CoordinateReferenceSystem:NAP:"
+        }
+      ],
+      "DrillingReasons": [
+        {
+          "DrillingReasonTypeID": "osdu:reference-data--DrillingReasonType:EXP-HC:"
+        },
+        {
+          "DrillingReasonTypeID": "osdu:reference-data--DrillingReasonType:Exploratie%20koolwaterstof:"
+        }
+      ],
+      "TrajectoryTypeID": "osdu:reference-data--WellboreTrajectoryType:Vertikaal:",
+      "PrimaryMaterialID": "osdu:reference-data--MaterialType:OIL:",
+      "ProjectedBottomHoleLocation": {
+        "AsIngestedCoordinates": {
+          "type": "AnyCrsFeatureCollection",
+          "CoordinateReferenceSystemID": "osdu:reference-data--CoordinateReferenceSystem:ED_1950_UTM_Zone_31N:",
+          "features": [
+            {
+              "type": "AnyCrsFeature",
+              "geometry": {
+                "type": "AnyCrsPoint",
+                "coordinates": [
+                  700113.0,
+                  5757315.0
+                ]
+              },
+              "properties": {}
+            }
+          ],
+          "persistableReferenceCrs": ""
+        }
+      }
+    }
+  }
+]

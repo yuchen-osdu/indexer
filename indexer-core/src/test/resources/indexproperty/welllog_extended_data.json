@@ -1,0 +1,16 @@
+{
+    "SpatialLocation.SpatialGeometryTypeID": "opendes:reference-data--SpatialGeometryType:Point:",
+    "TechnicalAssuranceReviewerOrganisationNames": ["BigOil SeismicInterpretation Department (original)", "BigOil SeismicProcessing Department (original)"],
+    "SpatialLocation.Wgs84Coordinates": {
+        "geometries": [{
+                "coordinates": [171.8745361, -41.2456122],
+                "type": "point"
+            }
+        ],
+        "type": "geometrycollection"
+    },
+    "SpatialLocation.IsDecimated": false,
+    "TechnicalAssuranceReviewerNames": ["BigOil Department SeismicInterpretation (denormalized)", "BigOil Department SeismicProcessing (denormalized)"],
+    "WellboreName": "Kongahu-1",
+    "AssociatedIdentities": ["opendes:master-data--Organisation:BigOil-Department-SeismicProcessing", "opendes:master-data--Wellbore:nz-100000113552", "opendes:master-data--Organisation:BigOil-Department-SeismicInterpretation"]
+}

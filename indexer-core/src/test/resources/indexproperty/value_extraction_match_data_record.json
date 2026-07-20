@@ -1,0 +1,15 @@
+{
+    "VerticalMeasurements": [{
+            "VerticalCRSID": "opendes:reference-data--CoordinateReferenceSystem:Vertical:EPSG::5714:",
+            "VerticalMeasurementPathID": "opendes:reference-data--VerticalMeasurementPath:TrueVerticalHeight:",
+            "VerticalMeasurement": 1143,
+            "VerticalMeasurementTypeID": "opendes:reference-data--VerticalMeasurementType:GroundLevel:"
+        }, {
+            "VerticalMeasurementPathID": "opendes:reference-data--VerticalMeasurementPath:MeasuredDepth:",
+            "VerticalMeasurement": 4977,
+            "VerticalMeasurementTypeID": "opendes:reference-data--VerticalMeasurementType:TotalDepth:"
+        }
+    ],
+    "FacilityName": "OCLT2209D",
+    "FacilityTypeID": "opendes:reference-data--FacilityType:Wellbore:"
+}

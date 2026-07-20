@@ -1,0 +1,33 @@
+{
+    "schemaInfo": {
+        "schemaIdentity": {
+            "authority": "test",
+            "source": "indexer<timestamp>",
+            "entityType": "welllog",
+            "schemaVersionMajor": 1,
+            "schemaVersionMinor": 0,
+            "schemaVersionPatch": 0,
+            "id": "test:indexer<timestamp>:welllog:1.0.0"
+        },
+        "status": "DEVELOPMENT"
+    },
+    "schema": {
+        "properties": {
+            "data": {
+                "allOf": [{
+                    "type": "object",
+                    "properties": {
+                        "Name": {
+                            "description": "Name of the well log.",
+                            "type": "string"
+                        },
+                        "WellboreID": {
+                            "description": "The ID of the parent wellbore.",
+                            "type": "string"
+                        }
+                    }
+                }]
+            }
+        }
+    }
+}

@@ -1,0 +1,23 @@
+{
+  "properties": {
+    "data": {
+      "allOf": [
+        {
+          "type": "object",
+          "properties": {
+            "GeoShape": {
+              "$ref": "#/definitions/opendes:wks:geoJsonFeatureCollection:1.0.0",
+              "description": "The wellbore's position .",
+              "format": "core:dl:geopoint:1.0.0",
+              "title": "WGS 84 Position",
+              "type": "object"
+            },
+            "WellName": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

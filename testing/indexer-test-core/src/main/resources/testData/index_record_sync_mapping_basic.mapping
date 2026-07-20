@@ -1,0 +1,103 @@
+{
+	"dynamic": "false",
+	"properties": {
+		"acl": {
+			"properties": {
+				"owners": {
+					"type": "keyword"
+				},
+				"viewers": {
+					"type": "keyword"
+				}
+			}
+		},
+		"ancestry": {
+			"properties": {
+				"parents": {
+					"type": "keyword"
+				}
+			}
+		},
+		"data": {
+			"properties": {
+				"Full Name": {
+					"type": "text",
+					"fields": {
+						"keyword": {
+							"type": "keyword",
+							"null_value": "null",
+							"ignore_above": 256
+						}
+					}
+				},
+				"Address": {
+					"type": "text",
+					"fields": {
+						"keyword": {
+							"type": "keyword",
+							"null_value": "null",
+							"ignore_above": 256
+						}
+					}
+				},
+				"Phone": {
+					"type": "text",
+					"fields": {
+						"keyword": {
+							"type": "keyword",
+							"null_value": "null",
+							"ignore_above": 256
+						}
+					}
+				}
+			}
+		},
+		"id": {
+			"type": "keyword"
+		},
+		"index": {
+			"properties": {
+				"lastUpdateTime": {
+					"type": "date"
+				},
+				"statusCode": {
+					"type": "integer"
+				},
+				"trace": {
+					"type": "text"
+				}
+			}
+		},
+		"kind": {
+			"type": "keyword"
+		},
+		"legal": {
+			"properties": {
+				"legaltags": {
+					"type": "keyword"
+				},
+				"otherRelevantDataCountries": {
+					"type": "keyword"
+				},
+				"status": {
+					"type": "keyword"
+				}
+			}
+		},
+		"namespace": {
+			"type": "keyword"
+		},
+		"tags": {
+			"type": "flattened"
+		},
+		"type": {
+			"type": "keyword"
+		},
+		"version": {
+			"type": "long"
+		},
+		"x-acl": {
+			"type": "keyword"
+		}
+	}
+}

@@ -1,0 +1,10 @@
+{
+    "FacilityID": "IntegrationTest-27869678942075",
+    "FacilityTypeID": "osdu:reference-data--FacilityType:Wellbore:",
+    "CurrentOperatorID": "osdu:master-data--Organisation:Renee%20Reyes:",
+    "FacilityEvents": [{
+            "FacilityEventTypeID": "osdu:reference-data--FacilityEventType:Spud:",
+            "EffectiveDateTime": "1976-10-21T00:00:00"
+        }
+    ] 
+}

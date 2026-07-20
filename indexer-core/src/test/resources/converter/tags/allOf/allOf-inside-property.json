@@ -1,0 +1,33 @@
+{
+  "definitions": {
+    "def1": {
+      "properties": {
+        "prop1": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "properties": {
+    "data": {
+      "properties": {
+        "FacilityName": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/def1"
+            },
+            {
+              "properties": {
+                "val" : {
+                  "type": "string" }
+              }
+            }
+          ]
+        }
+      },
+      "type": "object"
+    }
+  }
+}
+
+

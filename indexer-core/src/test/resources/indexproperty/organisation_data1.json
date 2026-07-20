@@ -1,0 +1,8 @@
+{
+    "InternalOrganisationIndicator": true,
+    "VirtualProperties.DefaultName": "BigOil SeismicInterpretation Department (original)",
+    "VersionCreationReason": "Index testing",
+    "OrganisationName": "BigOil SeismicInterpretation Department (original)",
+    "TechnicalAssuranceTypeID": "opendes:reference-data--TechnicalAssuranceType:Certified:",
+    "OrganisationTypeID": "opendes:reference-data--OrganisationType:OrganizationUnit:"
+}

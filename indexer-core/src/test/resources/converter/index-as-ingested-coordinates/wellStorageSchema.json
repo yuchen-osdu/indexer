@@ -1,0 +1,129 @@
+{
+  "kind": "osdu:wks:master-data--Well:1.2.0",
+  "type": "master-data--Well",
+  "dataSchema": {
+    "SpatialLocation.AppliedOperations": "text_array",
+    "VirtualProperties.DefaultLocation.QuantitativeAccuracyBandID": "text",
+    "DefaultVerticalMeasurementID": "text",
+    "WasBusinessInterestObligatory": "text",
+    "ResourceCurationStatus": "text",
+    "RoleID": "text",
+    "FacilityName": "text",
+    "VirtualProperties.DefaultLocation.AppliedOperations": "text_array",
+    "VirtualProperties.DefaultName": "text",
+    "VirtualProperties.DefaultLocation.CoordinateQualityCheckPerformedBy": "text",
+    "ResourceSecurityClassification": "text",
+    "InterestTypeID": "text",
+    "DataSourceOrganisationID": "text",
+    "SpatialLocation.SpatialParameterTypeID": "text",
+    "ExistenceKind": "text",
+    "SpatialLocation.CoordinateQualityCheckRemarks": "text_array",
+    "FacilityTypeID": "text",
+    "BusinessIntentionID": "text",
+    "DefaultVerticalCRSID": "text",
+    "FacilityEvents": {
+      "type": "nested",
+      "properties": {
+        "TerminationDateTime": "date",
+        "EffectiveDateTime": "date",
+        "FacilityEventTypeID": "text",
+        "Remark": "text"
+      }
+    },
+    "VirtualProperties.DefaultLocation.IsDecimated": "boolean",
+    "TechnicalAssuranceTypeID": "text",
+    "CurrentOperatorID": "text",
+    "SpatialLocation.CoordinateQualityCheckDateTime": "date",
+    "SpatialLocation.SpatialGeometryTypeID": "text",
+    "OperatingEnvironmentID": "text",
+    "HistoricalInterests": "object",
+    "ResourceHostRegionIDs": "text_array",
+    "StatusSummaryID": "text",
+    "VirtualProperties.DefaultLocation.QualitativeSpatialAccuracyTypeID": "text",
+    "ConditionID": "text",
+    "InitialOperatorID": "text",
+    "FacilityStates": {
+      "type": "nested",
+      "properties": {
+        "TerminationDateTime": "date",
+        "EffectiveDateTime": "date",
+        "FacilityStateTypeID": "text",
+        "Remark": "text"
+      }
+    },
+    "FacilityNameAliases": "object",
+    "ResourceLifecycleStatus": "text",
+    "SpatialLocation.Wgs84Coordinates": "geo_shape",
+    "TechnicalAssuranceID": "text",
+    "VirtualProperties.DefaultLocation.SpatialLocationCoordinatesDate": "date",
+    "VirtualProperties.DefaultLocation.SpatialGeometryTypeID": "text",
+    "Source": "text",
+    "FacilityID": "text",
+    "FacilitySpecifications": "flattened",
+    "OutcomeID": "text",
+    "VerticalMeasurements": {
+      "type": "nested",
+      "properties": {
+        "WellboreTVDTrajectoryID": "text",
+        "VerticalReferenceID": "text",
+        "VerticalMeasurementID": "text",
+        "VerticalMeasurementUnitOfMeasureID": "text",
+        "VerticalReferenceEntityID": "text",
+        "VerticalCRSID": "text",
+        "VerticalMeasurementSourceID": "text",
+        "TerminationDateTime": "date",
+        "VerticalMeasurementPathID": "text",
+        "EffectiveDateTime": "date",
+        "VerticalMeasurement": "double",
+        "VerticalMeasurementTypeID": "text",
+        "VerticalMeasurementDescription": "text",
+        "RigID": "text"
+      }
+    },
+    "VersionCreationReason": "text",
+    "FacilityDescription": "text",
+    "SpatialLocation.CoordinateQualityCheckPerformedBy": "text",
+    "FacilityOperators": {
+      "type": "nested",
+      "properties": {
+        "FacilityOperatorID": "text",
+        "TerminationDateTime": "date",
+        "EffectiveDateTime": "date",
+        "FacilityOperatorOrganisationID": "text",
+        "Remark": "text"
+      }
+    },
+    "VirtualProperties.DefaultLocation.CoordinateQualityCheckRemarks": "text_array",
+    "NameAliases": {
+      "type": "nested",
+      "properties": {
+        "AliasName": "text",
+        "TerminationDateTime": "date",
+        "AliasNameTypeID": "text",
+        "EffectiveDateTime": "date",
+        "DefinitionOrganisationID": "text"
+      }
+    },
+    "SpatialLocation.SpatialLocationCoordinatesDate": "date",
+    "GeoContexts": {
+      "type": "nested",
+      "properties": {
+        "BasinID": "text",
+        "FieldID": "text",
+        "PlayID": "text",
+        "GeoPoliticalEntityID": "text",
+        "GeoTypeID": "text",
+        "ProspectID": "text"
+      }
+    },
+    "WasBusinessInterestFinancialNonOperated": "text",
+    "VirtualProperties.DefaultLocation.CoordinateQualityCheckDateTime": "date",
+    "SpatialLocation.QualitativeSpatialAccuracyTypeID": "text",
+    "WasBusinessInterestTechnical": "text",
+    "VirtualProperties.DefaultLocation.SpatialParameterTypeID": "text",
+    "ResourceHomeRegionID": "text",
+    "WasBusinessInterestFinancialOperated": "text",
+    "VirtualProperties.DefaultLocation.Wgs84Coordinates": "geo_shape",
+    "SpatialLocation.QuantitativeAccuracyBandID": "text"
+  }
+}

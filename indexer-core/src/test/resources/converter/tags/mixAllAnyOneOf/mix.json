@@ -1,0 +1,57 @@
+{
+  "definitions": {
+    "wellboreData1": {
+      "properties": {
+        "prop1": {
+          "type": "string"
+        }
+      }
+    },
+    "wellboreData2": {
+      "properties": {
+        "prop2": {
+          "type": "string"
+        }
+      }
+    },
+    "wellboreData3": {
+      "properties": {
+        "prop3": {
+          "type": "string"
+        }
+      }
+    },
+    "wellboreData4": {
+      "properties": {
+        "prop4": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "properties": {
+    "data": {
+      "allOf": [
+        {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/wellboreData1"
+            } ],
+          "oneOf": [
+            {
+              "$ref": "#/definitions/wellboreData2"
+            }
+          ]
+        },
+        {
+          "$ref": "#/definitions/wellboreData3"
+        },
+        {
+          "$ref": "#/definitions/wellboreData4"
+        }
+      ]
+    }
+  }
+}
+
+

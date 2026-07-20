@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: {{ .Values.conf.appName |  quote }}
+  name: {{ .Values.conf.configmap | quote }}
+  namespace: {{ .Release.Namespace | quote }}
+data:
+  COLLABORATIONS_ENABLED: {{ .Values.data.collaborationsEnabled | quote }}
+  ENTITLEMENTS_HOST: {{ .Values.data.entitlementsHost | quote }}
+  LOG_LEVEL: {{ .Values.data.logLevel | quote }}
+  PARTITION_HOST: {{ .Values.data.partitionHost | quote }}
+  {{- if .Values.data.redisIndexerHost }}
+  REDIS_GROUP_HOST: {{ .Values.data.redisIndexerHost | quote }}
+  REDIS_SEARCH_HOST: {{ .Values.data.redisIndexerHost | quote }}
+  {{- else }}
+  REDIS_GROUP_HOST: {{ printf "redis-%s" .Values.conf.appName | quote }}
+  REDIS_SEARCH_HOST: {{ printf "redis-%s" .Values.conf.appName | quote }}
+  {{- end }}
+  REDIS_SEARCH_PORT: {{ .Values.data.redisIndexerPort | quote }}
+  REDIS_GROUP_PORT: {{ .Values.data.redisIndexerPort | quote }}
+  SCHEMA_BASE_HOST: {{ .Values.data.schemaHost | quote }}
+  SECURITY_HTTPS_CERTIFICATE_TRUST: {{ .Values.data.securityHttpsCertificateTrust | quote }}
+  STORAGE_HOST: {{ .Values.data.storageHost | quote }}
+  {{- if .Values.data.pubsubSearchTopicV2 }}
+  PUBSUB_SEARCH_TOPIC_V2: {{ .Values.data.pubsubSearchTopicV2 | quote }}
+  {{- end }}
+  {{- if .Values.data.javaToolOptions }}
+  JAVA_TOOL_OPTIONS: {{ .Values.data.javaToolOptions | quote }}
+  OTEL_EXPORTER_OTLP_ENDPOINT: {{ .Values.data.otelExporterEndpoint | quote}}
+  OTEL_EXPORTER_OTLP_PROTOCOL: {{ .Values.data.otelExporterProtocol | quote}}
+  {{- end }}

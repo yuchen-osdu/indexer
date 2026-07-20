@@ -1,0 +1,115 @@
+variables:
+  AWS_BUILD_SUBDIR: provider/indexer-aws/build-aws
+  AWS_TEST_SUBDIR: testing/indexer-test-aws
+  AWS_CHART_SUBDIR: devops/aws/chart
+  AWS_SERVICE: indexer
+  AWS_SERVICE_GATEWAY: osdu-gateway
+  AWS_ENVIRONMENT: dev
+  AWS_DEPLOY_TARGET: TF
+  AWS_EKS_DEPLOYMENT_NAME: os-indexer
+
+  GCP_BUILD_SUBDIR: provider/indexer-gcp
+  GCP_INT_TEST_SUBDIR: testing/indexer-test-gcp
+  GCP_APPLICATION_NAME: osdu-indexer
+  GCP_ENVIRONMENT: dev
+  GCP_PROJECT: opendes
+  GCP_TENANT_NAME: opendes
+  GCP_DEPLOY_ENV: p4d
+  GCP_DOMAIN: cloud.slb-ds.com
+  GCP_STORAGE_URL: https://osdu-indexer-dot-opendes.appspot.com/api/storage/v2/
+
+  AZURE_SERVICE: indexer
+  AZURE_BUILD_SUBDIR: provider/indexer-azure
+  AZURE_TEST_SUBDIR: testing/indexer-test-azure
+  SERVICE_JAVA_VERSION: "17"
+
+  CIMPL_OPENAPI_SPEC_PATH: docs/api/community/v2/openapi.yaml
+  CIMPL_OPENAPI_YAML_ROUTE: /api/indexer/v2/api-docs.yaml
+
+  CORE_BUILD_SUBDIR: indexer-core
+  CORE_COVERAGE_THRESHOLD: "80"
+  ACCEPTANCE_TEST_DIR: "indexer-acceptance-test"
+
+include:
+  - project: "osdu/platform/ci-cd-pipelines"
+    file: "standard-setup.yml"
+
+  - project: "osdu/platform/ci-cd-pipelines"
+    file: "build/maven.yml"
+
+  - project: "osdu/platform/ci-cd-pipelines"
+    file: "scanners/fossa-maven.yml"
+
+  - project: "osdu/platform/ci-cd-pipelines"
+    file: "scanners/gitlab-ultimate.yml"
+
+  - project: "osdu/platform/ci-cd-pipelines"
+    file: "reporting/reporting.yml"
+
+  - project: "osdu/platform/ci-cd-pipelines"
+    file: "publishing/common-pages.yml"
+
+  - project: "osdu/platform/ci-cd-pipelines"
+    file: "cloud-providers/aws-global.yml"
+
+  - project: "osdu/platform/ci-cd-pipelines"
+    file: "cloud-providers/aws-maven.yml"
+
+  - project: "osdu/platform/ci-cd-pipelines"
+    file: "cloud-providers/azure.yml"
+
+  - project: "osdu/platform/ci-cd-pipelines"
+    file: "cloud-providers/gc-global.yml"
+
+  - project: "osdu/platform/ci-cd-pipelines"
+    file: "cloud-providers/cimpl-global.yml"
+
+  - project: "osdu/platform/ci-cd-pipelines"
+    file: "build/cimpl-otel.yml"
+
+  - project: "osdu/platform/ci-cd-pipelines"
+    file: "cloud-providers/aws-one-pipeline.yml"
+
+  - project: "osdu/platform/ci-cd-pipelines"
+    file: "cloud-providers/azure-one-pipeline.yml"
+
+  - project: "osdu/platform/ci-cd-pipelines"
+    file: "cloud-providers/gc-one-pipeline.yml"
+
+  - project: "osdu/platform/ci-cd-pipelines"
+    file: "reporting/schemathesis.yml"
+
+  - local: "devops/gc/pipeline/override-stages.yml"
+  - local: "devops/aws/pipeline/override-stages.yml"
+  - local: "devops/core-plus/pipeline/override-stages.yml"
+
+download_plugins:
+  image: maven:3.8.3-openjdk-17-slim
+  stage: build
+  tags: ["osdu-small"]
+  variables:
+    OQM_PACKAGE_REGISRTY_URL: "https://community.opengroup.org/api/v4/projects/1450/packages/maven"
+    OQM_VERSION: "0.28.2"
+    APD_PACKAGE_REGISTRY_URL: "https://community.opengroup.org/api/v4/projects/1445/packages/maven"
+    APD_VERSION: "0.27.0-rc1"
+
+  artifacts:
+    paths:
+      - ./tmp/*.jar
+    when: always
+    expire_in: 1 days
+
+  script:
+    - mvn dependency:copy -DrepoUrl=$OQM_PACKAGE_REGISRTY_URL -Dartifact="org.opengroup.osdu:os-oqm-rabbitmq:$OQM_VERSION:jar:plugin" -Dtransitive=false -DoutputDirectory="./tmp"
+    - mvn dependency:copy -DrepoUrl=$APD_PACKAGE_REGISTRY_URL -Dartifact="org.opengroup.osdu:apd-openid:$APD_VERSION:jar:plugin" -Dtransitive=false -DoutputDirectory="./tmp"
+
+  only:
+    variables:
+      - $CIMPL == '1'
+
+aws-test-java:
+  image: $CI_REGISTRY/osdu/platform/deployment-and-operations/base-containers-aws/aws-maven/aws-maven:v2.1
+  tags: ["aws-internal-test-ubuntu22.04"]
+
+schemathesis-tests:
+  extends: .schemathesis-tests-template

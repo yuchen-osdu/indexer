@@ -1,0 +1,35 @@
+{
+    "nested": {
+        "boost": 1.0,
+        "ignore_unmapped": true,
+        "path": "data.Configurations",
+        "query": {
+            "nested": {
+                "boost": 1.0,
+                "ignore_unmapped": true,
+                "path": "data.Configurations.Paths",
+                "query": {
+                    "query_string": {
+                        "boost": 1.0,
+                        "allow_leading_wildcard": false,
+                        "auto_generate_synonyms_phrase_query": true,
+                        "default_operator": "or",
+                        "enable_position_increments": true,
+                        "escape": false,
+                        "fields": [],
+                        "fuzziness": "AUTO",
+                        "fuzzy_max_expansions": 50,
+                        "fuzzy_prefix_length": 0,
+                        "fuzzy_transpositions": true,
+                        "max_determinized_states": 10000,
+                        "phrase_slop": 0.0,
+                        "query": "data.Configurations.Paths.RelatedObjectsSpec.RelationshipDirection:ChildToParent AND data.Configurations.Paths.RelatedObjectsSpec.RelatedObjectKind:\"osdu:wks:master-data--Wellbore:1.\"",
+                        "type": "best_fields"
+                    }
+                },
+                "score_mode": "avg"
+            }
+        },
+        "score_mode": "avg"
+    }
+}

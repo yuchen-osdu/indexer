@@ -1,0 +1,142 @@
+{
+    "Name": "A0_FINAL_INTER_REF_D",
+    "VirtualProperties.DefaultName": "A0_FINAL_INTER_REF_D",
+    "WellboreID": "opendes:master-data--Wellbore:nz-100000113552:",
+    "ReferenceCurveID": "DEPTH",
+    "TechnicalAssurances": [{
+            "Comment": "This is free form text from reviewer, e.g. restrictions on use",
+            "UnacceptableUsage": [{
+                    "WorkflowUsage": "opendes:reference-data--WorkflowUsageType:SeismicInterpretation:",
+                    "WorkflowPersona": "opendes:reference-data--WorkflowPersonaType:SeismicInterpreter:"
+                }
+            ],
+            "TechnicalAssuranceTypeID": "opendes:reference-data--TechnicalAssuranceType:Trusted:",
+            "Reviewers": [{
+                    "RoleTypeID": "opendes:reference-data--ContactRoleType:ProjectManager:AccountOwner:",
+                    "OrganisationID": "opendes:master-data--Organisation:BigOil-Department-SeismicProcessing:",
+                    "Name": "BigOil Department SeismicProcessing (denormalized)"
+                }, {
+                    "RoleTypeID": "opendes:reference-data--ContactRoleType:AccountOwner:",
+                    "OrganisationID": "opendes:master-data--Organisation:BigOil-Department-SeismicInterpretation:",
+                    "Name": "BigOil Department SeismicInterpretation (denormalized)"
+                }
+            ],
+            "AcceptableUsage": [{
+                    "WorkflowUsage": "opendes:reference-data--WorkflowUsageType:SeismicProcessing:",
+                    "WorkflowPersona": "opendes:reference-data--WorkflowPersonaType:SeismicProcessor:"
+                }
+            ],
+            "EffectiveDate": "2020-02-13T00:00:00+0000"
+        }
+    ],
+    "Curves": [{
+            "NumberOfColumns": 1,
+            "LogCurveFamilyID": "opendes:reference-data--LogCurveFamily:Measured%20Depth:",
+            "CurveID": "DEPTH",
+            "Mnemonic": "DEPTH",
+            "CurveUnit": "opendes:reference-data--UnitOfMeasure:M:"
+        }, {
+            "NumberOfColumns": 1,
+            "LogCurveFamilyID": "opendes:reference-data--LogCurveFamily:Bit%20Size:",
+            "CurveID": "BS",
+            "Mnemonic": "BS",
+            "CurveUnit": "opendes:reference-data--UnitOfMeasure:IN:"
+        }, {
+            "NumberOfColumns": 1,
+            "LogCurveFamilyID": "opendes:reference-data--LogCurveFamily:Caliper:",
+            "CurveID": "CALI",
+            "Mnemonic": "CALI",
+            "CurveUnit": "opendes:reference-data--UnitOfMeasure:IN:"
+        }, {
+            "NumberOfColumns": 1,
+            "LogCurveFamilyID": "opendes:reference-data--LogCurveFamily:Bulk%20Density:",
+            "CurveID": "DENS",
+            "Mnemonic": "DENS",
+            "CurveUnit": "opendes:reference-data--UnitOfMeasure:G%2FC3:"
+        }, {
+            "NumberOfColumns": 1,
+            "LogCurveFamilyID": "opendes:reference-data--LogCurveFamily:Bulk%20Density:",
+            "CurveID": "DENS_CORR",
+            "Mnemonic": "DENS_CORR",
+            "CurveUnit": "opendes:reference-data--UnitOfMeasure:G%2FC3:"
+        }, {
+            "NumberOfColumns": 1,
+            "LogCurveFamilyID": "opendes:reference-data--LogCurveFamily:Bulk%20Density%20Correction:",
+            "CurveID": "DRHO",
+            "Mnemonic": "DRHO",
+            "CurveUnit": "opendes:reference-data--UnitOfMeasure:G%2FC3:"
+        }, {
+            "NumberOfColumns": 1,
+            "LogCurveFamilyID": "opendes:reference-data--LogCurveFamily:Compressional%20Slowness:",
+            "CurveID": "DTC",
+            "Mnemonic": "DTC",
+            "CurveUnit": "opendes:reference-data--UnitOfMeasure:US%2FF:"
+        }, {
+            "NumberOfColumns": 1,
+            "LogCurveFamilyID": "opendes:reference-data--LogCurveFamily:Gamma%20Ray:",
+            "CurveID": "GR",
+            "Mnemonic": "GR",
+            "CurveUnit": "opendes:reference-data--UnitOfMeasure:GAPI:"
+        }, {
+            "NumberOfColumns": 1,
+            "LogCurveFamilyID": "opendes:reference-data--LogCurveFamily:Gamma%20Ray:",
+            "CurveID": "GR_CORR",
+            "Mnemonic": "GR_CORR",
+            "CurveUnit": "opendes:reference-data--UnitOfMeasure:GAPI:"
+        }, {
+            "NumberOfColumns": 1,
+            "LogCurveFamilyID": "opendes:reference-data--LogCurveFamily:Neutron%20Porosity:",
+            "CurveID": "NEUT",
+            "Mnemonic": "NEUT",
+            "CurveUnit": "opendes:reference-data--UnitOfMeasure:V%2FV:"
+        }, {
+            "NumberOfColumns": 1,
+            "LogCurveFamilyID": "opendes:reference-data--LogCurveFamily:Neutron%20Porosity:",
+            "CurveID": "NEUT_CORR",
+            "Mnemonic": "NEUT_CORR",
+            "CurveUnit": "opendes:reference-data--UnitOfMeasure:V%2FV:"
+        }, {
+            "NumberOfColumns": 1,
+            "LogCurveFamilyID": "opendes:reference-data--LogCurveFamily:Photoelectric%20Factor:",
+            "CurveID": "PEF",
+            "Mnemonic": "PEF",
+            "CurveUnit": "opendes:reference-data--UnitOfMeasure:B%2FE:"
+        }, {
+            "NumberOfColumns": 1,
+            "LogCurveFamilyID": "opendes:reference-data--LogCurveFamily:Resistivity%20-%20Deep:",
+            "CurveID": "RESD",
+            "Mnemonic": "RESD",
+            "CurveUnit": "opendes:reference-data--UnitOfMeasure:OHMM:"
+        }, {
+            "NumberOfColumns": 1,
+            "LogCurveFamilyID": "opendes:reference-data--LogCurveFamily:Resistivity%20-%20Deep:",
+            "CurveID": "RESD_CORR",
+            "Mnemonic": "RESD_CORR",
+            "CurveUnit": "opendes:reference-data--UnitOfMeasure:OHMM:"
+        }, {
+            "NumberOfColumns": 1,
+            "LogCurveFamilyID": "opendes:reference-data--LogCurveFamily:Tool%20Status:",
+            "CurveID": "RESS",
+            "Mnemonic": "RESS",
+            "CurveUnit": "opendes:reference-data--UnitOfMeasure:OHMM:"
+        }, {
+            "NumberOfColumns": 1,
+            "LogCurveFamilyID": "opendes:reference-data--LogCurveFamily:Tool%20Status:",
+            "CurveID": "RESS_CORR",
+            "Mnemonic": "RESS_CORR",
+            "CurveUnit": "opendes:reference-data--UnitOfMeasure:OHMM:"
+        }, {
+            "NumberOfColumns": 1,
+            "LogCurveFamilyID": "opendes:reference-data--LogCurveFamily:Spontaneous%20Potential:",
+            "CurveID": "SP",
+            "Mnemonic": "SP",
+            "CurveUnit": "opendes:reference-data--UnitOfMeasure:MV:"
+        }, {
+            "NumberOfColumns": 1,
+            "LogCurveFamilyID": "opendes:reference-data--LogCurveFamily:Tension:",
+            "CurveID": "TENS",
+            "Mnemonic": "TENS",
+            "CurveUnit": "opendes:reference-data--UnitOfMeasure:KGF:"
+        }
+    ]
+}

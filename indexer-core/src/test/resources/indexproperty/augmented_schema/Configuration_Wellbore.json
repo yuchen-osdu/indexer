@@ -1,0 +1,237 @@
+{
+    "AttributionPublication": null,
+    "InactiveIndicator": null,
+    "Description": "The index property list for master-data--Wellbore:1., valid for all master-data--Wellbore kinds for major version 1.",
+    "ResourceLifecycleStatus": null,
+    "ResourceCurationStatus": null,
+    "TechnicalAssuranceID": null,
+    "Code": "osdu:wks:master-data--Wellbore:1.",
+    "Source": null,
+    "Name": "Wellbore-IndexPropertyPathConfiguration",
+    "AttributionAuthority": "OSDU",
+    "ResourceHomeRegionID": null,
+    "VirtualProperties.DefaultName": "Wellbore-IndexPropertyPathConfiguration",
+    "AttributionRevision": null,
+    "ResourceSecurityClassification": null,
+    "ID": null,
+    "ExistenceKind": null,
+    "Configurations": [{
+            "Policy": "ExtractFirstMatch",
+            "UseCase": "As a user I want to discover Wellbore instances by the well's name value.",
+            "Paths": [{
+                    "RelatedObjectsSpec.RelatedObjectID": "data.WellID",
+                    "ValueExtraction.ValuePath": "data.CountryNames",
+                    "RelatedObjectsSpec.RelatedObjectKind": "osdu:wks:master-data--Well:1.",
+                    "RelatedObjectsSpec.RelatedConditionProperty": null,
+                    "RelatedObjectsSpec.RelationshipDirection": "ChildToParent",
+                    "ValueExtraction.RelatedConditionProperty": null
+                }
+            ],
+            "Name": "CountryNames"
+        }, {
+            "Policy": "ExtractFirstMatch",
+            "UseCase": "As a user I want to discover Wellbore instances by the well's UWI value.",
+            "Paths": [{
+                    "RelatedObjectsSpec.RelatedObjectID": "data.WellID",
+                    "ValueExtraction.ValuePath": "data.WellUWI",
+                    "RelatedObjectsSpec.RelatedObjectKind": "osdu:wks:master-data--Well:1.",
+                    "RelatedObjectsSpec.RelatedConditionProperty": null,
+                    "RelatedObjectsSpec.RelationshipDirection": "ChildToParent",
+                    "ValueExtraction.RelatedConditionProperty": null
+                }
+            ],
+            "Name": "WellUWI"
+        }, {
+            "Policy": "ExtractFirstMatch",
+            "UseCase": "As a user I want to find objects by a country name.",
+            "Paths": [{
+                    "RelatedObjectsSpec.RelatedObjectID": "data.GeoContexts[].GeoPoliticalEntityID",
+                    "RelatedObjectsSpec.RelatedConditionMatches": [
+                        "opendes:reference-data--GeoPoliticalEntityType:Country:"
+                    ],
+                    "ValueExtraction.ValuePath": "data.GeoPoliticalEntityName",
+                    "RelatedObjectsSpec.RelatedObjectKind": "osdu:wks:master-data--GeoPoliticalEntity:1.",
+                    "RelatedObjectsSpec.RelatedConditionProperty": "data.GeoContexts[].GeoTypeID",
+                    "RelatedObjectsSpec.RelationshipDirection": "ChildToParent",
+                    "ValueExtraction.RelatedConditionProperty": null
+                }
+            ],
+            "Name": "CountryName"
+        }, {
+            "Policy": "ExtractFirstMatch",
+            "UseCase": "As a user I want to find objects by a Region Name.",
+            "Paths": [{
+                    "RelatedObjectsSpec.RelatedObjectID": "data.GeoContexts[].GeoPoliticalEntityID",
+                    "RelatedObjectsSpec.RelatedConditionMatches": [
+                        "opendes:reference-data--GeoPoliticalEntityType:Region:"
+                    ],
+                    "ValueExtraction.ValuePath": "data.GeoPoliticalEntityName",
+                    "RelatedObjectsSpec.RelatedObjectKind": "osdu:wks:master-data--GeoPoliticalEntity:1.",
+                    "RelatedObjectsSpec.RelatedConditionProperty": "data.GeoContexts[].GeoTypeID",
+                    "RelatedObjectsSpec.RelationshipDirection": "ChildToParent",
+                    "ValueExtraction.RelatedConditionProperty": null
+                }
+            ],
+            "Name": "RegionName"
+        }, {
+            "Policy": "ExtractFirstMatch",
+            "UseCase": "As a user I want to find objects by a Block Name.",
+            "Paths": [{
+                    "RelatedObjectsSpec.RelatedObjectID": "data.GeoContexts[].GeoPoliticalEntityID",
+                    "RelatedObjectsSpec.RelatedConditionMatches": [
+                        "opendes:reference-data--GeoPoliticalEntityType:LicenseBlock:"
+                    ],
+                    "ValueExtraction.ValuePath": "data.GeoPoliticalEntityName",
+                    "RelatedObjectsSpec.RelatedObjectKind": "osdu:wks:master-data--GeoPoliticalEntity:1.",
+                    "RelatedObjectsSpec.RelatedConditionProperty": "data.GeoContexts[].GeoTypeID",
+                    "RelatedObjectsSpec.RelationshipDirection": "ChildToParent",
+                    "ValueExtraction.RelatedConditionProperty": null
+                }
+            ],
+            "Name": "BlockName"
+        }, {
+            "Policy": "ExtractFirstMatch",
+            "UseCase": "As a user I want to find objects by a Field Name.",
+            "Paths": [{
+                    "RelatedObjectsSpec.RelatedObjectID": "data.GeoContexts[].FieldID",
+                    "ValueExtraction.ValuePath": "data.FieldName",
+                    "RelatedObjectsSpec.RelatedObjectKind": "osdu:wks:master-data--Field:1.",
+                    "RelatedObjectsSpec.RelatedConditionProperty": null,
+                    "RelatedObjectsSpec.RelationshipDirection": "ChildToParent",
+                    "ValueExtraction.RelatedConditionProperty": null
+                }
+            ],
+            "Name": "FieldName"
+        }, {
+            "Policy": "ExtractFirstMatch",
+            "UseCase": "As a user I want to find objects by a Well Name.",
+            "Paths": [{
+                    "RelatedObjectsSpec.RelatedObjectID": "data.WellID",
+                    "ValueExtraction.ValuePath": "data.FacilityName",
+                    "RelatedObjectsSpec.RelatedObjectKind": "osdu:wks:master-data--Well:1.",
+                    "RelatedObjectsSpec.RelatedConditionProperty": null,
+                    "RelatedObjectsSpec.RelationshipDirection": "ChildToParent",
+                    "ValueExtraction.RelatedConditionProperty": null
+                }
+            ],
+            "Name": "WellName"
+        }, {
+            "Policy": "ExtractFirstMatch",
+            "UseCase": "As a user I want to find objects by a UWI.",
+            "Paths": [{
+                    "RelatedObjectsSpec.RelatedObjectID": "data.WellID",
+                    "ValueExtraction.ValuePath": "data.FacilityID",
+                    "RelatedObjectsSpec.RelatedObjectKind": "osdu:wks:master-data--Well:1.",
+                    "RelatedObjectsSpec.RelatedConditionProperty": null,
+                    "RelatedObjectsSpec.RelationshipDirection": "ChildToParent",
+                    "ValueExtraction.RelatedConditionProperty": null
+                }
+            ],
+            "Name": "UWI"
+        }, {
+            "Policy": "ExtractFirstMatch",
+            "UseCase": "As a user I want to find objects by a Wellbore Status.",
+            "Paths": [{
+                    "RelatedObjectsSpec.RelatedObjectID": "data.StatusSummaryID",
+                    "ValueExtraction.ValuePath": "data.Name",
+                    "RelatedObjectsSpec.RelatedObjectKind": "osdu:wks:reference-data--WellStatusSummary:1.",
+                    "RelatedObjectsSpec.RelatedConditionProperty": null,
+                    "RelatedObjectsSpec.RelationshipDirection": "ChildToParent",
+                    "ValueExtraction.RelatedConditionProperty": null
+                }
+            ],
+            "Name": "WellboreStatus"
+        }, {
+            "Policy": "ExtractFirstMatch",
+            "UseCase": "As a user I want to find objects by a Current Operator.",
+            "Paths": [{
+                    "RelatedObjectsSpec.RelatedObjectID": "data.CurrentOperatorID",
+                    "ValueExtraction.ValuePath": "data.OrganisationName",
+                    "RelatedObjectsSpec.RelatedObjectKind": "osdu:wks:master-data--Organisation:1.",
+                    "RelatedObjectsSpec.RelatedConditionProperty": null,
+                    "RelatedObjectsSpec.RelationshipDirection": "ChildToParent",
+                    "ValueExtraction.RelatedConditionProperty": null
+                }
+            ],
+            "Name": "CurrentOperator"
+        }, {
+            "Policy": "ExtractFirstMatch",
+            "UseCase": "As a user I want to find objects by a Wellbore Classification.",
+            "Paths": [{
+                    "RelatedObjectsSpec.RelatedObjectID": "data.FacilityStates.FacilityStateTypeID",
+                    "ValueExtraction.ValuePath": "data.Name",
+                    "RelatedObjectsSpec.RelatedObjectKind": "osdu:wks:reference-data--FacilityStateType:1.",
+                    "RelatedObjectsSpec.RelatedConditionProperty": null,
+                    "RelatedObjectsSpec.RelationshipDirection": "ChildToParent",
+                    "ValueExtraction.RelatedConditionProperty": null
+                }
+            ],
+            "Name": "WellboreClassification"
+        }, {
+            "Policy": "ExtractFirstMatch",
+            "UseCase": "As a user I want to find objects by a Wellbore Phase.",
+            "Paths": [{
+                    "RelatedObjectsSpec.RelatedObjectID": "data.BusinessIntentionID",
+                    "ValueExtraction.ValuePath": "data.Name",
+                    "RelatedObjectsSpec.RelatedObjectKind": "osdu:wks:reference-data--WellBusinessIntention:1.",
+                    "RelatedObjectsSpec.RelatedConditionProperty": null,
+                    "RelatedObjectsSpec.RelationshipDirection": "ChildToParent",
+                    "ValueExtraction.RelatedConditionProperty": null
+                }
+            ],
+            "Name": "WellborePhase"
+        }, {
+            "Policy": "ExtractFirstMatch",
+            "UseCase": "As a user I want to find objects by a Wellbore Hydrocarbon Type.",
+            "Paths": [{
+                    "RelatedObjectsSpec.RelatedObjectID": "data.PrimaryProductTypeID",
+                    "ValueExtraction.ValuePath": "data.Name",
+                    "RelatedObjectsSpec.RelatedObjectKind": "osdu:wks:reference-data--WellProductType:1.",
+                    "RelatedObjectsSpec.RelatedConditionProperty": null,
+                    "RelatedObjectsSpec.RelationshipDirection": "ChildToParent",
+                    "ValueExtraction.RelatedConditionProperty": null
+                }
+            ],
+            "Name": "WellboreHydrocarbonType"
+        }, {
+            "Policy": "ExtractFirstMatch",
+            "UseCase": "As a user I want to find objects by a Wellbore Situation.",
+            "Paths": [{
+                    "RelatedObjectsSpec.RelatedObjectID": "data.OperatingEnvironmentID",
+                    "ValueExtraction.ValuePath": "data.Name",
+                    "RelatedObjectsSpec.RelatedObjectKind": "osdu:wks:reference-data--OperatingEnvironment:1.",
+                    "RelatedObjectsSpec.RelatedConditionProperty": null,
+                    "RelatedObjectsSpec.RelationshipDirection": "ChildToParent",
+                    "ValueExtraction.RelatedConditionProperty": null
+                }
+            ],
+            "Name": "WellboreSituation"
+        }, {
+            "Policy": "ExtractFirstMatch",
+            "UseCase": "As a user I want to find objects by a Wellbore Trajectory Type.",
+            "Paths": [{
+                    "RelatedObjectsSpec.RelatedObjectID": "data.TrajectoryTypeID",
+                    "ValueExtraction.ValuePath": "data.Name",
+                    "RelatedObjectsSpec.RelatedObjectKind": "osdu:wks:reference-data--WellboreTrajectoryType:1.",
+                    "RelatedObjectsSpec.RelatedConditionProperty": null,
+                    "RelatedObjectsSpec.RelationshipDirection": "ChildToParent",
+                    "ValueExtraction.RelatedConditionProperty": null
+                }
+            ],
+            "Name": "WellboreTrajectoryType"
+        }, {
+            "Policy": "ExtractAllMatches",
+            "UseCase": "As a user I want to find wellbores by well log type(s).",
+            "Paths": [{
+                    "RelatedObjectsSpec.RelatedObjectID": "data.WellboreID",
+                    "ValueExtraction.ValuePath": "data.Curves[].Mnemonic",
+                    "RelatedObjectsSpec.RelatedObjectKind": "osdu:wks:work-product-component--WellLog:1.",
+                    "RelatedObjectsSpec.RelatedConditionProperty": null,
+                    "RelatedObjectsSpec.RelationshipDirection": "ParentToChildren",
+                    "ValueExtraction.RelatedConditionProperty": null
+                }
+            ],
+            "Name": "WellLogs"
+        }
+    ]
+}

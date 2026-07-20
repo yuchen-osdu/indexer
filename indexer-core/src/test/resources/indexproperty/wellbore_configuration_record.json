@@ -1,0 +1,33 @@
+{
+    "AttributionPublication": null,
+    "InactiveIndicator": null,
+    "Description": "The index property list for master-data--Wellbore:1., valid for all master-data--Wellbore kinds for major version 1.",
+    "ResourceLifecycleStatus": null,
+    "ResourceCurationStatus": null,
+    "TechnicalAssuranceID": null,
+    "Code": "osdu:wks:master-data--Wellbore:1.",
+    "Source": null,
+    "Name": "Well-IndexPropertyPathConfiguration",
+    "AttributionAuthority": "OSDU",
+    "ResourceHomeRegionID": null,
+    "VirtualProperties.DefaultName": "Well-IndexPropertyPathConfiguration",
+    "AttributionRevision": null,
+    "ResourceSecurityClassification": null,
+    "ID": null,
+    "ExistenceKind": null,
+    "Configurations": [{
+            "Policy": "ExtractAllMatches",
+            "UseCase": "As a user I want to find wellbores by well log type(s).",
+            "Paths": [{
+                    "RelatedObjectsSpec.RelatedObjectID": "data.WellboreID",
+                    "ValueExtraction.ValuePath": "data.Curves[].Mnemonic",
+                    "RelatedObjectsSpec.RelatedObjectKind": "osdu:wks:work-product-component--WellLog:1.",
+                    "RelatedObjectsSpec.RelatedConditionProperty": null,
+                    "RelatedObjectsSpec.RelationshipDirection": "ParentToChildren",
+                    "ValueExtraction.RelatedConditionProperty": null
+                }
+            ],
+            "Name": "WellLogs"
+        }
+    ]
+}

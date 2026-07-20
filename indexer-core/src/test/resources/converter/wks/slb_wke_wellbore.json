@@ -1,0 +1,1422 @@
+{
+  "$id": "https://slb-swt.visualstudio.com/data-management/Ingestion%20Services/_git/wke-schema?path=%2Fdomains%2Fwell%2Fjson_schema%2Fslb_wke_wellbore.json&version=GBmaster",
+  "$license": "Copyright 2017-2020, Schlumberger\n\nLicensed under the Apache License, Version 2.0 (the \"License\");\nyou may not use this file except in compliance with the License.\nYou may obtain a copy of the License at\n\nhttp://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software\ndistributed under the License is distributed on an \"AS IS\" BASIS,\nWITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\nSee the License for the specific language governing permissions and\nlimitations under the License.\n",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "core_dl_geopoint": {
+      "description": "A 2D point location in latitude and longitude referenced to WGS 84 if not specified otherwise.",
+      "properties": {
+        "latitude": {
+          "description": "The latitude value in degrees of arc (dega). Value range [-90, 90].",
+          "maximum": 90,
+          "minimum": -90,
+          "title": "Latitude",
+          "type": "number"
+        },
+        "longitude": {
+          "description": "The longitude value in degrees of arc (dega). Value range [-180, 180]",
+          "maximum": 180,
+          "minimum": -180,
+          "title": "Longitude",
+          "type": "number"
+        }
+      },
+      "required": [
+        "latitude",
+        "longitude"
+      ],
+      "title": "2D Map Location",
+      "type": "object"
+    },
+    "geoJsonFeature": {
+      "properties": {
+        "bbox": {
+          "items": {
+            "type": "number"
+          },
+          "minItems": 4,
+          "type": "array"
+        },
+        "geometry": {
+          "oneOf": [
+            {
+              "$ref": "#/definitions/geoJsonPoint",
+              "title": "GeoJSON Point"
+            },
+            {
+              "$ref": "#/definitions/geoJsonMultiPoint",
+              "title": "GeoJSON MultiPoint"
+            },
+            {
+              "$ref": "#/definitions/geoJsonLineString",
+              "title": "GeoJSON LineString"
+            },
+            {
+              "$ref": "#/definitions/geoJsonMultiLineString",
+              "title": "GeoJSON MultiLineString"
+            },
+            {
+              "$ref": "#/definitions/polygon",
+              "title": "GeoJSON Polygon"
+            },
+            {
+              "$ref": "#/definitions/geoJsonMultiPolygon",
+              "title": "GeoJSON MultiPolygon"
+            },
+            {
+              "properties": {
+                "bbox": {
+                  "items": {
+                    "type": "number"
+                  },
+                  "minItems": 4,
+                  "type": "array"
+                },
+                "geometries": {
+                  "items": {
+                    "oneOf": [
+                      {
+                        "$ref": "#/definitions/geoJsonPoint",
+                        "title": "GeoJSON Point"
+                      },
+                      {
+                        "$ref": "#/definitions/geoJsonMultiPoint",
+                        "title": "GeoJSON MultiPoint"
+                      },
+                      {
+                        "$ref": "#/definitions/geoJsonLineString",
+                        "title": "GeoJSON LineString"
+                      },
+                      {
+                        "$ref": "#/definitions/geoJsonMultiLineString",
+                        "title": "GeoJSON MultiLineString"
+                      },
+                      {
+                        "$ref": "#/definitions/polygon",
+                        "title": "GeoJSON Polygon"
+                      },
+                      {
+                        "$ref": "#/definitions/geoJsonMultiPolygon",
+                        "title": "GeoJSON MultiPolygon"
+                      }
+                    ]
+                  },
+                  "type": "array"
+                },
+                "type": {
+                  "enum": [
+                    "GeometryCollection"
+                  ],
+                  "type": "string"
+                }
+              },
+              "required": [
+                "type",
+                "geometries"
+              ],
+              "title": "GeoJSON GeometryCollection",
+              "type": "object"
+            }
+          ]
+        },
+        "properties": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object"
+            }
+          ]
+        },
+        "type": {
+          "enum": [
+            "Feature"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "properties",
+        "geometry"
+      ],
+      "title": "GeoJSON Feature",
+      "type": "object"
+    },
+    "geoJsonFeatureCollection": {
+      "properties": {
+        "bbox": {
+          "items": {
+            "type": "number"
+          },
+          "minItems": 4,
+          "type": "array"
+        },
+        "features": {
+          "items": {
+            "$ref": "#/definitions/geoJsonFeature",
+            "title": "GeoJSON Feature"
+          },
+          "type": "array"
+        },
+        "type": {
+          "enum": [
+            "FeatureCollection"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "features"
+      ],
+      "title": "GeoJSON FeatureCollection",
+      "type": "object"
+    },
+    "geoJsonLineString": {
+      "description": "GeoJSON LineString as defined in http://geojson.org/schema/LineString.json.",
+      "properties": {
+        "bbox": {
+          "items": {
+            "type": "number"
+          },
+          "minItems": 4,
+          "type": "array"
+        },
+        "coordinates": {
+          "items": {
+            "items": {
+              "type": "number"
+            },
+            "minItems": 2,
+            "type": "array"
+          },
+          "minItems": 2,
+          "type": "array"
+        },
+        "type": {
+          "enum": [
+            "LineString"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "coordinates"
+      ],
+      "title": "GeoJSON LineString",
+      "type": "object"
+    },
+    "geoJsonMultiLineString": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "bbox": {
+          "items": {
+            "type": "number"
+          },
+          "minItems": 4,
+          "type": "array"
+        },
+        "coordinates": {
+          "items": {
+            "items": {
+              "items": {
+                "type": "number"
+              },
+              "minItems": 2,
+              "type": "array"
+            },
+            "minItems": 2,
+            "type": "array"
+          },
+          "type": "array"
+        },
+        "type": {
+          "enum": [
+            "MultiLineString"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "coordinates"
+      ],
+      "title": "GeoJSON MultiLineString",
+      "type": "object"
+    },
+    "geoJsonMultiPoint": {
+      "properties": {
+        "bbox": {
+          "items": {
+            "type": "number"
+          },
+          "minItems": 4,
+          "type": "array"
+        },
+        "coordinates": {
+          "items": {
+            "items": {
+              "type": "number"
+            },
+            "minItems": 2,
+            "type": "array"
+          },
+          "type": "array"
+        },
+        "type": {
+          "enum": [
+            "MultiPoint"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "coordinates"
+      ],
+      "title": "GeoJSON Point",
+      "type": "object"
+    },
+    "geoJsonMultiPolygon": {
+      "description": "GeoJSON MultiPolygon derived from http://geojson.org/schema/MultiPolygon.json",
+      "properties": {
+        "bbox": {
+          "description": "Bounding box in longitude, latitude WGS 84.",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 4,
+          "type": "array"
+        },
+        "coordinates": {
+          "description": "Array of polygons (minimum 2D), containing an array of point coordinates (longitude, latitude, (optionally elevation and other properties).",
+          "items": {
+            "items": {
+              "items": {
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 2,
+                "type": "array"
+              },
+              "minItems": 4,
+              "type": "array"
+            },
+            "type": "array"
+          },
+          "type": "array"
+        },
+        "type": {
+          "enum": [
+            "MultiPolygon"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "coordinates"
+      ],
+      "title": "MultiPolygon",
+      "type": "object"
+    },
+    "geoJsonPoint": {
+      "properties": {
+        "bbox": {
+          "items": {
+            "type": "number"
+          },
+          "minItems": 4,
+          "type": "array"
+        },
+        "coordinates": {
+          "items": {
+            "type": "number"
+          },
+          "minItems": 2,
+          "type": "array"
+        },
+        "type": {
+          "enum": [
+            "Point"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "coordinates"
+      ],
+      "title": "GeoJSON Point",
+      "type": "object"
+    },
+    "geographicPosition": {
+      "description": "A position in the native geographic CRS (latitude and longitude) combined with an elevation from mean seal level (MSL)",
+      "properties": {
+        "crsKey": {
+          "description": "The 'crsKey', which can be looked up in the 'frameOfReference.crs' for further details.",
+          "title": "CRS Key",
+          "type": "string"
+        },
+        "elevationFromMsl": {
+          "$ref": "#/definitions/valueWithUnit",
+          "description": "Elevation from Mean Seal Level, downwards negative. The unit definition is found via 'elevationFromMsl.unitKey' in 'frameOfReference.units' dictionary.",
+          "title": "Elevation from MSL"
+        },
+        "latitude": {
+          "description": "Native or original latitude (unit defined by CRS)",
+          "title": "Native Latitude",
+          "type": "number"
+        },
+        "longitude": {
+          "description": "Native or original longitude (unit defined by CRS)",
+          "title": "Native Longitude",
+          "type": "number"
+        }
+      },
+      "required": [
+        "latitude",
+        "longitude",
+        "elevationFromMsl",
+        "crsKey"
+      ],
+      "title": "Geographic Position",
+      "type": "object"
+    },
+    "legal": {
+      "description": "Legal meta data like legal tags, relevant other countries, legal status.",
+      "properties": {
+        "legaltags": {
+          "description": "The list of legal tags, see compliance API.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Legal Tags",
+          "type": "array"
+        },
+        "otherRelevantDataCountries": {
+          "description": "The list of other relevant data countries using the ISO 2-letter codes, see compliance API.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Other Relevant Data Countries",
+          "type": "array"
+        },
+        "status": {
+          "description": "The legal status.",
+          "title": "Legal Status",
+          "type": "string"
+        }
+      },
+      "title": "Legal Meta Data",
+      "type": "object"
+    },
+    "linkList": {
+      "additionalProperties": {
+        "description": "An array of one or more entity references in the data lake.",
+        "items": {
+          "type": "string"
+        },
+        "title": "Link List",
+        "type": "array"
+      },
+      "description": "A named list of entities in the data lake as a dictionary item.",
+      "title": "Link List",
+      "type": "object"
+    },
+    "metaItem": {
+      "description": "A meta data item, which allows the association of named properties or property values to a Unit/Measurement/CRS/Azimuth/Time context.",
+      "properties": {
+        "kind": {
+          "description": "The kind of reference, unit, measurement, CRS or azimuth reference.",
+          "enum": [
+            "CRS",
+            "Unit",
+            "Measurement",
+            "AzimuthReference",
+            "DateTime"
+          ],
+          "title": "Reference Kind",
+          "type": "string"
+        },
+        "name": {
+          "description": "The name of the CRS or the symbol/name of the unit",
+          "example": [
+            "NAD27 * OGP-Usa Conus / North Dakota South [32021,15851]",
+            "ft"
+          ],
+          "title": "Name or Symbol",
+          "type": "string"
+        },
+        "persistableReference": {
+          "description": "The persistable reference string uniquely identifying the CRS or Unit",
+          "example": "{\"scaleOffset\":{\"scale\":0.3048006096012192,\"offset\":0.0},\"symbol\":\"ftUS\",\"baseMeasurement\":{\"ancestry\":\"Length\",\"type\":\"UM\"},\"type\":\"USO\"}",
+          "title": "Persistable Reference",
+          "type": "string"
+        },
+        "propertyNames": {
+          "description": "The list of property names, to which this meta data item provides Unit/CRS context to. Data structures, which come in a single frame of reference, can register the property name, others require a full path like \"data.structureA.propertyB\" to define a unique context.",
+          "example": [
+            "elevationFromMsl",
+            "totalDepthMdDriller",
+            "wellHeadProjected"
+          ],
+          "items": {
+            "type": "string"
+          },
+          "title": "Attribute Names",
+          "type": "array"
+        },
+        "propertyValues": {
+          "description": "The list of property values, to which this meta data item provides Unit/CRS context to. Typically a unit symbol is a value to a data structure; this symbol is then registered in this propertyValues array and the persistableReference provides the absolute reference.",
+          "example": [
+            "F",
+            "ftUS",
+            "deg"
+          ],
+          "items": {
+            "type": "string"
+          },
+          "title": "Attribute Names",
+          "type": "array"
+        },
+        "uncertainty": {
+          "description": "The uncertainty of the values measured given the unit or CRS unit.",
+          "title": "Uncertainty",
+          "type": "number"
+        }
+      },
+      "required": [
+        "kind",
+        "persistableReference"
+      ],
+      "title": "Frame of Reference Meta Data Item",
+      "type": "object"
+    },
+    "plssLocation": {
+      "$id": "definitions/plssLocation",
+      "description": "A location described by the Public Land Survey System (United States)",
+      "properties": {
+        "aliquotPart": {
+          "description": "A terse, hierarchical reference to a piece of land, in which successive subdivisions of some larger area.",
+          "example": "NWNE",
+          "title": "Aliquot Part",
+          "type": "string"
+        },
+        "range": {
+          "description": "Range, also known as Rng, R; a measure of the distance east or west from a referenced principal meridian, in units of six miles.",
+          "example": "93W",
+          "title": "Range",
+          "type": "string",
+          "x-slb-aliasProperties": [
+            "witsml:Range+witsml:RangeDir"
+          ]
+        },
+        "section": {
+          "description": "Section number (between 1 and 36)",
+          "example": "30",
+          "title": "Section Number",
+          "type": "integer",
+          "x-slb-aliasProperties": [
+            "witsml:Section"
+          ]
+        },
+        "township": {
+          "description": "Township, also known as T or Twp; (1) Synonym for survey township, i.e., a square parcel of land of 36 square miles, or (2) A measure of the distance north or south from a referenced baseline, in units of six miles",
+          "example": "149N",
+          "title": "Township",
+          "type": "string",
+          "x-slb-aliasProperties": [
+            "witsml:Section+witsml:TownshipDir"
+          ]
+        }
+      },
+      "required": [
+        "township",
+        "range",
+        "section"
+      ],
+      "title": "US PLSS Location",
+      "type": "object"
+    },
+    "point3dNonGeoJson": {
+      "description": "A 3-dimensional point with a CRS key, which is further described in 'frameOfReference.crs' and a unitKey for the z or 3rd coordinate; the unit key is further described in 'frameOfReference.units'.",
+      "properties": {
+        "coordinates": {
+          "description": "3-dimensional point; the first coordinate is typically pointing east (easting or longitude), the second coordinate typically points north (northing or latitude). The third coordinate is an elevation (upwards positive, downwards negative). The point's CRS is given by the container.",
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "title": "3D Point",
+          "type": "array"
+        },
+        "crsKey": {
+          "description": "The 'crsKey', which can be looked up in the 'frameOfReference.crs' for further details.",
+          "title": "CRS Key",
+          "type": "string"
+        },
+        "unitKey": {
+          "description": "The 'unitKey' for the 3rd coordinate, which can be looked up in the 'frameOfReference.unit' for further details.",
+          "title": "Unit Key",
+          "type": "string"
+        }
+      },
+      "required": [
+        "coordinates",
+        "crsKey",
+        "unitKey"
+      ],
+      "title": "3D Point with CRS/Unit key",
+      "type": "object"
+    },
+    "polygon": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "description": "GeoJSON Polygon derived from http://geojson.org/schema/Polygon.json",
+      "properties": {
+        "bbox": {
+          "items": {
+            "type": "number"
+          },
+          "minItems": 4,
+          "type": "array"
+        },
+        "coordinates": {
+          "items": {
+            "items": {
+              "items": {
+                "type": "number"
+              },
+              "minItems": 2,
+              "type": "array"
+            },
+            "minItems": 4,
+            "type": "array"
+          },
+          "type": "array"
+        },
+        "type": {
+          "enum": [
+            "Polygon"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "coordinates"
+      ],
+      "title": "GeoJSON Polygon",
+      "type": "object"
+    },
+    "projectedPosition": {
+      "description": "A position in the native CRS in Cartesian coordinates combined with an elevation from mean seal level (MSL)",
+      "properties": {
+        "crsKey": {
+          "description": "The 'crsKey', which can be looked up in the 'frameOfReference.crs' for further details.",
+          "title": "CRS Key",
+          "type": "string"
+        },
+        "elevationFromMsl": {
+          "$ref": "#/definitions/valueWithUnit",
+          "description": "Elevation from Mean Seal Level, downwards negative. The unit definition is found via 'elevationFromMsl.unitKey' in 'frameOfReference.units' dictionary.",
+          "title": "Elevation from MSL"
+        },
+        "x": {
+          "description": "X-coordinate value in native or original projected CRS",
+          "title": "X Coordinate",
+          "type": "number"
+        },
+        "y": {
+          "description": "Y-coordinate value in native or original projected CRS",
+          "title": "Y Coordinate",
+          "type": "number"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "elevationFromMsl",
+        "crsKey"
+      ],
+      "title": "Projected Position",
+      "type": "object"
+    },
+    "relationships": {
+      "description": "All relationships from this entity.",
+      "properties": {
+        "definitiveTimeDepthRelation": {
+          "$ref": "#/definitions/toOneRelationship",
+          "description": "The definitive tome-depth relation providing the MD to seismic travel-time transformation.",
+          "title": "Definitive Time-Depth Relation",
+          "x-slb-targetEntity": "timeDepthRelation_logSet"
+        },
+        "definitiveTrajectory": {
+          "$ref": "#/definitions/toOneRelationship",
+          "description": "The definitive trajectory providing the MD to 3D space transformation.",
+          "title": "Definitive Trajectory",
+          "x-slb-targetEntity": "trajectory"
+        },
+        "tieInWellbore": {
+          "$ref": "#/definitions/toOneRelationship",
+          "description": "The tie-in wellbore if this wellbore is a side-track.",
+          "title": "Tie-in Wellbore",
+          "x-slb-aliasProperties": [
+            "witsml:ParentWellbore"
+          ],
+          "x-slb-annotation": "aggregation",
+          "x-slb-targetEntity": "wellbore"
+        },
+        "well": {
+          "$ref": "#/definitions/toOneRelationship",
+          "description": "The well to which this wellbore belongs.",
+          "title": "Well",
+          "x-slb-aliasProperties": [
+            "witsml:Well"
+          ],
+          "x-slb-annotation": "aggregation",
+          "x-slb-targetEntity": "well"
+        }
+      },
+      "title": "Relationships",
+      "type": "object"
+    },
+    "simpleElevationReference": {
+      "description": "The entity's elevation reference, the elevation above MSL where vertical property is 0. Examples: MD==0, Elevation_Depth==0, TVD==0.",
+      "properties": {
+        "elevationFromMsl": {
+          "$ref": "#/definitions/valueWithUnit",
+          "description": "The elevation above mean sea level (MSL), at which the vertical origin is 0.0. The 'unitKey' is further defined in 'frameOfReference.units'.",
+          "example": 123.45,
+          "title": "Elevation from MSL",
+          "x-slb-measurement": "Standard_Depth_Index"
+        },
+        "name": {
+          "description": "The name of the Elevation Reference.",
+          "example": [
+            "MSL",
+            "MD",
+            "GL",
+            "KB"
+          ],
+          "title": "Elevation Reference Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "elevationFromMsl"
+      ],
+      "title": "Simple Elevation Reference",
+      "type": "object"
+    },
+    "tagDictionary": {
+      "additionalProperties": {
+        "description": "An array of one or more tag items, e.g. access control list tags, legal tags, etc.",
+        "items": {
+          "type": "string"
+        },
+        "title": "Tag Dictionary",
+        "type": "array"
+      },
+      "description": "A tagged list of string arrays, e.g. access control list tags, legal tags, etc.",
+      "title": "Tag Dictionary",
+      "type": "object"
+    },
+    "toManyRelationship": {
+      "description": "A relationship from this entity to many other entities either by natural key (name) or explicit id, optionally classified by confidence level.",
+      "properties": {
+        "confidences": {
+          "description": "The confidences of the relationships. Keep all the arrays ordered and aligned.",
+          "items": {
+            "type": "number"
+          },
+          "title": "Relationship Confidences",
+          "type": "array"
+        },
+        "ids": {
+          "description": "The ids of the related objects. It is populated for an explicit relationship where the target entity is present as a record in the data ecosystem. Keep all the arrays ordered and aligned.",
+          "format": "link",
+          "items": {
+            "type": "string"
+          },
+          "title": "Related Object Id",
+          "type": "array"
+        },
+        "names": {
+          "description": "The names or natural keys of the related objects. Keep all the arrays ordered and aligned.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Related Object Names",
+          "type": "array"
+        },
+        "versions": {
+          "description": "The specific version numbers of the related instances. This is only specified if a specific version is required. If not populated the last version is implied. Keep all the arrays ordered and aligned.",
+          "items": {
+            "format": "int64",
+            "type": "number"
+          },
+          "title": "To Many Relationship",
+          "type": "array"
+        }
+      }
+    },
+    "toOneRelationship": {
+      "description": "A relationship from this entity to one other entity either by natural key (name) or id, optionally classified by confidence level",
+      "properties": {
+        "confidence": {
+          "description": "The confidence of the relationship. If the property is absent a well-known relation is implied.",
+          "example": 1,
+          "title": "Relationship Confidence",
+          "type": "number"
+        },
+        "id": {
+          "description": "The id of the related object in the Data Ecosystem. If set, the id has priority over the natural key in the name property.",
+          "example": "data_partition:namespace:entity_845934c40e8d922bc57b678990d55722",
+          "format": "link",
+          "title": "Related Object Id",
+          "type": "string"
+        },
+        "name": {
+          "description": "The name or natural key of the related object. This property is required if the target object id could not (yet) be identified.",
+          "example": "Survey ST2016",
+          "title": "Related Object Name",
+          "type": "string"
+        },
+        "version": {
+          "description": "The version number of the related entity. If no version number is specified, the last version is implied.",
+          "format": "int64",
+          "title": "Entity Version Number",
+          "type": "number"
+        }
+      },
+      "title": "To One Relationship",
+      "type": "object"
+    },
+    "valueArrayWithUnit": {
+      "description": "Array of values associated with unit context. The 'unitKey' can be looked up in the 'frameOfReference.units'.",
+      "properties": {
+        "unitKey": {
+          "description": "Unit for the array values of the corresponding attribute for the domain object in question. The key can be looked up in the meta[] array under the root. It will be an array item with meta[i].kind == 'Unit' and meta[i].name == valueWithUnit.unitKey. The meta[i].propertyNames[] array will have to contain the name of the property including valueArrayWithUnit to enable the normalizer to act on it.",
+          "example": "ft",
+          "title": "Unit Key",
+          "type": "string"
+        },
+        "values": {
+          "description": "Value of the corresponding attribute for the domain object in question.",
+          "example": [
+            30.2,
+            23.8
+          ],
+          "items": {
+            "type": "number"
+          },
+          "title": "Value",
+          "type": "array"
+        }
+      },
+      "required": [
+        "values",
+        "unitKey"
+      ],
+      "title": "Values with unitKey",
+      "type": "object"
+    },
+    "valueWithUnit": {
+      "description": "Number value associated with unit context. The 'unitKey' can be looked up in the root property meta[] array.",
+      "properties": {
+        "unitKey": {
+          "description": "Unit for the value of the corresponding attribute for the domain object in question. The key can be looked up in the meta[] array under the root. It will be an array item with meta[i].kind == 'Unit' and meta[i].name == valueWithUnit.unitKey. The meta[i].propertyNames[] array will have to contain the name of the property including valueWithUnit to enable the normalizer to act on it.",
+          "example": "ft",
+          "title": "Unit Key",
+          "type": "string"
+        },
+        "value": {
+          "description": "Value of the corresponding attribute for the domain object in question.",
+          "example": 30.2,
+          "title": "Value",
+          "type": "number"
+        }
+      },
+      "required": [
+        "value",
+        "unitKey"
+      ],
+      "title": "Value with unitKey",
+      "type": "object"
+    },
+    "wellboreData": {
+      "$id": "definitions/wellboreData",
+      "description": "The domain specific data container for a wellbore.",
+      "properties": {
+        "airGap": {
+          "$ref": "#/definitions/valueWithUnit",
+          "description": "The gap between water surface and offshore drilling platform.",
+          "example": [
+            11,
+            "ft"
+          ],
+          "title": "Air Gap",
+          "x-slb-aliasProperties": [
+            "drillplan:air_gap"
+          ],
+          "x-slb-measurement": "Standard_Depth_Index"
+        },
+        "block": {
+          "description": "The block name, in which the wellbore is located.",
+          "example": "Block 11/8",
+          "title": "Block",
+          "type": "string",
+          "x-slb-aliasProperties": [
+            "witsml:Block"
+          ]
+        },
+        "country": {
+          "description": "The country, in which the wellbore is located. The country name follows the convention in ISO 3166-1 'English short country name', see https://en.wikipedia.org/wiki/ISO_3166-1",
+          "example": [
+            "United States of America",
+            "Bolivia (Plurinational State of)"
+          ],
+          "title": "Country",
+          "type": "string",
+          "x-slb-aliasProperties": [
+            "witsml:Country"
+          ]
+        },
+        "county": {
+          "description": "The county name, in which the wellbore is located.",
+          "example": "Stark",
+          "title": "County",
+          "type": "string",
+          "x-slb-aliasProperties": [
+            "witsml:County"
+          ]
+        },
+        "dateCreated": {
+          "description": "The UTC date time of the entity creation",
+          "example": "2013-03-22T11:16:03.123Z",
+          "format": "date-time",
+          "title": "Creation Date and Time",
+          "type": "string"
+        },
+        "dateModified": {
+          "description": "The UTC date time of the last entity modification",
+          "example": "2013-03-22T11:16:03.123Z",
+          "format": "date-time",
+          "title": "Last Modification Date and Time",
+          "type": "string"
+        },
+        "drillingDaysTarget": {
+          "$ref": "#/definitions/valueWithUnit",
+          "description": "Target days for drilling wellbore.",
+          "example": [
+            12.5,
+            "days"
+          ],
+          "title": "Target Drilling Days",
+          "x-slb-aliasProperties": [
+            "witsml:DayTarget"
+          ],
+          "x-slb-measurement": "Time"
+        },
+        "elevationReference": {
+          "$ref": "#/definitions/simpleElevationReference",
+          "description": "The wellbore's elevation reference from mean sea level (MSL), positive above MSL. This is where MD == 0 and TVD == 0",
+          "title": "Elevation Reference",
+          "type": "object"
+        },
+        "externalIds": {
+          "description": "An array of identities (e.g. some kind if URL to be resolved in an external data store), which links to external realizations of the same entity.",
+          "format": "link",
+          "items": {
+            "type": "string"
+          },
+          "title": "Array of External IDs",
+          "type": "array"
+        },
+        "field": {
+          "description": "The field name, to which the wellbore belongs.",
+          "example": "Fryburg",
+          "title": "Field",
+          "type": "string",
+          "x-slb-aliasProperties": [
+            "witsml:Field"
+          ]
+        },
+        "formationAtTd": {
+          "description": "The name of the formation at the wellbore's total depth.",
+          "example": "Bakken",
+          "title": "Formation at TD",
+          "type": "string",
+          "x-slb-aliasProperties": [
+            "seabed:borehole.Formation_At_TD"
+          ]
+        },
+        "formationProjected": {
+          "description": "The name of the formation at the wellbore's projected depth. This property is questionable as there is not precise documentation available.",
+          "example": "Bakken",
+          "title": "Formation Projected",
+          "type": "string"
+        },
+        "hasAchievedTotalDepth": {
+          "default": true,
+          "description": "True (\"true\" of \"1\") indicates that the wellbore has acheieved total depth. That is, drilling has completed. False (\"false\" or \"0\") indicates otherwise. Not given indicates that it is not known whether total depth has been reached.",
+          "example": true,
+          "title": "Has Total Depth Been Achieved Flag",
+          "type": "bool",
+          "x-slb-aliasProperties": [
+            "witsml:AchievedTD"
+          ]
+        },
+        "isActive": {
+          "description": "True (=\"1\" or \"true\") indicates that the wellbore is active. False (=\"0\" or \"false\") indicates otherwise. It is the servers responsibility to set this value based on its available internal data (e.g., what objects are changing).",
+          "example": true,
+          "title": "Is Active Flag",
+          "type": "bool",
+          "x-slb-aliasProperties": [
+            "witsml:IsActive"
+          ]
+        },
+        "kickOffMd": {
+          "$ref": "#/definitions/valueWithUnit",
+          "description": "The kick-off point in measured depth (MD); for the main well the kickOffMd is set to 0.",
+          "example": [
+            6543.2,
+            "ft"
+          ],
+          "title": "Kick-off MD",
+          "x-slb-aliasProperties": [
+            "witsml:MdKickoff"
+          ],
+          "x-slb-measurement": "Standard_Depth_Index"
+        },
+        "kickOffTvd": {
+          "$ref": "#/definitions/valueWithUnit",
+          "description": "Kickoff true vertical depth of the wellbore; for the main wellbore the kickOffMd is set to 0.",
+          "example": [
+            6543.2,
+            "ft"
+          ],
+          "title": "Kick-off MD",
+          "x-slb-aliasProperties": [
+            "witsml:TvdKickoff"
+          ],
+          "x-slb-measurement": "Standard_Depth_Index"
+        },
+        "locationWGS84": {
+          "$ref": "#/definitions/geoJsonFeatureCollection",
+          "description": "A 2D GeoJSON FeatureCollection defining wellbore location or trajectory in WGS 84 CRS.",
+          "title": "Wellbore Shape WGS 84",
+          "type": "object"
+        },
+        "name": {
+          "description": "The wellbore name",
+          "title": "Wellbore Name",
+          "type": "string",
+          "x-slb-aliasProperties": [
+            "ocean:BoreholeName"
+          ]
+        },
+        "operator": {
+          "description": "The operator of the wellbore.",
+          "example": "Anadarko Petroleum",
+          "title": "Operator",
+          "type": "string",
+          "x-slb-aliasProperties": [
+            "ocean:Operator",
+            "witsml:Operator"
+          ]
+        },
+        "permitDate": {
+          "description": "The wellbore's permit date.",
+          "example": "2013-01-15",
+          "format": "date",
+          "title": "Permit Date",
+          "type": "string"
+        },
+        "permitNumber": {
+          "description": "The wellbore's permit number or permit ID.",
+          "example": "608020",
+          "title": "Permit Number",
+          "type": "string"
+        },
+        "plssLocation": {
+          "$ref": "#/definitions/plssLocation",
+          "description": "A location described by the Public Land Survey System (United States)",
+          "title": "US PLSS Location",
+          "type": "object"
+        },
+        "propertyDictionary": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "A dictionary structure, i.e. key/string value pairs, to carry additional wellbore properties.",
+          "title": "Property Dictionary",
+          "type": "string"
+        },
+        "relationships": {
+          "$ref": "#/definitions/relationships",
+          "description": "The related entities.",
+          "title": "Relationships"
+        },
+        "shape": {
+          "description": "POSC wellbore trajectory shape.",
+          "enum": [
+            "build and hold",
+            "deviated",
+            "double kickoff",
+            "horizontal",
+            "S-shaped",
+            "vertical",
+            "unknown"
+          ],
+          "example": "deviated",
+          "title": "Wellbore Shape",
+          "type": "string",
+          "x-slb-aliasProperties": [
+            "witsml:Shape"
+          ]
+        },
+        "spudDate": {
+          "description": "The date and time when activities to drill the borehole begin to create a hole in the earth. For a sidetrack, this is the date kickoff operations began. The format follows ISO 8601 YYYY-MM-DD extended format",
+          "example": "2013-03-22",
+          "format": "date",
+          "title": "Spud Date",
+          "type": "string",
+          "x-slb-aliasProperties": [
+            "witsml:DTimKickoff",
+            "ocean:SpudDate",
+            "drillplan:spud_date"
+          ]
+        },
+        "state": {
+          "description": "The state name, in which the wellbore is located.",
+          "example": "North Dakota",
+          "title": "State",
+          "type": "string"
+        },
+        "totalDepthMd": {
+          "$ref": "#/definitions/valueWithUnit",
+          "description": "The measured depth of the borehole. If status is plugged, indicates the maximum depth reached before plugging. It is recommended that this value be updated about every 10 minutes by an assigned raw data provider at a site.",
+          "example": [
+            13200,
+            "ft"
+          ],
+          "title": "Total MD",
+          "x-slb-aliasProperties": [
+            "witsml:Md",
+            "ocean:TDMD"
+          ],
+          "x-slb-measurement": "Standard_Depth_Index"
+        },
+        "totalDepthMdDriller": {
+          "$ref": "#/definitions/valueWithUnit",
+          "description": "The total depth along the wellbore as reported by the drilling contractor from 'elevationReference'. The unit definition is found via the property's unitKey' in 'frameOfReference.units' dictionary..",
+          "example": [
+            13200.23,
+            "ft"
+          ],
+          "title": "Total MD Drilled",
+          "x-slb-aliasProperties": [
+            "witsml:MdBit"
+          ],
+          "x-slb-measurement": "Standard_Depth_Index"
+        },
+        "totalDepthMdPlanned": {
+          "$ref": "#/definitions/valueWithUnit",
+          "description": "Planned measured depth for the wellbore total depth.",
+          "example": [
+            13200,
+            "ft"
+          ],
+          "title": "Total MD Planned",
+          "x-slb-aliasProperties": [
+            "witsml:MdPlanned"
+          ],
+          "x-slb-measurement": "Standard_Depth_Index"
+        },
+        "totalDepthMdSubSeaPlanned": {
+          "$ref": "#/definitions/valueWithUnit",
+          "description": "Planned measured for the wellbore total depth - with respect to seabed.",
+          "example": [
+            13100,
+            "ft"
+          ],
+          "title": "Total MD Sub Sea Planned",
+          "x-slb-aliasProperties": [
+            "witsml:MdSubSeaPlanned"
+          ],
+          "x-slb-measurement": "Standard_Depth_Index"
+        },
+        "totalDepthProjectedMd": {
+          "$ref": "#/definitions/valueWithUnit",
+          "description": "The projected total measured depth of the borehole. This property is questionable as there is not precise documentation available.",
+          "example": [
+            13215,
+            "ft"
+          ],
+          "title": "Total MD Projected",
+          "x-slb-measurement": "Standard_Depth_Index"
+        },
+        "totalDepthTvd": {
+          "$ref": "#/definitions/valueWithUnit",
+          "description": "The true vertical depth of the borehole. If status is plugged, indicates the maximum depth reached before plugging. It is recommended that this value be updated about every 10 minutes by an assigned raw data provider at a site.",
+          "example": [
+            12200.23,
+            "ft"
+          ],
+          "title": "Total TVD",
+          "x-slb-aliasProperties": [
+            "witsml:Tvd"
+          ],
+          "x-slb-measurement": "Standard_Depth_Index"
+        },
+        "totalDepthTvdDriller": {
+          "$ref": "#/definitions/valueWithUnit",
+          "description": "The total depth true vertical as reported by the drilling contractor from 'elevationReference', Downwards increasing. The unit definition is found via the property's unitKey' in 'frameOfReference.units' dictionary.",
+          "example": [
+            12200.23,
+            "ft"
+          ],
+          "title": "Total TVD Drilled",
+          "x-slb-aliasProperties": [
+            "witsml:TvdBit"
+          ],
+          "x-slb-measurement": "Standard_Depth_Index"
+        },
+        "totalDepthTvdPlanned": {
+          "$ref": "#/definitions/valueWithUnit",
+          "description": "Planned true vertical depth for the wellbore total depth.",
+          "example": [
+            12200.23,
+            "ft"
+          ],
+          "title": "Total TVD Planned",
+          "x-slb-aliasProperties": [
+            "witsml:TvdPlanned"
+          ],
+          "x-slb-measurement": "Standard_Depth_Index"
+        },
+        "totalDepthTvdSubSeaPlanned": {
+          "$ref": "#/definitions/valueWithUnit",
+          "description": "Planned true vertical depth for the wellbore total depth - with respect to seabed.",
+          "example": [
+            12100.23,
+            "ft"
+          ],
+          "title": "Total TVD Sub Sea Planned",
+          "x-slb-aliasProperties": [
+            "witsml:TvdSubSeaPlanned"
+          ],
+          "x-slb-measurement": "Standard_Depth_Index"
+        },
+        "uwi": {
+          "description": "The unique wellbore identifier, aka. API number, US well number or UBHI. Codes can have 10, 12 or 14 digits depending on the availability of directional sidetrack (2 digits) and event sequence codes (2 digits).",
+          "example": [
+            "42-501-20130",
+            "42-501-20130-01-02"
+          ],
+          "title": "Unique Wellbore Identifier",
+          "type": "string",
+          "x-slb-aliasProperties": [
+            "ocean:UWI",
+            "witsml:SuffixAPI",
+            "drillplan:uwi"
+          ]
+        },
+        "wellHeadElevation": {
+          "$ref": "#/definitions/valueWithUnit",
+          "description": "The wellbore's vertical position is an elevation from mean sea level (MSL), positive above MSL.",
+          "title": "Well Head Elevation",
+          "x-slb-measurement": "Standard_Depth_Index"
+        },
+        "wellHeadGeographic": {
+          "$ref": "#/definitions/geographicPosition",
+          "description": "The wellbore's well head position in the native, geographic CRS; vertical position is an elevation from mean sea level (MSL), positive above MSL.",
+          "title": "Well Head Position, Geographic",
+          "type": "object"
+        },
+        "wellHeadProjected": {
+          "$ref": "#/definitions/projectedPosition",
+          "description": "The wellbore's well head position in the native, projected CRS; vertical position is an elevation from mean sea level (MSL), positive above MSL.",
+          "title": "Well Head Position, Projected",
+          "type": "object"
+        },
+        "wellHeadWgs84": {
+          "$ref": "#/definitions/core_dl_geopoint",
+          "description": "The wellbore's position in WGS 84 latitude and longitude.",
+          "format": "core:dl:geopoint:1.0.0",
+          "title": "WGS 84 Position",
+          "type": "object",
+          "x-slb-aliasProperties": [
+            "witsml:GeographicLocationWGS84"
+          ]
+        },
+        "wellboreNumberGovernment": {
+          "description": "Government assigned wellbore number.",
+          "example": "42-501-20130-P",
+          "title": "Government Number",
+          "type": "string",
+          "x-slb-aliasProperties": [
+            "witsml:NumGovt"
+          ]
+        },
+        "wellboreNumberOperator": {
+          "description": "Operator wellbore number.",
+          "example": "12399-001",
+          "title": "Operator Number",
+          "type": "string",
+          "x-slb-aliasProperties": [
+            "witsml:Number"
+          ]
+        },
+        "wellborePurpose": {
+          "description": "POSC wellbore purpose",
+          "enum": [
+            "appraisal",
+            "appraisal -- confirmation appraisal",
+            "appraisal -- exploratory appraisal",
+            "exploration",
+            "exploration -- deeper-pool wildcat",
+            "exploration -- new-field wildcat",
+            "exploration -- new-pool wildcat",
+            "exploration -- outpost wildcat",
+            "exploration -- shallower-pool wildcat",
+            "development",
+            "development -- infill development",
+            "development -- injector",
+            "development -- producer",
+            "fluid storage",
+            "fluid storage -- gas storage",
+            "general srvc",
+            "general srvc -- borehole re-acquisition",
+            "general srvc -- observation",
+            "general srvc -- relief",
+            "general srvc -- research",
+            "general srvc -- research -- drill test",
+            "general srvc -- research -- strat test",
+            "general srvc -- waste disposal",
+            "mineral",
+            "unknown"
+          ],
+          "example": "development -- producer",
+          "title": "Wellbore Purpose",
+          "type": "string",
+          "x-slb-aliasProperties": [
+            "witsml:PurposeWellbore",
+            "drillplan:well_purpose"
+          ]
+        },
+        "wellboreStatus": {
+          "description": "POSC wellbore status.",
+          "enum": [
+            "abandoned",
+            "active",
+            "active -- injecting",
+            "active -- producing",
+            "completed",
+            "drilling",
+            "partially plugged",
+            "permitted",
+            "plugged and abandoned",
+            "proposed",
+            "sold",
+            "suspended",
+            "temporarily abandoned",
+            "testing",
+            "tight",
+            "working over",
+            "unknown"
+          ],
+          "example": "active -- producing",
+          "title": "Wellbore Status",
+          "type": "string",
+          "x-slb-aliasProperties": [
+            "witsml:StatusWellbore"
+          ]
+        },
+        "wellboreType": {
+          "description": "Type of wellbore.",
+          "enum": [
+            "bypass",
+            "initial",
+            "redrill",
+            "reentry",
+            "respud",
+            "sidetrack",
+            "unknown"
+          ],
+          "example": "sidetrack",
+          "title": "Wellbore Type",
+          "type": "string",
+          "x-slb-aliasProperties": [
+            "witsml:TypeWellbore",
+            "drillplan:well_type"
+          ]
+        }
+      },
+      "title": "Wellbore Data",
+      "type": "object"
+    }
+  },
+  "description": "The well-known wellbore schema. Used to capture the general information about a wellbore. This information is sometimes called a \"wellbore header\". A wellbore represents the path from surface to a unique bottomhole location. The wellbore object is uniquely identified within the context of one well object.",
+  "properties": {
+    "acl": {
+      "$ref": "#/definitions/tagDictionary",
+      "description": "The access control tags associated with this entity.",
+      "title": "Access Control List"
+    },
+    "ancestry": {
+      "$ref": "#/definitions/linkList",
+      "description": "The links to data, which constitute the inputs.",
+      "title": "Ancestry"
+    },
+    "data": {
+      "$ref": "#/definitions/wellboreData",
+      "description": "Wellbore data container",
+      "title": "Wellbore Data"
+    },
+    "id": {
+      "description": "The unique identifier of the wellbore",
+      "title": "Wellbore ID",
+      "type": "string"
+    },
+    "kind": {
+      "default": "slb:wks:wellbore:1.0.6",
+      "description": "Well-known wellbore kind specification",
+      "title": "Wellbore Kind",
+      "type": "string"
+    },
+    "legal": {
+      "$ref": "#/definitions/legal",
+      "description": "The geological interpretation's legal tags",
+      "title": "Legal Tags"
+    },
+    "meta": {
+      "description": "The meta data section linking the 'unitKey', 'crsKey' to self-contained definitions (persistableReference)",
+      "items": {
+        "$ref": "#/definitions/metaItem"
+      },
+      "title": "Frame of Reference Meta Data",
+      "type": "array"
+    },
+    "type": {
+      "description": "The reference entity type as declared in common:metadata:entity:*.",
+      "title": "Entity Type",
+      "type": "string"
+    },
+    "version": {
+      "description": "The version number of this wellbore; set by the framework.",
+      "example": "1040815391631285",
+      "format": "int64",
+      "title": "Entity Version Number",
+      "type": "number"
+    }
+  },
+  "title": "Wellbore",
+  "type": "object"
+}

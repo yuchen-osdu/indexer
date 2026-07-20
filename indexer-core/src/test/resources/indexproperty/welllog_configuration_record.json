@@ -1,0 +1,104 @@
+{
+    "AttributionPublication": null,
+    "InactiveIndicator": null,
+    "Description": "The index property list for WellLog:1., valid for all WellLog kinds for major version 1.",
+    "ResourceLifecycleStatus": null,
+    "ResourceCurationStatus": null,
+    "TechnicalAssuranceID": null,
+    "Code": "osdu:wks:work-product-component--WellLog:1.",
+    "Source": null,
+    "Name": "WellLogIndex-PropertyPathConfiguration",
+    "AttributionAuthority": "OSDU",
+    "ResourceHomeRegionID": null,
+    "VirtualProperties.DefaultName": "WellLogIndex-PropertyPathConfiguration",
+    "AttributionRevision": null,
+    "ResourceSecurityClassification": null,
+    "ID": null,
+    "ExistenceKind": null,
+    "Configurations": [{
+            "Policy": "ExtractFirstMatch",
+            "UseCase": "As a user I want to discover WellLog instances by the wellbore's name value.",
+            "Paths": [{
+                    "RelatedObjectsSpec.RelatedObjectID": "data.WellboreID",
+                    "ValueExtraction.ValuePath": "data.VirtualProperties.DefaultName",
+                    "RelatedObjectsSpec.RelatedObjectKind": "osdu:wks:master-data--Wellbore:1.",
+                    "RelatedObjectsSpec.RelatedConditionProperty": null,
+                    "RelatedObjectsSpec.RelationshipDirection": "ChildToParent",
+                    "ValueExtraction.RelatedConditionProperty": null
+                }, {
+                    "RelatedObjectsSpec.RelatedObjectID": "data.WellboreID",
+                    "ValueExtraction.ValuePath": "data.FacilityName",
+                    "RelatedObjectsSpec.RelatedObjectKind": "osdu:wks:master-data--Wellbore:1.",
+                    "RelatedObjectsSpec.RelatedConditionProperty": null,
+                    "RelatedObjectsSpec.RelationshipDirection": "ChildToParent",
+                    "ValueExtraction.RelatedConditionProperty": null
+                }
+            ],
+            "Name": "WellboreName"
+        }, {
+            "Policy": "ExtractFirstMatch",
+            "UseCase": "As a user I want to discover WellLog instances by spatial location.",
+            "Paths": [{
+                    "RelatedObjectsSpec.RelatedObjectID": "data.WellboreID",
+                    "ValueExtraction.ValuePath": "data.VirtualProperties.DefaultLocation",
+                    "RelatedObjectsSpec.RelatedObjectKind": "osdu:wks:master-data--Wellbore:1.",
+                    "RelatedObjectsSpec.RelatedConditionProperty": null,
+                    "RelatedObjectsSpec.RelationshipDirection": "ChildToParent",
+                    "ValueExtraction.RelatedConditionProperty": null
+                }, {
+                    "RelatedObjectsSpec.RelatedObjectID": "data.WellboreID",
+                    "ValueExtraction.ValuePath": "data.ProjectedBottomHoleLocation",
+                    "RelatedObjectsSpec.RelatedObjectKind": "osdu:wks:master-data--Wellbore:1.",
+                    "RelatedObjectsSpec.RelatedConditionProperty": null,
+                    "RelatedObjectsSpec.RelationshipDirection": "ChildToParent",
+                    "ValueExtraction.RelatedConditionProperty": null
+                }, {
+                    "RelatedObjectsSpec.RelatedObjectID": "data.WellboreID",
+                    "ValueExtraction.ValuePath": "data.GeographicBottomHoleLocation",
+                    "RelatedObjectsSpec.RelatedObjectKind": "osdu:wks:master-data--Wellbore:1.",
+                    "RelatedObjectsSpec.RelatedConditionProperty": null,
+                    "RelatedObjectsSpec.RelationshipDirection": "ChildToParent",
+                    "ValueExtraction.RelatedConditionProperty": null
+                }, {
+                    "RelatedObjectsSpec.RelatedObjectID": "data.WellboreID",
+                    "ValueExtraction.ValuePath": "data.SpatialLocation",
+                    "RelatedObjectsSpec.RelatedObjectKind": "osdu:wks:master-data--Wellbore:1.",
+                    "RelatedObjectsSpec.RelatedConditionProperty": null,
+                    "RelatedObjectsSpec.RelationshipDirection": "ChildToParent",
+                    "ValueExtraction.RelatedConditionProperty": null
+                }
+            ],
+            "Name": "SpatialLocation"
+        }, {
+            "Policy": "ExtractAllMatches",
+            "UseCase": "As a user I want to discover WellLog instances by the Technical Assurance reviewer name.",
+            "Paths": [{
+                    "RelatedObjectsSpec.RelatedObjectID": null,
+                    "ValueExtraction.ValuePath": "data.TechnicalAssurances[].Reviewers[].Name",
+                    "RelatedObjectsSpec.RelatedObjectKind": null,
+                    "RelatedObjectsSpec.RelatedConditionProperty": null,
+                    "RelatedObjectsSpec.RelationshipDirection": null,
+                    "ValueExtraction.RelatedConditionProperty": null
+                }
+            ],
+            "Name": "TechnicalAssuranceReviewerNames"
+        }, {
+            "Policy": "ExtractAllMatches",
+            "UseCase": "As a user I want to discover WellLog instances by the Technical Assurance Organisation name.",
+            "Paths": [{
+                    "RelatedObjectsSpec.RelationshipDirection": "ChildToParent",
+                    "RelatedObjectsSpec.RelatedObjectID": "data.TechnicalAssurances[].Reviewers[].OrganisationID",
+                    "RelatedObjectsSpec.RelatedObjectKind": "osdu:wks:master-data--Organisation:1.",
+                    "RelatedObjectsSpec.RelatedConditionMatches": [
+                      "^[\\w\\-\\.]+:reference-data--ContactRoleType:ProjectManager:AccountOwner:$",
+                      "^[\\w\\-\\.]+:reference-data--ContactRoleType:AccountOwner:$"
+                    ],
+                    "RelatedObjectsSpec.RelatedConditionProperty": "data.TechnicalAssurances[].Reviewers[].RoleTypeID",
+                    "ValueExtraction.ValuePath": "data.OrganisationName",
+                    "ValueExtraction.RelatedConditionProperty": null
+                }
+            ],
+            "Name": "TechnicalAssuranceReviewerOrganisationNames"
+        }
+    ]
+}

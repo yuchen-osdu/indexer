@@ -1,0 +1,70 @@
+[{
+        "id": "tenant1:reference-data--IndexPropertyPathConfiguration:index-property--WellLog:1",
+        "data": {
+            "Name": "WellLogIndex-PropertyPathConfiguration",
+            "Description": "The index property list for WellLog:1., valid for all WellLog kinds for major version 1.",
+            "Code": "test:indexer:index-property--WellLog:1.",
+            "AttributionAuthority": "OSDU",
+            "Configurations": [{
+                    "Name": "WellboreName",
+                    "Policy": "ExtractFirstMatch",
+                    "Paths": [{
+                            "RelatedObjectsSpec": {
+                                "RelationshipDirection": "ChildToParent",
+                                "RelatedObjectKind": "test:indexer:index-property--Wellbore:1.",
+                                "RelatedObjectID": "data.WellboreID"
+                            },
+                            "ValueExtraction": {
+                                "ValuePath": "data.FacilityName"
+                            }
+                        }
+                    ],
+                    "UseCase": "As a user I want to discover WellLog instances by the wellbore's name value."
+                }, {
+                    "Name": "SpatialLocation",
+                    "Policy": "ExtractFirstMatch",
+                    "Paths": [{
+                            "RelatedObjectsSpec": {
+                                "RelationshipDirection": "ChildToParent",
+                                "RelatedObjectKind": "test:indexer:index-property--Wellbore:1.",
+                                "RelatedObjectID": "data.WellboreID"
+                            },
+                            "ValueExtraction": {
+                                "ValuePath": "data.Location"
+                            }
+                        }
+                    ],
+                    "UseCase": "As a user I want to discover WellLog instances by spatial location."
+                }
+            ]
+        }
+    }, {
+        "id": "tenant1:reference-data--IndexPropertyPathConfiguration:index-property--Wellbore:1",
+        "data": {
+            "Name": "Wellbore-IndexPropertyPathConfiguration",
+            "Description": "The index property list for index-property--Wellbore:1., valid for all index-property--Wellbore kinds for major version 1.",
+            "Code": "test:indexer:index-property--Wellbore:1.",
+            "AttributionAuthority": "OSDU",
+            "Configurations": [{
+                    "Name": "WellUWI",
+                    "Policy": "ExtractFirstMatch",
+                    "Paths": [{
+                            "ValueExtraction": {
+                                "RelatedConditionMatches": [
+                                    "^[\\w\\-\\.]+:reference-data\\-\\-AliasNameType:UniqueIdentifier:$",
+                                    "^[\\w\\-\\.]+:reference-data\\-\\-AliasNameType:RegulatoryName:$",
+                                    "^[\\w\\-\\.]+:reference-data\\-\\-AliasNameType:PreferredName:$",
+                                    "^[\\w\\-\\.]+:reference-data\\-\\-AliasNameType:CommonName:$",
+                                    "^[\\w\\-\\.]+:reference-data\\-\\-AliasNameType:ShortName:$"
+                                ],
+                                "RelatedConditionProperty": "data.NameAliases[].AliasNameTypeID",
+                                "ValuePath": "data.NameAliases[].AliasName"
+                            }
+                        }
+                    ],
+                    "UseCase": "As a user I want to discover and match Wells by their UWI. I am aware that this is not globally reliable, however, I am able to specify a prioritized AliasNameType list to look up value in the NameAliases array."
+                }
+            ]
+        }
+    }
+]

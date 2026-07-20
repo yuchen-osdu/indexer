@@ -1,0 +1,18 @@
+{
+    "type": "geometrycollection",
+    "geometries": [
+        {
+            "type": "multipoint",
+            "coordinates": [
+                [
+                    -105.01621,
+                    39.57422
+                ],
+                [
+                    -80.666513,
+                    35.053994
+                ]
+            ]
+        }
+    ]
+}

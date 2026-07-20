@@ -1,0 +1,54 @@
+# Default values for indexer-deploy.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+global:
+  domain: ""
+  limitsEnabled: true
+
+# This flag enables configuration specific to ROSA environments.
+rosa: false
+
+data:
+  # Configmap
+  entitlementsHost: "http://entitlements"
+  logLevel: "ERROR"
+  partitionHost: "http://partition"
+  schemaHost: "http://schema"
+  securityHttpsCertificateTrust: "true"
+  storageHost: "http://storage"
+  collaborationsEnabled: true
+  # Otel
+  javaToolOptions: ""
+  otelExporterEndpoint: ""
+  otelExporterProtocol: ""
+  # PubSub topic configuration
+  pubsubSearchTopicV2: "records-changed-v2"
+  # Deployment
+  requestsCpu: "35m"
+  requestsMemory: "640Mi"
+  limitsCpu: "1"
+  limitsMemory: "1G"
+  image: ""
+  imagePullPolicy: "IfNotPresent"
+  serviceAccountName: "indexer"
+  # redis connection. Change it if you want to use external redis
+  redisIndexerHost: ""
+  redisIndexerPort: 6379
+  redisImage: "docker.io/library/redis:7"
+
+conf:
+  appName: "indexer"
+  configmap: "indexer-config"
+  elasticSecretName: "indexer-elastic-secret"
+  keycloakSecretName: "indexer-keycloak-secret"
+  rabbitmqSecretName: "rabbitmq-secret"
+  indexerRedisSecretName: "indexer-redis-secret"
+  replicas: 1
+
+istio:
+  proxyCPU: "10m"
+  proxyCPULimit: "200m"
+  proxyMemory: "100Mi"
+  proxyMemoryLimit: "256Mi"
+  sidecarInject: true

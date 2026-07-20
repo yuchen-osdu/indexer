@@ -1,0 +1,29 @@
+{
+  "definitions": {
+    "opendes:wks:wellboreData1:1.0.0": {
+      "properties": {
+        "prop1": {
+          "type": "string"
+        }
+      }
+    },
+    "opendes:wks:wellboreData2:1.0.0": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/opendes:wks:wellboreData1:1.0.0"
+        }
+      ]
+    }
+  },
+  "properties": {
+    "data": {
+      "type": "object",
+      "properties": {
+        "Field": {
+          "$ref": "#/definitions/opendes:wks:wellboreData2:1.0.0"
+        }
+      }
+    }
+  }
+}
+

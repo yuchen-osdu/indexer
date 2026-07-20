@@ -1,0 +1,12 @@
+{
+  "properties": {
+    "data": {
+      "properties": {
+        "FacilityName": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

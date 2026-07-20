@@ -1,0 +1,28 @@
+[{
+    "id": "tenant1:reference-data--IndexPropertyPathConfiguration:wellbore<timestamp>",
+    "kind": "osdu:wks:reference-data--IndexPropertyPathConfiguration:1.1.1",
+    "data": {
+        "Name": "Wellbore-IndexPropertyPathConfiguration-<timestamp>",
+        "Description": "The index property list for wellbore<timestamp>:1., valid for all wellbore kinds for major version 1.",
+        "Code": "test:indexer<timestamp>:wellbore:1.",
+        "AttributionAuthority": "OSDU",
+        "Configurations": [{
+            "Name": "WellUWI",
+            "Policy": "ExtractFirstMatch",
+            "Paths": [{
+                "ValueExtraction": {
+                    "RelatedConditionMatches": [
+                        "^[\\w\\-\\.]+:reference-data\\-\\-AliasNameType:UniqueIdentifier:$",
+                        "^[\\w\\-\\.]+:reference-data\\-\\-AliasNameType:RegulatoryName:$",
+                        "^[\\w\\-\\.]+:reference-data\\-\\-AliasNameType:PreferredName:$",
+                        "^[\\w\\-\\.]+:reference-data\\-\\-AliasNameType:CommonName:$",
+                        "^[\\w\\-\\.]+:reference-data\\-\\-AliasNameType:ShortName:$"
+                    ],
+                    "RelatedConditionProperty": "data.NameAliases[].AliasNameTypeID",
+                    "ValuePath": "data.NameAliases[].AliasName"
+                }
+            }],
+            "UseCase": "As a user I want to discover and match Wells by their UWI."
+        }]
+    }
+}]

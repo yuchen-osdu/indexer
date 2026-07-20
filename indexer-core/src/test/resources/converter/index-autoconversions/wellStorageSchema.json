@@ -1,0 +1,32 @@
+{
+  "kind": "osdu:wks:master-data--Well:1.2.0",
+  "type": "master-data--Well",
+  "dataSchema": {
+    "SomeKeywordField": "keyword",
+    "SomeTextField": "text",
+    "SomeOtherTextField": "text",
+    "SomeKeywordArrayField": "keyword_array",
+    "SomeTextArrayField": "text_array",
+    "SomeIntegerArrayField": "integer_array",
+    "SomeIntegerField": "integer",
+    "SomeLongArrayField": "long_array",
+    "SomeLongField": "long",
+    "SomeFloatArrayField": "float_array",
+    "SomeFloatField": "float",
+    "SomeDoubleArrayField": "double_array",
+    "SomeDoubleField": "double",
+    "SomeBooleanArrayField": "boolean_array",
+    "SomeBooleanField": "boolean",
+    "SomeDateArrayField": "date_array",
+    "SomeDateField": "date",
+    "SomeGeoPointField": "geo_point",
+    "SomeGeoShapeField": "geo_shape",
+    "SomeObjectField": {
+      "type": "nested",
+      "properties": {
+        "SomeNestedTextField": "text"
+      }
+    },
+    "SomeFlattenedField": "flattened"
+  }
+}

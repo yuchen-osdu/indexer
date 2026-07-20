@@ -1,0 +1,81 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "{{ .Values.conf.configmap }}"
+data:
+#log-and-common
+  LOG_LEVEL: "{{ .Values.data.logLevel }}"
+  LOG_PREFIX: "{{ .Values.data.logPrefix }}"
+  logging.level.org.opengroup.osdu: "{{ .Values.data.loggingLevelOsdu }}"
+  logging.level.org.springframework.web: "{{ .Values.data.loggingLevelSpring }}"
+  JAVA_APP_JAR: "{{ .Values.data.javaAppJar }}"
+  server.servlet.context-path: "{{ .Values.data.contextPath }}"
+  server.port: "{{ .Values.data.serverPort }}"
+  ibm.env.prefix:  "{{ .Values.data.envPrefix }}"
+  ibm.env.prefix_project:  "{{ .Values.data.envPrefixProject }}"
+  spring.main.allow-bean-definition-overriding: "{{ .Values.data.beanDefOverriding }}"
+  cache.expiration: "{{ .Values.data.cacheExpiration }}"
+  cache.maxSize: "{{ .Values.data.cahceMaxSize }}"
+  ibm.health-check-uri: "{{ .Values.data.healthCheckUri }}"
+  
+# Indexer api key
+  INDEXER_API_KEY:  "{{ .Values.data.indexerApiKey }}"
+  
+  
+# Elastic
+  ELASTIC_HOST:  "{{ .Values.data.elasticHost }}"
+  ELASTIC_PORT:  "{{ .Values.data.elasticPort }}"
+  ELASTIC_USER_PASSWORD:  "{{ .Values.data.elasticUserPassword }}"
+  security.https.certificate.trust:  "{{ .Values.data.ibmElasticSSLSecurity }}"
+
+# Keycloak
+  ibm.keycloak.endpoint_url:  "keycloak-discovery:8080"
+  ibm.keycloak.realm:  "{{ .Values.data.keycloakRealm }}"
+  ibm.keycloak.useremail:  "{{ .Values.data.keycloakUserEmail }}"
+  ibm.keycloak.username:  "{{ .Values.data.keycloakUsername }}"
+  ibm.keycloak.password:  "{{ .Values.data.keycloakPassword }}"
+  ibm.keycloak.client_id:  "{{ .Values.data.keycloakClientId }}"
+  ibm.keycloak.client_secret:  "{{ .Values.data.keycloakClientSecret }}"
+  
+  
+# AMQ
+  amqphub.amqp10jms.remote-url:  "{{ .Values.data.amqpUrl }}"
+  amqphub.amqp10jms.username:  "{{ .Values.data.amqpUsername }}"
+  amqphub.amqp10jms.password:  "{{ .Values.data.amqpUserPassword }}"
+  INDEXER_QUEUE_HOST:  "{{ .Values.data.amqpUrl }}"
+  indexer.queue.key:  "{{ .Values.data.indexerQueueKey }}"  
+  
+  storage_service_url:  "http://{{ .Release.Name }}-ibm-storage-deploy:8080"
+  SCHEMA_HOST:  "http://{{ .Release.Name }}-ibm-schema-deploy:8080/api/schema-service/v1/schema"
+  STORAGE_SCHEMA_HOST:  "http://{{ .Release.Name }}-ibm-storage-deploy:8080/api/storage/v2/schemas"
+  STORAGE_QUERY_RECORD_HOST:  "http://{{ .Release.Name }}-ibm-storage-deploy:8080/api/storage/v2/query/records"
+  STORAGE_QUERY_KINDS_HOST:  "http://{{ .Release.Name }}-ibm-storage-deploy:8080/api/storage/v2/query/kinds"
+  STORAGE_QUERY_RECORD_FOR_CONVERSION_HOST:  "http://{{ .Release.Name }}-ibm-storage-deploy:8080/api/storage/v2/query/records:batch"
+  STORAGE_RECORDS_BATCH_SIZE:  "{{ .Values.data.storageRecordsBatchSize }}"
+  STORAGE_RECORDS_BY_KIND_BATCH_SIZE:  "{{ .Values.data.storageRecordsByKindBatchSize }}"
+  SEARCH_HOST:  "http://{{ .Release.Name }}-ibm-search-deploy:8080/api/service/v2"
+  
+#db
+
+  ibm.db.url: "http://{{ .Release.Name }}-couchdb:5984"
+  ibm.db.user: "{{ .Values.data.dbUser }}"
+  ibm.db.password: "{{ .Values.data.dbPassw }}"
+    
+  
+  
+
+#Authorization  
+  AUTHORIZE_API: "http://{{ .Release.Name }}-ibm-entitlement-deploy:8080/api/entitlements/v2"
+  DEPLOYMENT_ENVIRONMENT: "{{ .Values.data.deployEnv }}"
+
+#tenant-validation
+  PARTITION_API: "http://{{ .Release.Name }}-ibm-partition-deploy:8080/api/partition/v1"
+  partition.keycloak.client_id: "{{ .Values.data.pKCClientId }}"
+  partition.keycloak.client_secert: "{{ .Values.data.pKCClientSecret }}"
+  partition.keycloak.grant_type: "{{ .Values.data.grantType }}"
+  partition.keycloak.password: "{{ .Values.data.pKCPassword }}"
+  partition.keycloak.realm: "{{ .Values.data.keycloakRealm }}"
+  partition.keycloak.url: "{{ .Values.data.pKCEndPointHost }}"
+  partition.keycloak.user: "{{ .Values.data.pKCUser }}"
+  partition.keycloak.accept_http: "{{ .Values.data.pKAcceptHttp }}"
+  tenantCache.exp.time.in.second: "{{ .Values.data.tenantCacheExpiryInSec }}"

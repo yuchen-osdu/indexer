@@ -1,0 +1,121 @@
+{
+    "schemaInfo": {
+        "schemaIdentity": {
+            "authority": "test",
+            "source": "indexer<timestamp>",
+            "entityType": "wellbore",
+            "schemaVersionMajor": 1,
+            "schemaVersionMinor": 1,
+            "schemaVersionPatch": 0,
+            "id": "test:indexer<timestamp>:wellbore:1.1.0"
+        },
+        "status": "DEVELOPMENT"
+    },
+    "schema": {
+        "definitions": {
+            "opendes:wks:core_dl_geopoint:1.0.0": {
+                "description": "A 2D point location in latitude and longitude referenced to WGS 84 if not specified otherwise.",
+                "properties": {
+                    "latitude": {
+                        "description": "The latitude value in degrees of arc (dega). Value range [-90, 90].",
+                        "maximum": 90,
+                        "minimum": -90,
+                        "title": "Latitude",
+                        "type": "number"
+                    },
+                    "longitude": {
+                        "description": "The longitude value in degrees of arc (dega). Value range [-180, 180]",
+                        "maximum": 180,
+                        "minimum": -180,
+                        "title": "Longitude",
+                        "type": "number"
+                    }
+                },
+                "required": [
+                    "latitude",
+                    "longitude"
+                ],
+                "title": "2D Map Location",
+                "type": "object"
+            },
+            "opendes:wks:AbstractAliasNames:1.0.0": {
+                "title": "AbstractAliasNames",
+                "type": "object",
+                "properties": {
+                    "AliasNameTypeID": {
+                        "pattern": "^[\\w\\-\\.]+:reference-data\\-\\-AliasNameType:[\\w\\-\\.\\:\\%]+:[0-9]*$",
+                        "description": "A classification of alias names such as by role played or type of source, such as regulatory name, regulatory code, company code, international standard name, etc.",
+                        "x-osdu-relationship": [{
+                            "EntityType": "AliasNameType",
+                            "GroupType": "reference-data"
+                        }
+                        ],
+                        "type": "string"
+                    },
+                    "EffectiveDateTime": {
+                        "format": "date-time",
+                        "type": "string",
+                        "description": "The date and time when an alias name becomes effective."
+                    },
+                    "AliasName": {
+                        "type": "string",
+                        "description": "Alternative Name value of defined name type for an object."
+                    },
+                    "TerminationDateTime": {
+                        "format": "date-time",
+                        "type": "string",
+                        "description": "The data and time when an alias name is no longer in effect."
+                    },
+                    "DefinitionOrganisationID": {
+                        "pattern": "^[\\w\\-\\.]+:(reference-data\\-\\-StandardsOrganisation|master-data\\-\\-Organisation):[\\w\\-\\.\\:\\%]+:[0-9]*$",
+                        "description": "The StandardsOrganisation (reference-data) or Organisation (master-data) that provided the name (the source).",
+                        "x-osdu-relationship": [{
+                            "EntityType": "StandardsOrganisation",
+                            "GroupType": "reference-data"
+                        }, {
+                            "EntityType": "Organisation",
+                            "GroupType": "master-data"
+                        }
+                        ],
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "properties": {
+            "data": {
+                "allOf": [
+                    {
+                        "type": "object",
+                        "properties": {
+                            "Location": {
+                                "$ref": "#/definitions/opendes:wks:core_dl_geopoint:1.0.0",
+                                "description": "The wellbore's position .",
+                                "format": "core:dl:geopoint:1.0.0",
+                                "title": "WGS 84 Position",
+                                "type": "object",
+                                "x-osdu-indexing": {
+                                    "type": "geo_point"
+                                }
+                            },
+                            "NameAliases": {
+                                "x-osdu-indexing": {
+                                    "type": "nested"
+                                },
+                                "description": "Alternative names, including historical, by which this master data is/has been known (it should include all the identifiers).",
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/opendes:wks:AbstractAliasNames:1.0.0"
+                                }
+                            },
+                            "FacilityName": {
+                                "description": "Name of the Facility.",
+                                "type": "string"
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

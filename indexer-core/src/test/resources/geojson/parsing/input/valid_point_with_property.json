@@ -1,0 +1,19 @@
+{
+  "features": [
+    {
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -105.01621,
+          39.57422
+        ]
+      },
+      "properties": {
+        "id": "opendes:work-product-component--GenericRepresentation:0be3c0de-7844-4bcb-a17d-83de84cd2eca",
+        "uri": "wdms:opendes:1188d27c-9132-41ec-b281-502a6245d00c:f597df66-4197-4347-99c2-acb58ce27ef3:0be3c0de-7844-4bcb-a17d-83de84cd2eca"
+      },
+      "type": "Feature"
+    }
+  ],
+  "type": "FeatureCollection"
+}

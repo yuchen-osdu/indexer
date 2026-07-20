@@ -1,0 +1,11 @@
+{
+    "id": "6405379623020546",
+    "data": "[{\"id\":\"osdu:query:3b4ee153-48c4-4026-955a-59644ddaf3110\",\"kind\":\"osdu:ds:query:1.0.1670526387956\",\"op\":\"create\"}]",
+    "attributes": {
+        "account-id": "osdu",
+        "data-partition-id": "osdu",
+        "user": "gcp-integration-tester@nice-etching-277309.iam.gserviceaccount.com",
+        "correlation-id": "c4e8b544-ad55-44e0-a6c8-90afb25aaad9",
+        "googclient_deliveryattempt": "1"
+    }
+}

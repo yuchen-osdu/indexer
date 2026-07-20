@@ -1,0 +1,233 @@
+{
+  "x-osdu-license": "Copyright 2020, The Open Group \\nLicensed under the Apache License, Version 2.0 (the \"License\"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 . Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.",
+  "$id": "https://schema.osdu.opengroup.org/json/file/File.1.0.0.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "File",
+  "description": "The generic file entity.",
+  "type": "object",
+  "properties": {
+    "id": {
+      "description": "Previously called ResourceID or SRN which identifies this OSDU resource object without version.",
+      "title": "Entity ID",
+      "type": "string",
+      "pattern": "^srn:<namespace>:file\\/File:[^:]+$",
+      "example": "srn:<namespace>:file/File:6039b91f-04a5-5c02-b4ed-413f565e561c"
+    },
+    "kind": {
+      "description": "The schema identification for the OSDU resource object following the pattern <Namespace>:<Source>:<Type>:<VersionMajor>.<VersionMinor>.<VersionPatch>. The versioning scheme follows the semantic versioning, https://semver.org/.",
+      "title": "Entity Kind",
+      "type": "string",
+      "pattern": "^[A-Za-z0-9-_]+:[A-Za-z0-9-_]+:[A-Za-z0-9-_]+:[0-9]+.[0-9]+.[0-9]+$",
+      "example": "namespace:osdu:File:2.7.112"
+    },
+    "groupType": {
+      "description": "The OSDU group-type assigned to this resource object.",
+      "title": "Group Type",
+      "const": "file"
+    },
+    "version": {
+      "description": "The version number of this OSDU resource; set by the framework.",
+      "title": "Version Number",
+      "type": "integer",
+      "format": "int64",
+      "example": 1562066009929332
+    },
+    "acl": {
+      "description": "The access control tags associated with this entity.",
+      "title": "Access Control List",
+      "$ref": "../abstract/AbstractAccessControlList.1.0.0.json"
+    },
+    "legal": {
+      "description": "The entity's legal tags and compliance status. The actual contents associated with the legal tags is managed by the Compliance Service.",
+      "title": "Legal Tags",
+      "$ref": "../abstract/AbstractLegalTags.1.0.0.json"
+    },
+    "resourceHomeRegionID": {
+      "description": "The name of the home [cloud environment] region for this OSDU resource object.",
+      "title": "Resource Home Region ID",
+      "type": "string",
+      "pattern": "^srn:<namespace>:reference-data\\/OSDURegion:[^:]+:[0-9]*$"
+    },
+    "resourceHostRegionIDs": {
+      "description": "The name of the host [cloud environment] region(s) for this OSDU resource object.",
+      "title": "Resource Host Region ID",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^srn:<namespace>:reference-data\\/OSDURegion:[^:]+:[0-9]*$"
+      }
+    },
+    "resourceObjectCreationDateTime": {
+      "description": "Timestamp of the time at which Version 1 of this OSDU resource object was originated.",
+      "title": "Resource Object Creation DateTime",
+      "type": "string",
+      "format": "date-time"
+    },
+    "resourceVersionCreationDateTime": {
+      "description": "Timestamp of the time when the current version of this resource entered the OSDU.",
+      "title": "Resource Version Creation DateTime",
+      "type": "string",
+      "format": "date-time"
+    },
+    "resourceCurationStatus": {
+      "description": "Describes the current Curation status.",
+      "title": "Resource Curation Status",
+      "type": "string",
+      "pattern": "^srn:<namespace>:reference-data\\/ResourceCurationStatus:[^:]+:[0-9]*$"
+    },
+    "resourceLifecycleStatus": {
+      "description": "Describes the current Resource Lifecycle status.",
+      "title": "Resource Lifecycle Status",
+      "type": "string",
+      "pattern": "^srn:<namespace>:reference-data\\/ResourceLifecycleStatus:[^:]+:[0-9]*$"
+    },
+    "resourceSecurityClassification": {
+      "description": "Classifies the security level of the resource.",
+      "title": "Resource Security Classification",
+      "type": "string",
+      "pattern": "^srn:<namespace>:reference-data\\/ResourceSecurityClassification:[^:]+:[0-9]*$"
+    },
+    "ancestry": {
+      "description": "The links to data, which constitute the inputs.",
+      "title": "Ancestry",
+      "$ref": "../abstract/AbstractLegalParentList.1.0.0.json"
+    },
+    "meta": {
+      "description": "The Frame of Reference meta data section linking the named properties to self-contained definitions.",
+      "title": "Frame of Reference Meta Data",
+      "type": "array",
+      "items": {
+        "$ref": "../abstract/AbstractMetaItem.1.0.0.json"
+      }
+    },
+    "source": {
+      "description": "The entity that produced the record, or from which it is received; could be an organization, agency, system, internal team, or individual. For informational purposes only, the list of sources is not governed.",
+      "title": "Data Source",
+      "type": "string"
+    },
+    "existenceKind": {
+      "description": "Where does this data resource sit in the cradle-to-grave span of its existence?",
+      "title": "Existence Kind",
+      "type": "string",
+      "pattern": "^srn:<namespace>:reference-data\\/ExistenceKind:[^:]+:[0-9]*$"
+    },
+    "data": {
+      "allOf": [
+        {
+          "type": "object",
+          "properties": {
+            "SchemaFormatTypeID": {
+              "type": "string",
+              "description": "Schema Format Type ID",
+              "pattern": "^srn:<namespace>:reference-data\\/SchemaFormatType:[^:]+:[0-9]*$"
+            },
+            "PreloadFilePath": {
+              "description": "File system path to the data file as it existed before loading to the data platform",
+              "type": "string"
+            },
+            "FileSource": {
+              "description": "URL or file path for the data in the file",
+              "type": "string"
+            },
+            "FileSize": {
+              "description": "Length of file in bytes",
+              "type": "integer"
+            },
+            "EncodingFormatTypeID": {
+              "type": "string",
+              "description": "Encoding Format Type ID",
+              "pattern": "^srn:<namespace>:reference-data\\/EncodingFormatType:[^:]+:[0-9]*$"
+            },
+            "Endian": {
+              "description": "Endianness of binary value.  Enumeration: \"BIG\", \"LITTLE\".  If absent, applications will need to interpret from context indicators.",
+              "type": "string",
+              "enum": [
+                "BIG",
+                "LITTLE"
+              ]
+            },
+            "LossyCompressionIndicator": {
+              "description": "Boolean that warns that an imperfect compression algorithm has been applied to the bulk binary data.  Details of the compression method need to be discovered from the format properties and file access methods.",
+              "type": "boolean"
+            },
+            "CompressionMethodTypeID": {
+              "type": "string",
+              "description": "Name of a compression algorithm applied to the data as stored.",
+              "pattern": "^srn:<namespace>:reference-data\\/CompressionMethodType:[^:]+:[0-9]*$"
+            },
+            "CompressionLevel": {
+              "description": "Number indicating degree of fidelity present in bulk data resulting from compression.  Meaning of number depends on algorithm.",
+              "type": "number"
+            },
+            "Checksum": {
+              "description": "MD5 checksum of file bytes - a 32 byte hexadecimal number",
+              "type": "string",
+              "pattern": "^[0-9a-fA-F]{32}$"
+            },
+            "VectorHeaderMapping": {
+              "description": "Array of objects which define the meaning and format of a tabular structure used in a binary file as a header.  The initial use case is the trace headers of a SEG-Y file.  Note that some of this information may be repeated in the SEG-Y EBCDIC header.",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "KeyName": {
+                    "description": "SRN of a reference value for a name of a property header such as INLINE, CDPX.",
+                    "type": "string",
+                    "pattern": "^srn:<namespace>:reference-data\\/HeaderKeyName:[^:]+:[0-9]*$"
+                  },
+                  "WordFormat": {
+                    "description": "SRN of a reference value for binary data types, such as INT, UINT, FLOAT, IBM_FLOAT, ASCII, EBCDIC.",
+                    "type": "string",
+                    "pattern": "^srn:<namespace>:reference-data\\/WordFormatType:[^:]+:[0-9]*$"
+                  },
+                  "WordWidth": {
+                    "description": "Size of the word in bytes.",
+                    "type": "integer"
+                  },
+                  "Position": {
+                    "description": "Beginning byte position of header value, 1 indexed.",
+                    "type": "integer"
+                  },
+                  "UoM": {
+                    "description": "SRN to units of measure reference if header standard is not followed.",
+                    "type": "string",
+                    "pattern": "^srn:<namespace>:reference-data\\/UnitOfMeasure:[^:]+:[0-9]*$"
+                  },
+                  "ScalarIndicator": {
+                    "description": "Enumerated string indicating whether to use the normal scalar field for scaling this field (STANDARD), no scaling (NOSCALE), or override scalar (OVERRIDE).  Default is current STANDARD (such as SEG-Y rev2).",
+                    "type": "string",
+                    "enum": [
+                      "STANDARD",
+                      "NOSCALE",
+                      "OVERRIDE"
+                    ]
+                  },
+                  "ScalarOverride": {
+                    "description": "Scalar value (as defined by standard) when a value present in the header needs to be overwritten for this value.",
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "properties": {
+            "ExtensionProperties": {
+              "type": "object",
+              "properties": {}
+            }
+          }
+        }
+      ]
+    }
+  },
+  "required": [
+    "kind",
+    "acl",
+    "groupType",
+    "legal"
+  ],
+  "additionalProperties": false
+}

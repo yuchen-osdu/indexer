@@ -1,0 +1,47 @@
+[{
+        "path": "WellboreName",
+        "kind": "string"
+    }, {
+        "path": "SpatialLocation.SpatialParameterTypeID",
+        "kind": "string"
+    }, {
+        "path": "SpatialLocation.QuantitativeAccuracyBandID",
+        "kind": "string"
+    }, {
+        "path": "SpatialLocation.CoordinateQualityCheckRemarks",
+        "kind": "[]string"
+    }, {
+        "path": "SpatialLocation.AppliedOperations",
+        "kind": "[]string"
+    }, {
+        "path": "SpatialLocation.QualitativeSpatialAccuracyTypeID",
+        "kind": "string"
+    }, {
+        "path": "SpatialLocation.CoordinateQualityCheckPerformedBy",
+        "kind": "string"
+    }, {
+        "path": "SpatialLocation.SpatialLocationCoordinatesDate",
+        "kind": "datetime"
+    }, {
+        "path": "SpatialLocation.CoordinateQualityCheckDateTime",
+        "kind": "datetime"
+    }, {
+        "path": "SpatialLocation.Wgs84Coordinates",
+        "kind": "core:dl:geoshape:1.0.0"
+    }, {
+        "path": "SpatialLocation.SpatialGeometryTypeID",
+        "kind": "string"
+    }, {
+        "path": "SpatialLocation.IsDecimated",
+        "kind": "boolean"
+    }, {
+        "path": "TechnicalAssuranceReviewerNames",
+        "kind": "[]string"
+    }, {
+        "path": "TechnicalAssuranceReviewerOrganisationNames",
+        "kind": "[]string"
+    }, {
+        "path": "AssociatedIdentities",
+        "kind": "[]string"
+    }
+]

@@ -1,0 +1,55 @@
+{
+    "type": "FeatureCollection",
+    "bbox": null,
+    "features": [
+        {
+            "type": "Feature",
+            "bbox": null,
+            "geometry": {
+                "type": "MultiPolygon",
+                "bbox": null,
+                "coordinates": [
+                    [
+                        [
+                            [
+                                34.51305348816962,
+                                0.035298719063461145,
+                                5.0
+                            ],
+                            [
+                                34.513062650895186,
+                                0.030790856372375844,
+                                5.0
+                            ],
+                            [
+                                34.513071785973196,
+                                0.0262829935696415,
+                                5.5
+                            ],
+                            [
+                                34.51305348816962,
+                                0.035298719063461145,
+                                5.8
+                            ]
+                        ]
+                    ]
+                ]
+            },
+            "properties": {}
+        }
+    ],
+    "properties": null,
+    "persistableReferenceCrs": null,
+    "persistableReferenceUnitZ": {
+        "scaleOffset": {
+            "scale": 1.0,
+            "offset": 0.0
+        },
+        "symbol": "m",
+        "baseMeasurement": {
+            "ancestry": "Length",
+            "type": "UM"
+        },
+        "type": "USO"
+    }
+}

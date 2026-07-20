@@ -1,0 +1,35 @@
+# FIXME: remove it when migrate to istio 1.6 and use directResponse instead
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: {{ printf "%s-allow-policy" .Values.conf.appName | quote }}
+  namespace: {{ .Release.Namespace | quote }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.conf.appName | quote }}
+  action: ALLOW
+  rules:
+  - to:
+    - operation:
+        paths:
+        - /api/indexer/v2/*
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: {{ printf "%s-deny-policy" .Values.conf.appName | quote }}
+  namespace: {{ .Release.Namespace | quote }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.conf.appName | quote }}
+  action: DENY
+  rules:
+  - from:
+    - source:
+        notNamespaces: [ {{ .Release.Namespace | quote }} ]
+    to:
+    - operation:
+        paths:
+        - /api/indexer/v2/_dps/*

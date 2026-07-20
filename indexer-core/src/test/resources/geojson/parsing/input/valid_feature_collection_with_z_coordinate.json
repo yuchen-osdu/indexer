@@ -1,0 +1,23 @@
+{
+    "type": "FeatureCollection",
+    "bbox": null,
+    "features": [
+        {
+            "type": "Feature",
+            "bbox": null,
+            "geometry": {
+                "type": "Point",
+                "bbox": null,
+                "coordinates": [
+                    5.7500000010406245,
+                    59.000000000399105,
+                    1.0
+                ]
+            },
+            "properties": {}
+        }
+    ],
+    "properties": {},
+    "persistableReferenceCrs": null,
+    "persistableReferenceUnitZ": "{\"scaleOffset\":{\"scale\":1.0,\"offset\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"Length\",\"type\":\"UM\"},\"type\":\"USO\"}"
+}

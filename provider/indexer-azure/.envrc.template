@@ -1,0 +1,42 @@
+##
+# Needed to run the service
+##
+export schema_service_url=
+export SCHEMA_HOST=
+export storage_service_url=
+export STORAGE_QUERY_RECORD_HOST=
+export STORAGE_QUERY_RECORD_FOR_CONVERSION_HOST=
+export servicebus_namespace_name=
+export KEYVAULT_URI=
+export appinsights_key=
+export aad_client_id=
+export cosmosdb_account=
+export cosmosdb_key=
+export cosmosdb_database=
+export servicebus_topic_name=
+export entitlements_service_endpoint=
+export AZURE_CLIENT_ID=
+export AZURE_TENANT_ID=
+export AZURE_CLIENT_SECRET=
+
+
+##
+# Needed to run the integration tests
+##
+export AZURE_AD_TENANT_ID=
+export AZURE_TESTER_SERVICEPRINCIPAL_SECRET=
+export INTEGRATION_TESTER=
+export AZURE_AD_APP_RESOURCE_ID=
+export ELASTIC_USER_NAME=
+export ELASTIC_PASSWORD=
+export ELASTIC_HOST=
+export ELASTIC_PORT=
+export aad_client_id=
+export DEFAULT_DATA_PARTITION_ID_TENANT1=
+export DEFAULT_DATA_PARTITION_ID_TENANT2=
+export STORAGE_HOST=
+export ENVIRONMENT=
+export ENTITLEMENTS_DOMAIN=
+export LEGAL_TAG=
+export OTHER_RELEVANT_DATA_COUNTRIES=
+

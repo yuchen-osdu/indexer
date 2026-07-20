@@ -1,0 +1,29 @@
+{
+  "schemaInfo": {
+    "schemaIdentity": {
+      "authority": "tenant1",
+      "source": "indexer<timestamp>",
+      "entityType": "test-update-data--Integration",
+      "schemaVersionMajor": "1",
+      "schemaVersionMinor": "0",
+      "schemaVersionPatch": "1"
+    },
+    "status": "DEVELOPMENT"
+  },
+  "schema": {
+    "properties": {
+      "data": {
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "message": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

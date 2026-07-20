@@ -1,0 +1,40 @@
+{
+  "schemaInfo": {
+    "schemaIdentity": {
+      "authority": "{{data-partition-id}}",
+      "source": "test",
+      "entityType": "test-collab",
+      "schemaVersionMajor": 1,
+      "schemaVersionMinor": 0,
+      "schemaVersionPatch": 0
+    },
+    "status": "DEVELOPMENT"
+  },
+  "schema": {
+    "x-osdu-license": "test",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "description": "Array of objects testing schema",
+    "title": "Test",
+    "type": "object",
+    "required": [
+      "kind",
+      "acl",
+      "legal"
+    ],
+    "properties": {
+      "data": {
+        "anyOf": [
+          {
+            "type": "object",
+            "properties": {
+              "Collaboration": {
+                "description": "Collaboration test",
+                "type": "string"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

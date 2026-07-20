@@ -1,0 +1,72 @@
+{
+    "DefaultVerticalMeasurementID": "KB",
+    "SpatialLocation.Wgs84Coordinates": {
+        "type": "geometrycollection",
+        "geometries": [{
+                "type": "point",
+                "coordinates": [171.8745361, -41.2456122]
+            }
+        ]
+    },
+    "TechnicalAssuranceID": "opendes:reference-data--TechnicalAssuranceType:Unsuitable:",
+    "VirtualProperties.DefaultLocation.SpatialGeometryTypeID": "opendes:reference-data--SpatialGeometryType:Point:",
+    "FacilityName": "Kongahu-1",
+    "VirtualProperties.DefaultName": "Kongahu-1",
+    "VerticalMeasurements": [{
+            "VerticalMeasurementID": "KB",
+            "VerticalMeasurementPathID": "opendes:reference-data--VerticalMeasurementPath:ELEV:",
+            "VerticalMeasurement": 26.0,
+            "VerticalMeasurementTypeID": "opendes:reference-data--VerticalMeasurementType:KB:",
+            "VerticalMeasurementUnitOfMeasureID": "opendes:reference-data--UnitOfMeasure:m:"
+        }, {
+            "VerticalMeasurementID": "Well Head Elevation",
+            "VerticalMeasurementPathID": "opendes:reference-data--VerticalMeasurementPath:ELEV:",
+            "VerticalMeasurement": 26.0,
+            "VerticalMeasurementUnitOfMeasureID": "opendes:reference-data--UnitOfMeasure:m:"
+        }, {
+            "VerticalMeasurementID": "Water Depth",
+            "VerticalMeasurementPathID": "opendes:reference-data--VerticalMeasurementPath:ELEV:",
+            "VerticalMeasurement": 94.0,
+            "VerticalMeasurementUnitOfMeasureID": "opendes:reference-data--UnitOfMeasure:m:"
+        }
+    ],
+    "FacilityOperators": [{
+            "FacilityOperatorID": "Operator",
+            "FacilityOperatorOrganisationID": "opendes:master-data--Organisation:HOME%20ENERGY%20NZ%20LTD:"
+        }
+    ],
+    "FacilityTypeID": "opendes:reference-data--FacilityType:Well:",
+    "NameAliases": [{
+            "AliasName": "100000113552",
+            "AliasNameTypeID": "opendes:reference-data--AliasNameType:UniqueIdentifier:"
+        }, {
+            "AliasName": "Well1",
+            "AliasNameTypeID": "opendes:reference-data--AliasNameType:CommonName:"
+        }
+    ],
+    "FacilityEvents": [{
+            "EffectiveDateTime": "1984-06-21T00:00:00+0000",
+            "FacilityEventTypeID": "opendes:reference-data--FacilityEventType:Spud:"
+        }
+    ],
+    "VirtualProperties.DefaultLocation.IsDecimated": false,
+    "GeoContexts": [{
+            "GeoPoliticalEntityID": "opendes:master-data--GeoPoliticalEntity:New%20Zealand:",
+            "GeoTypeID": "opendes:reference-data--GeoPoliticalEntityType:Country:"
+        }, {
+            "GeoPoliticalEntityID": "opendes:master-data--GeoPoliticalEntity:38058:",
+            "GeoTypeID": "opendes:reference-data--GeoPoliticalEntityType:LicenseBlock:"
+        }
+    ],
+    "FakeGeoContexts": ["opendes:reference-data--GeoPoliticalEntityType:Country:", "opendes:reference-data--GeoPoliticalEntityType:LicenseBlock:", "opendes:reference-data--GeoPoliticalEntityType:Country:"],
+    "SpatialLocation.SpatialGeometryTypeID": "opendes:reference-data--SpatialGeometryType:Point:",
+    "OperatingEnvironmentID": "opendes:reference-data--OperatingEnvironment:Offshore:",
+    "VirtualProperties.DefaultLocation.Wgs84Coordinates": {
+        "type": "geometrycollection",
+        "geometries": [{
+                "type": "point",
+                "coordinates": [171.8745361, -41.2456122]
+            }
+        ]
+    }
+}

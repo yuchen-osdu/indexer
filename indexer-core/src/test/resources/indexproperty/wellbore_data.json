@@ -1,0 +1,65 @@
+{
+    "DefaultVerticalMeasurementID": "KB",
+    "FacilityName": "Kongahu-1",
+    "VirtualProperties.DefaultName": "Kongahu-1",
+    "FacilityTypeID": "opendes:reference-data--FacilityType:Wellbore:",
+    "FacilityEvents": [{
+            "EffectiveDateTime": "1984-06-21T00:00:00+0000",
+            "FacilityEventTypeID": "opendes:reference-data--FacilityEventType:Spud:"
+        }
+    ],
+    "VirtualProperties.DefaultLocation.IsDecimated": false,
+    "CurrentOperatorID": "opendes:master-data--Organisation:HOME%20ENERGY%20NZ%20LTD:",
+    "SpatialLocation.SpatialGeometryTypeID": "opendes:reference-data--SpatialGeometryType:Point:",
+    "WellID": "opendes:master-data--Well:1816bd81",
+    "SpatialLocation.Wgs84Coordinates": {
+        "type": "geometrycollection",
+        "geometries": [{
+                "type": "point",
+                "coordinates": [171.8745361, -41.2456122]
+            }
+        ]
+    },
+    "TechnicalAssuranceID": "opendes:reference-data--TechnicalAssuranceType:Unsuitable:",
+    "VirtualProperties.DefaultLocation.SpatialGeometryTypeID": "opendes:reference-data--SpatialGeometryType:Point:",
+    "DefinitiveTrajectoryID": "opendes:work-product-component--WellboreTrajectory:nz-100000113552:",
+    "VerticalMeasurements": [{
+            "VerticalMeasurementID": "KB",
+            "VerticalMeasurementPathID": "opendes:reference-data--VerticalMeasurementPath:ELEV:",
+            "VerticalMeasurement": 26.0,
+            "VerticalMeasurementTypeID": "opendes:reference-data--VerticalMeasurementType:KB:",
+            "VerticalMeasurementUnitOfMeasureID": "opendes:reference-data--UnitOfMeasure:m:"
+        }, {
+            "VerticalMeasurementID": "Total Depth MD",
+            "VerticalMeasurementPathID": "opendes:reference-data--VerticalMeasurementPath:MD:",
+            "VerticalMeasurement": 2015.5,
+            "VerticalMeasurementUnitOfMeasureID": "opendes:reference-data--UnitOfMeasure:m:"
+        }, {
+            "VerticalMeasurementID": "Well Head Elevation",
+            "VerticalMeasurementPathID": "opendes:reference-data--VerticalMeasurementPath:ELEV:",
+            "VerticalMeasurement": 26.0,
+            "VerticalMeasurementUnitOfMeasureID": "opendes:reference-data--UnitOfMeasure:m:"
+        }
+    ],
+    "NameAliases": [{
+            "AliasName": "100000113552",
+            "AliasNameTypeID": "opendes:reference-data--AliasNameType:UniqueIdentifier:"
+        }
+    ],
+    "GeoContexts": [{
+            "GeoPoliticalEntityID": "opendes:master-data--GeoPoliticalEntity:New%20Zealand:",
+            "GeoTypeID": "opendes:reference-data--GeoPoliticalEntityType:Country:"
+        }, {
+            "GeoPoliticalEntityID": "opendes:master-data--GeoPoliticalEntity:38058:",
+            "GeoTypeID": "opendes:reference-data--GeoPoliticalEntityType:LicenseBlock:"
+        }
+    ],
+    "VirtualProperties.DefaultLocation.Wgs84Coordinates": {
+        "type": "geometrycollection",
+        "geometries": [{
+                "type": "point",
+                "coordinates": [171.8745361, -41.2456122]
+            }
+        ]
+    }
+}

@@ -1,0 +1,75 @@
+{
+  "properties": {
+    "data": {
+      "allOf": [
+        {
+          "type": "object",
+          "properties": {
+            "Field": {
+              "type": "string"
+            },
+            "Location": {
+              "$ref": "#/definitions/opendes:wks:core_dl_geopoint:1.0.0",
+              "description": "The wellbore's position .",
+              "format": "core:dl:geopoint:1.0.0",
+              "title": "WGS 84 Position",
+              "type": "object"
+            },
+            "Basin": {
+              "type": "string"
+            },
+            "County": {
+              "type": "string"
+            }}}],
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "State": {
+              "type": "string"
+            },
+            "Country": {
+              "type": "string"
+            },
+            "WellStatus": {
+              "type": "string"
+            },
+            "OriginalOperator": {
+              "type": "string"
+            },
+            "WellName": {
+              "type": "string"
+            },
+            "WellType": {
+              "type": "string"
+            },
+            "EmptyAttribute": {
+              "type": "string"
+            }}}],
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "Rank": {
+              "type": "integer"
+            },
+            "Score": {
+              "type": "integer"
+            },
+            "Established": {
+              "type": "date-time"
+            },
+            "DblArray": {
+              "description": "The name of the host [cloud environment] region(s) for this OSDU resource object.",
+              "title": "Resource Host Region ID",
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

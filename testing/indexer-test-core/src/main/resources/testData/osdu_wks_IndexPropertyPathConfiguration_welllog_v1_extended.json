@@ -1,0 +1,39 @@
+[{
+    "id": "tenant1:reference-data--IndexPropertyPathConfiguration:welllog<timestamp>",
+    "kind": "osdu:wks:reference-data--IndexPropertyPathConfiguration:1.1.0",
+    "data": {
+        "Name": "WellLog-IndexPropertyPathConfiguration-<timestamp>",
+        "Description": "The index property list for welllog<timestamp>:1., valid for all welllog kinds for major version 1.",
+        "Code": "test:indexer<timestamp>:welllog:1.",
+        "AttributionAuthority": "OSDU",
+        "Configurations": [{
+            "Name": "WellboreName",
+            "Policy": "ExtractFirstMatch",
+            "Paths": [{
+                "RelatedObjectsSpec": {
+                    "RelationshipDirection": "ChildToParent",
+                    "RelatedObjectKind": "test:indexer<timestamp>:wellbore:1.",
+                    "RelatedObjectID": "data.WellboreID"
+                },
+                "ValueExtraction": {
+                    "ValuePath": "data.FacilityName"
+                }
+            }],
+            "UseCase": "As a user I want to discover WellLog instances by the wellbore's name value."
+        }, {
+            "Name": "SpatialLocation",
+            "Policy": "ExtractFirstMatch",
+            "Paths": [{
+                "RelatedObjectsSpec": {
+                    "RelationshipDirection": "ChildToParent",
+                    "RelatedObjectKind": "test:indexer<timestamp>:wellbore:1.",
+                    "RelatedObjectID": "data.WellboreID"
+                },
+                "ValueExtraction": {
+                    "ValuePath": "data.Location"
+                }
+            }],
+            "UseCase": "As a user I want to discover WellLog instances by spatial location."
+        }]
+    }
+}]

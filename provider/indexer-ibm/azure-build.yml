@@ -1,0 +1,55 @@
+# Maven
+# Build your Java project and run tests with Apache Maven.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/java
+
+trigger:
+  branches:
+    include:
+    - master
+  paths:
+    exclude:
+      - README.md
+      - .gitignore
+
+pool:
+  name: Hosted Ubuntu 1604
+  demands: maven
+
+steps:
+- task: Maven@3
+  displayName: 'build, test, code coverage'
+  inputs:
+    mavenPomFile: 'pom.xml'
+    options: '--settings ./indexer-core/maven/settings.xml -DVSTS_FEED_TOKEN=$(VSTS_FEED_TOKEN)'
+    testResultsFiles: '**/*/TEST-*.xml'
+    codeCoverageToolOption: JaCoCo
+    goals: 'install'
+
+- task: Maven@3
+  displayName: 'build, test, code coverage'
+  inputs:
+    mavenPomFile: 'pom.xml'
+    options: '--settings ./provider/indexer-azure/maven/settings.xml -DVSTS_FEED_TOKEN=$(VSTS_FEED_TOKEN) -P indexer-azure'
+    testResultsFiles: '**/*/TEST-*.xml'
+    codeCoverageToolOption: JaCoCo
+    goals: 'package'
+
+- task: CopyFiles@2
+  displayName: 'Copy Azure artifacts for maven deploy to: $(build.artifactstagingdirectory)'
+  inputs:
+    SourceFolder:
+    Contents: |
+      pom.xml
+      provider/indexer-azure/maven/settings.xml
+      provider/indexer-azure/pom.xml
+      provider/indexer-azure/target/*-spring-boot.jar
+    TargetFolder: '$(build.artifactstagingdirectory)'
+    
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact: drop'
+  inputs:
+    PathtoPublish: '$(build.artifactstagingdirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
+  condition: succeededOrFailed()

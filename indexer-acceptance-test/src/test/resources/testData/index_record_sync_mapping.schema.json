@@ -1,0 +1,35 @@
+{
+  "schemaInfo": {
+    "schemaIdentity": {
+      "authority": "tenant1",
+      "source": "indexer<timestamp>",
+      "entityType": "test-mapping--Sync",
+      "schemaVersionMajor": "2",
+      "schemaVersionMinor": "0",
+      "schemaVersionPatch": "0"
+    },
+    "status": "DEVELOPMENT"
+  },
+  "schema": {
+    "properties": {
+      "data": {
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "FullName": {
+                "type": "string"
+              },
+              "Address": {
+                "type": "string"
+              },
+              "Phone": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

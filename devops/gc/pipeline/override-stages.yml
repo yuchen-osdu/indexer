@@ -1,0 +1,39 @@
+variables:
+  GC_SERVICE: indexer
+  GC_VENDOR: gc
+
+gc-acceptance-test:
+  variables:
+    CUCUMBER_OPTIONS: "--plugin io.qameta.allure.cucumberjvm.AllureCucumberJvm --tags @as-ingested-coordinates,@default,@bag-of-words,@keyword-lower,@indexer-extended"
+    ELASTIC_8_PORT: $GC_ELASTIC_8_PORT
+    ELASTIC_8_USER_NAME: $GC_ELASTIC_8_USER_NAME
+    ELASTIC_8_PASSWORD: $GC_ELASTIC_8_PASSWORD
+    ELASTIC_8_HOST: $GC_ELASTIC_8_HOST
+    SCHEMA_HOST: "https://${GC_DOMAIN}"
+
+download_gc_plugins:
+  image: maven:3.8.3-openjdk-17-slim
+  stage: build
+  tags: ["osdu-small"]
+  variables:
+    GC_OQM_PACKAGE_REGISTRY_URL: "https://community.opengroup.org/api/v4/projects/1477/packages/maven"
+    GC_OQM_VERSION: "0.29.2"
+    GC_APD_PACKAGE_REGISTRY_URL: "https://community.opengroup.org/api/v4/projects/1480/packages/maven"
+    GC_APD_VERSION: "0.27.2"
+  artifacts:
+    paths:
+      - ./tmp-gc/*.jar
+    when: always
+    expire_in: 1 days
+  script:
+    - mvn dependency:copy -DrepoUrl=$GC_OQM_PACKAGE_REGISTRY_URL -Dartifact="org.opengroup.osdu:gc-oqm-pubsub:$GC_OQM_VERSION:jar:plugin" -Dtransitive=false -DoutputDirectory="./tmp-gc"
+    - mvn dependency:copy -DrepoUrl=$GC_APD_PACKAGE_REGISTRY_URL -Dartifact="org.opengroup.osdu:gc-apd-acc:$GC_APD_VERSION:jar:plugin" -Dtransitive=false -DoutputDirectory="./tmp-gc"
+  only:
+    variables:
+      - $GC == '1'
+
+gc-containerize-gitlab:
+  needs: ["gc-compile-and-unit-test", "download_gc_plugins"]
+
+gc-containerize-gcr:
+  needs: ["gc-compile-and-unit-test", "download_gc_plugins"]

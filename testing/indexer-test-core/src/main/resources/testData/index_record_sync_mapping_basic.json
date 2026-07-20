@@ -1,0 +1,10 @@
+[
+  {
+    "id": "tenant1:<kindSubType>:testMappingSync<timestamp>",
+    "data": {
+      "Full Name": "The Open Group",
+      "Address": "Burlington, MA",
+      "Phone": "781-564-9200"
+    }
+  }
+]

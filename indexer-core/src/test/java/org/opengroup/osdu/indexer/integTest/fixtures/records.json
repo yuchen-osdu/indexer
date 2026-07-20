@@ -1,0 +1,39 @@
+{
+  "records": [
+    {
+      "data": {
+
+      },
+      "meta": [],
+      "modifyUser": "vladimir_korolevskii@epam.com",
+      "modifyTime": "2024-03-28T09:24:07.063Z",
+      "id": "osdu:CollaborationProjectCollection:12345678",
+      "version": 1711617847054343,
+      "kind": "osdu:wks:CollaborationProjectCollection:1.0.0",
+      "acl": {
+        "viewers": [
+          "data.default.viewers@osdu.example.com"
+        ],
+        "owners": [
+          "data.default.viewers@osdu.example.com"
+        ]
+      },
+      "legal": {
+        "legaltags": [
+          "osdu-public-usa"
+        ],
+        "otherRelevantDataCountries": [
+          "US"
+        ],
+        "status": "compliant"
+      },
+      "tags": {
+        "NameOfKey": "String value"
+      },
+      "createUser": "vladimir_korolevskii@epam.com",
+      "createTime": "2024-03-15T14:32:21.990Z"
+    }
+  ],
+  "notFound": [],
+  "conversionStatuses": []
+}

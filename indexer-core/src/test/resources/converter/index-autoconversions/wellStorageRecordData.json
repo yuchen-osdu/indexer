@@ -1,0 +1,19 @@
+{
+    "SomeKeywordField": 42,
+    "SomeTextField": 43,
+    "SomeOtherTextField": true,
+    "SomeKeywordArrayField": [44, 45],
+    "SomeTextArrayField": [46.1, 47.1],
+    "SomeIntegerArrayField": ["48", "49"],
+    "SomeIntegerField": "50",
+    "SomeLongArrayField": ["510000000000001", "520000000000001"],
+    "SomeLongField": "530000000000001",
+    "SomeFloatArrayField": ["54.11111", "55.11111"],
+    "SomeFloatField": "56.11111",
+    "SomeDoubleArrayField": ["56.11111111111111", "57.11111111111111"],
+    "SomeDoubleField": "58.11111111111111",
+    "SomeBooleanArrayField": ["true", "false"],
+    "SomeBooleanField": "false",
+    "SomeDateArrayField": ["2024-01-01", "2024-01-02"],
+    "SomeDateField": "2024-01-03"
+}

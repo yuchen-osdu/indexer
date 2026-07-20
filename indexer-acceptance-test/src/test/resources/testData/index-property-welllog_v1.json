@@ -1,0 +1,8 @@
+[{
+        "id": "tenant1:index-property--WellLog:testIngest2",
+        "data": {
+            "Name": "Log_ABC",
+            "WellboreID": "tenant1:index-property--Wellbore:testIngest1"
+        }
+    }
+]
