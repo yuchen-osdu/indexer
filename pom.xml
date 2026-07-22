@@ -27,7 +27,7 @@
         <lettuce.version>7.5.2.RELEASE</lettuce.version>
         <!-- lettuce-core 7.x requires Netty 4.2+; Spring Boot 3.5.14 provides 4.1.x -->
         <netty.version>4.2.14.Final</netty.version>
-        <elasticsearch.version>8.15.2</elasticsearch.version>
+        <elasticsearch.version>8.15.5</elasticsearch.version>
         <spring-plugin.version>3.0.0</spring-plugin.version>
         <jacoco.version>0.8.13</jacoco.version>
         <git-commit-id-maven-plugin.version>8.0.2</git-commit-id-maven-plugin.version>
