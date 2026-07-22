@@ -57,7 +57,7 @@
     <dependency>
         <groupId>org.opengroup.osdu.core.aws</groupId>
             <artifactId>os-core-lib-aws</artifactId>
-        <version>5.1.0</version>
+        <version>8.0.3</version>
         <exclusions>
             <exclusion>
                 <groupId>net.minidev</groupId>
