@@ -8,7 +8,7 @@
 # images pull natively on Apple Silicon and amd64. Digest-pinned for reproducibility; the docker
 # Dependabot ecosystem (template only) bumps this digest as a PR and template-sync propagates it
 # to every fork — forks never author their own base bump (ADR-037).
-FROM mcr.microsoft.com/openjdk/jdk:17-azurelinux@sha256:b5184552440ea3a3f2100ca08b538066d61d8d1800da2b3a18818c4b6fcbe7f5
+FROM mcr.microsoft.com/openjdk/jdk:25-azurelinux@sha256:b3870dd8ee3ec9a2ffdae3b96624bce03f76fe00d0453e3eb1b213c9cd4acb8a
 
 ARG JAR_FILE
 ARG APPLICATIONINSIGHTS_CONNECTION_STRING="dummy"
