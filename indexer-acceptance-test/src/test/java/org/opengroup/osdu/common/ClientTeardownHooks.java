@@ -14,29 +14,25 @@
  * limitations under the License.
  */
 
-package org.opengroup.osdu.request;
+package org.opengroup.osdu.common;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import io.cucumber.java.AfterAll;
+import io.cucumber.java.BeforeAll;
 
-import java.util.List;
+@SuppressWarnings("unused")
+public final class ClientTeardownHooks {
 
-@Data
-@NoArgsConstructor
-public class Query {
+    private ClientTeardownHooks() {
+    }
 
-    private String kind;
-    private Integer offset;
-    private Integer limit;
-    private String query;
-    private SortQuery sort;
-    private Boolean queryAsOwner;
-    private String aggregateBy;
-    private List<String> returnedFields;
-    private SpatialFilter spatialFilter;
+    @BeforeAll
+    public static void setUpSuiteLegalTag() {
+        TestsBase.setupSuiteLegalTag();
+    }
 
-    @Override
-    public String toString() {
-        return new com.google.gson.Gson().toJson(this);
+    @AfterAll
+    public static void tearDownTrackedClients() {
+        TestsBase.tearDownTrackedResources();
+        TestsBase.tearDownSuiteLegalTag();
     }
 }

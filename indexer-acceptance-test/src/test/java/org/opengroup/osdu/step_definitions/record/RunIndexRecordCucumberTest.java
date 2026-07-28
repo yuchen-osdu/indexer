@@ -1,6 +1,6 @@
 /*
  *  Copyright 2020-2022 Google LLC
- *  Copyright 2020-2022 EPAM Systems, Inc
+ *  Copyright 2020-2026 EPAM Systems, Inc
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,23 +22,26 @@ import org.junit.platform.suite.api.IncludeEngines;
 import org.junit.platform.suite.api.IncludeTags;
 import org.junit.platform.suite.api.SelectPackages;
 import org.junit.platform.suite.api.Suite;
+import org.opengroup.osdu.common.CucumberGlue;
 
+import static io.cucumber.junit.platform.engine.Constants.EXECUTION_MODE_FEATURE_PROPERTY_NAME;
 import static io.cucumber.junit.platform.engine.Constants.GLUE_PROPERTY_NAME;
 import static io.cucumber.junit.platform.engine.Constants.PARALLEL_EXECUTION_ENABLED_PROPERTY_NAME;
-import static io.cucumber.junit.platform.engine.Constants.EXECUTION_MODE_FEATURE_PROPERTY_NAME;
+import static io.cucumber.junit.platform.engine.Constants.PLUGIN_PROPERTY_NAME;
 
-// Extended/augmented indexer tests run sequentially because they rely on shared stateful
-// scenarios (runStatefulScenario flag) that must execute in a specific order.
-//
-// Excluded by default via Surefire configuration in pom.xml. These tests require the
-// index-augmenter-enabled feature flag on the target environment. To run:
-//   mvn verify -DincludeAugmentedTests=true
+// Parallel execution is enabled with EXECUTION_MODE_FEATURE = "concurrent". Different feature
+// files run in separate threads while scenarios within a feature run sequentially. All test data
+// uses persistent kinds against a shared environment, so feature-level concurrency provides
+// parallelism while avoiding intra-feature data conflicts.
 @Suite
 @IncludeEngines("cucumber")
 @SelectPackages("features.indexrecord")
-@IncludeTags({"indexer-extended"})
-@ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "org.opengroup.osdu.step_definitions.record,org.opengroup.osdu.config")
+@IncludeTags({"default"})
+@ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = CucumberGlue.INDEX_RECORD)
 @ConfigurationParameter(key = PARALLEL_EXECUTION_ENABLED_PROPERTY_NAME, value = "true")
-@ConfigurationParameter(key = EXECUTION_MODE_FEATURE_PROPERTY_NAME, value = "same_thread")
-public class RunIndexerAugmentedTest {
+@ConfigurationParameter(key = EXECUTION_MODE_FEATURE_PROPERTY_NAME, value = "concurrent")
+@ConfigurationParameter(
+    key = PLUGIN_PROPERTY_NAME,
+    value = "pretty,junit:target/cucumber-reports/TEST-indexrecord-basic.xml,io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm")
+public class RunIndexRecordCucumberTest {
 }

@@ -17,30 +17,26 @@
 package org.opengroup.osdu.models;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.reflect.TypeToken;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.opengroup.osdu.core.common.model.entitlements.Acl;
 import org.opengroup.osdu.core.common.model.legal.Legal;
-import org.opengroup.osdu.util.ElasticUtils;
-import org.opengroup.osdu.util.FileHandler;
-import org.opengroup.osdu.util.HTTPClient;
-import org.opengroup.osdu.util.HttpResponse;
-import org.opengroup.osdu.util.IndexerClientUtil;
+import org.opengroup.osdu.common.TestsBase;
+import org.opengroup.osdu.core.test.client.IndexerClient;
+import org.opengroup.osdu.core.test.client.SchemaClient;
+import org.opengroup.osdu.core.test.client.StorageClient;
+import org.opengroup.osdu.core.test.client.model.schema.SchemaIdentity;
+import org.opengroup.osdu.core.test.client.model.schema.SchemaModel;
+import org.opengroup.osdu.core.test.util.TestFileUtil;
+import org.opengroup.osdu.core.test.client.ElasticClient;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.logging.Logger;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.opengroup.osdu.util.Config.*;
-import static org.opengroup.osdu.util.HTTPClient.indentatedResponseBody;
-
+@Slf4j
 @Data
 public class TestIndex {
-    private static final Logger LOGGER = Logger.getLogger(TestIndex.class.getName());
+
     private String kind;
     private String index;
     private String mappingFile;
@@ -50,48 +46,78 @@ public class TestIndex {
     private String[] dataGroup;
     private String[] viewerGroup;
     private String[] ownerGroup;
-    private HTTPClient httpClient;
-    private Map<String, String> headers;
-    private ElasticUtils elasticUtils;
-    private IndexerClientUtil indexerClientUtil;
+    private ElasticClient elasticClient;
+    private IndexerClient indexerClient;
+    private SchemaClient schemaClient;
+    private StorageClient storageClient;
     private Gson gson = new Gson();
 
-    public TestIndex(ElasticUtils elasticUtils){
-        this.elasticUtils = elasticUtils;
+    /**
+     * Creates a fully-configured test index with the shared typed clients from
+     * {@link org.opengroup.osdu.common.TestsBase}.
+     */
+    public TestIndex(ElasticClient elasticClient, IndexerClient indexerClient,
+                     SchemaClient schemaClient, StorageClient storageClient) {
+        this.elasticClient = elasticClient;
+        this.indexerClient = indexerClient;
+        this.schemaClient = schemaClient;
+        this.storageClient = storageClient;
     }
 
-    public void setHttpClient(HTTPClient httpClient) {
-        this.httpClient = httpClient;
-        headers = httpClient.getCommonHeader();
-        this.indexerClientUtil = new IndexerClientUtil(this.httpClient);
+    /**
+     * Reduced constructor for subclasses that override {@link #setupSchema()} and
+     * {@link #deleteSchema(String)} and therefore do not need the schema/storage clients.
+     */
+    protected TestIndex(ElasticClient elasticClient, IndexerClient indexerClient) {
+        this(elasticClient, indexerClient, null, null);
     }
 
     public void setupIndex() {
         this.addIndex();
         List<Map<String, Object>> records = getRecordsFromTestFile();
-        this.recordCount = this.elasticUtils.indexRecords(this.index, this.kind, records);
+        this.recordCount = this.elasticClient.indexRecords(this.index, this.kind, records);
     }
 
+    /**
+     * Creates the schema via the Schema v1 API ({@link SchemaClient}).
+     *
+     * <p>The schema file is read directly into a {@link SchemaModel}. The schema identity is then
+     * set from the dynamically generated {@link #kind} (format {@code authority:source:entityType:major.minor.patch})
+     * so that the registered schema matches exactly the kind used to index records in this test.
+     */
     public void setupSchema() {
-        HttpResponse httpResponse = this.httpClient.send("POST", getStorageBaseURL() + "schemas", this.getStorageSchemaFromJson(), headers, httpClient.getAccessToken());
-        if (httpResponse.getType() != null) {
-            LOGGER.info(String.format("Response status: %s, type: %s\nResponse body: %s", httpResponse.getStatus(), httpResponse.getType(), indentatedResponseBody(httpResponse.getEntity(String.class))));
+        try {
+            SchemaModel schemaModel = TestFileUtil.readTestDataFile(getSchemaFile(), SchemaModel.class);
+            String[] kindParts = this.kind.split(":");
+            String[] versionParts = kindParts[3].split("\\.");
+            SchemaIdentity identity = schemaModel.getSchemaInfo().getSchemaIdentity();
+            identity.setAuthority(kindParts[0]);
+            identity.setSource(kindParts[1]);
+            identity.setEntityType(kindParts[2]);
+            identity.setSchemaVersionMajor(versionParts[0]);
+            identity.setSchemaVersionMinor(versionParts[1]);
+            identity.setSchemaVersionPatch(versionParts[2]);
+            schemaClient.createIfNotExist(schemaModel);
+        } catch (Exception e) {
+            throw new AssertionError(e.getMessage(), e);
         }
     }
 
+    /**
+     * Removes the schema record from the Storage v2 service via {@link StorageClient}.
+     *
+     * @param kind the schema/kind identifier to delete
+     */
     public void deleteSchema(String kind) {
-        HttpResponse httpResponse = this.httpClient.send("DELETE", getStorageBaseURL() + "schemas/" + kind, null, headers, httpClient.getAccessToken());
-        assertEquals(204, httpResponse.getStatus());
-        if (httpResponse.getType() != null)
-            LOGGER.info(String.format("Response status: %s, type: %s", httpResponse.getStatus(), httpResponse.getType()));
+        storageClient.deleteRecord(kind);
     }
 
     public void addIndex() {
-        this.elasticUtils.createIndex(this.index, this.getIndexMappingFromJson());
+        this.elasticClient.createIndex(this.index, this.getIndexMappingFromJson());
     }
 
     public void cleanupIndex(String kind) {
-        this.indexerClientUtil.deleteIndex(kind);
+        this.indexerClient.deleteIndex(kind);
     }
 
     private String getRecordFile() {
@@ -103,15 +129,14 @@ public class TestIndex {
     }
 
     protected String getSchemaFile() {
-        return String.format("%s.schema", this.schemaFile);
+        return String.format("%s.schema.json", this.schemaFile);
     }
 
+    @SuppressWarnings("unchecked")
     private List<Map<String, Object>> getRecordsFromTestFile() {
-         try {
-            String fileContent = FileHandler.readFile(getRecordFile());
-            List<Map<String, Object>> records = new Gson().fromJson(
-                    fileContent, new TypeToken<List<Map<String,Object>>>() {}.getType());
-
+        try {
+            List<Map<String, Object>> records =
+                (List<Map<String, Object>>) TestFileUtil.readTestDataFile(getRecordFile(), List.class);
             for (Map<String, Object> testRecord : records) {
                 testRecord.put("kind", this.kind);
                 testRecord.put("legal", generateLegalTag());
@@ -127,34 +152,14 @@ public class TestIndex {
 
     private String getIndexMappingFromJson() {
         try {
-            String fileContent = FileHandler.readFile(getMappingFile());
-            JsonElement json = gson.fromJson(fileContent, JsonElement.class);
-            return gson.toJson(json);
-        } catch (Exception e) {
-            throw new AssertionError(e.getMessage());
-        }
-    }
-
-    private String getStorageSchemaFromJson() {
-        try {
-            String fileContent = FileHandler.readFile(getSchemaFile());
-            fileContent = fileContent.replaceAll("KIND_VAL", this.kind);
-            JsonElement json = gson.fromJson(fileContent, JsonElement.class);
-            return gson.toJson(json);
+            String fileContent = TestFileUtil.readTestDataFile(getMappingFile());
+            return gson.toJson(gson.fromJson(fileContent, Object.class));
         } catch (Exception e) {
             throw new AssertionError(e.getMessage());
         }
     }
 
     private Legal generateLegalTag() {
-        Legal legal = new Legal();
-        Set<String> legalTags = new HashSet<>();
-        legalTags.add(getLegalTag());
-        legal.setLegaltags(legalTags);
-        Set<String> otherRelevantCountries = new HashSet<>();
-        otherRelevantCountries.add(getOtherRelevantDataCountries());
-        legal.setOtherRelevantDataCountries(otherRelevantCountries);
-        return legal;
+        return TestsBase.generateSuiteLegalTag();
     }
-
 }

@@ -23,24 +23,20 @@ import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import org.opengroup.osdu.common.SchemaServiceRecordSteps;
-import org.opengroup.osdu.util.AnthosHTTPClient;
-import org.opengroup.osdu.util.ElasticUtils;
-import org.opengroup.osdu.util.conf.AnthosConfig;
 
-@Log
-public class Steps extends SchemaServiceRecordSteps {
+@Slf4j
+@SuppressWarnings("unused")
+public class IndexRecordSteps extends SchemaServiceRecordSteps {
 
-    public Steps() {
-        super(new AnthosHTTPClient(), new ElasticUtils());
+    public IndexRecordSteps() {
+        super();
     }
 
     @Before
     public void before(Scenario scenario) {
-        AnthosConfig.updateEntitlementsDomainVariable();
         this.scenario = scenario;
-        this.httpClient = new AnthosHTTPClient();
     }
 
     @Given("^the schema is created with the following kind$")
@@ -49,12 +45,12 @@ public class Steps extends SchemaServiceRecordSteps {
     }
 
     @Then("^I set starting stateful scenarios$")
-    public void i_set_starting_stateful_scenarios() throws Throwable {
+    public void i_set_starting_stateful_scenarios() {
         super.i_set_scenarios_as_stateful(true);
     }
 
     @Then("^I set ending stateful scenarios$")
-    public void i_set_ending_stateful_scenarios() throws Throwable {
+    public void i_set_ending_stateful_scenarios() {
         super.i_set_scenarios_as_stateful(false);
     }
 
@@ -89,7 +85,7 @@ public class Steps extends SchemaServiceRecordSteps {
     }
 
     @Then("^I can validate indexed meta attributes for the \"([^\"]*)\" and given \"([^\"]*)\"$")
-    public void i_can_validate_indexed_meta_attributes(String index, String kind) throws Throwable {
+    public void i_can_validate_indexed_meta_attributes(String index, String kind) {
         super.i_can_validate_indexed_attributes(index, kind);
     }
 
@@ -100,7 +96,7 @@ public class Steps extends SchemaServiceRecordSteps {
     }
 
     @Then("^I should be able to search (\\d+) record with index \"([^\"]*)\" by tag \"([^\"]*)\" and value \"([^\"]*)\"$")
-    public void iShouldBeAbleToSearchRecordByTagKeyAndTagValue(int expectedNumber, String index, String tagKey, String tagValue) throws Throwable {
+    public void iShouldBeAbleToSearchRecordByTagKeyAndTagValue(int expectedNumber, String index, String tagKey, String tagValue) {
         super.iShouldBeAbleToSearchRecordByTagKeyAndTagValue(index, tagKey, tagValue, expectedNumber);
     }
 
@@ -110,7 +106,7 @@ public class Steps extends SchemaServiceRecordSteps {
     }
 
     @Then("^I should be able to search (\\d+) record with index \"([^\"]*)\" by extended data field \"([^\"]*)\" and value \"([^\"]*)\"$")
-    public void iShouldBeAbleToSearchRecordByFieldAndFieldValue(int expectedNumber, String index, String fieldKey, String fieldValue) throws Throwable {
+    public void iShouldBeAbleToSearchRecordByFieldAndFieldValue(int expectedNumber, String index, String fieldKey, String fieldValue) {
         super.iShouldBeAbleToSearchRecordByFieldAndFieldValue(index, fieldKey, fieldValue, expectedNumber);
     }
 
@@ -160,7 +156,7 @@ public class Steps extends SchemaServiceRecordSteps {
         super.i_should_get_object_in_search_response(innerField, index);
     }
 
-    @Then("^I should be able search (\\d+) documents for the \"([^\"]*)\" by bounding box query with points \\((-?\\d+), (-?\\d+)\\) on field \"([^\"]*)\" and points \\((-?\\d+), (-?\\d+)\\) on field \"([^\"]*)\"$")
+    @Then("^I should be able search (\\d+) documents for the \"([^\"]*)\" by bounding box query with points \\((-?\\d+(?:\\.\\d+)?), (-?\\d+(?:\\.\\d+)?)\\) on field \"([^\"]*)\" and points \\((-?\\d+(?:\\.\\d+)?), (-?\\d+(?:\\.\\d+)?)\\) on field \"([^\"]*)\"$")
     public void i_should_get_the_documents_for_the_in_the_Elastic_Search_by_AsIngestedCoordinates (
             int expectedCount, String index, Double topPointX, Double bottomPointX, String pointX, Double topPointY, Double bottomPointY, String pointY) throws Throwable {
         super.i_should_get_the_documents_for_the_in_the_Elastic_Search_by_AsIngestedCoordinates(expectedCount, index, topPointX, bottomPointX, pointX, topPointY, bottomPointY, pointY);
@@ -172,7 +168,7 @@ public class Steps extends SchemaServiceRecordSteps {
     }
 
     @Then("^I should get the (\\d+) documents with xcollab value \"([^\"]*)\" included for the \"([^\"]*)\" in the Elastic Search$")
-    public void i_should_get_documents_with_xcollab_value(int expectedNumber, String xcollab, String index) throws Exception {
+    public void i_should_get_documents_with_xcollab_value(int expectedNumber, String xcollab, String index) {
         super.i_should_get_the_documents_with_xcollab_value_included_for_the_in_the_Elastic_Search(expectedNumber, xcollab, index);
     }
 }
