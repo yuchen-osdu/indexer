@@ -14,15 +14,26 @@
  * limitations under the License.
  */
 
-package org.opengroup.osdu.response;
+package org.opengroup.osdu.models;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.util.List;
 import java.util.Map;
 
+/**
+ * DataTable row model that carries the configuration for a single {@link TestIndex} setup step.
+ */
 @Data
-public abstract class ResponseBase {
-    private int responseCode;
-    private Map<String, List<String>> headers;
+@NoArgsConstructor
+public class TestIndexSetup {
+    private String tenantId;
+    private String kind;
+    private String index;
+    private String viewerGroup;
+    private String ownerGroup;
+    private String mappingFile;
+    private String recordFile;
+    private String schemaFile;
+    private Map<String, String> headers;
 }

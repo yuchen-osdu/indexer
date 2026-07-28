@@ -17,38 +17,36 @@
 package org.opengroup.osdu.common;
 
 import io.cucumber.datatable.DataTable;
-import org.opengroup.osdu.models.Setup;
+import lombok.extern.slf4j.Slf4j;
+import org.opengroup.osdu.core.test.client.ClientException;
+import org.opengroup.osdu.models.TestIndexSetup;
 import org.opengroup.osdu.models.schema.PersistentSchemaTestIndex;
-import org.opengroup.osdu.util.ElasticUtils;
-import org.opengroup.osdu.util.HTTPClient;
 
 import java.util.List;
-import java.util.Map;
 
+@Slf4j
 public class SchemaServiceRecordSteps extends RecordSteps {
     private static boolean runStatefulScenario = false;
 
-    public SchemaServiceRecordSteps(HTTPClient httpClient, ElasticUtils elasticUtils) {
-        super(httpClient, elasticUtils);
+    public SchemaServiceRecordSteps() {
+        super();
     }
 
     public void the_schema_is_created_with_the_following_kind(DataTable dataTable) {
         if(!SchemaServiceRecordSteps.runStatefulScenario) {
-            List<Setup> inputList = dataTable.asList(Setup.class);
+            List<TestIndexSetup> inputList = dataTable.asList(TestIndexSetup.class);
             inputList.forEach(this::setup);
-            super.addShutDownHook();
         }
     }
 
-    public void i_set_scenarios_as_stateful(boolean stateful) throws Throwable {
+    public void i_set_scenarios_as_stateful(boolean stateful) {
         SchemaServiceRecordSteps.runStatefulScenario = stateful;
     }
 
-    private void setup(Setup input) {
-        PersistentSchemaTestIndex testIndex = new PersistentSchemaTestIndex(super.elasticUtils, super.httpClient, this);
+    private void setup(TestIndexSetup input) {
+        PersistentSchemaTestIndex testIndex = new PersistentSchemaTestIndex(elasticClient, indexerClient, stringHttpClient, this);
         testIndex.setIndex(generateActualName(input.getIndex(), super.getTimeStamp()));
         testIndex.setSchemaFile(input.getSchemaFile());
-        testIndex.setHttpClient(super.httpClient);
         testIndex.setupSchema();
         testIndex.setKind(testIndex.getSchemaModel().getSchemaInfo().getSchemaIdentity().getId());
 
@@ -67,12 +65,11 @@ public class SchemaServiceRecordSteps extends RecordSteps {
     }
 
     private void deleteIndex(String kind) {
-        this.indexerClientUtil.deleteIndex(kind);
-    }
-
-    @Override
-    protected String generateRecordId(Map<String, Object> testRecord) {
-        return generateActualId(testRecord.get("id").toString(), getTimeStamp(), testRecord.get("kind").toString());
+        try {
+            indexerClient.deleteIndex(kind);
+        } catch (ClientException e) {
+            log.warn("Index for kind '{}' not found during pre-test cleanup (may not exist yet): {}", kind, e.getMessage());
+        }
     }
 
     @Override

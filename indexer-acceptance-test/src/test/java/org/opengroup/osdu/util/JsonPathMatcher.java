@@ -16,104 +16,46 @@
 
 package org.opengroup.osdu.util;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Utility for traversing nested JSON structures to find array values at a dotted path.
+ *
+ * <p>Supports flattened field names (where a single key like
+ * {@code "data.Configurations.Paths.ValueExtraction.RelatedConditionMatches"} appears as a
+ * map key rather than nested maps), which is how Elasticsearch stores certain properties.
+ */
 public class JsonPathMatcher {
 
-    // Since there's no unit tests for tests, there's this:
-    public static void main(String[] args) {
-        String jsonGoodString = """
-{       "id": "tenant1:reference-data--IndexPropertyPathConfiguration:index-property--Wellbore:1.",
-        "data": {
-            "Name": "Wellbore-IndexPropertyPathConfiguration",
-            "Description": "The index property list for index-property--Wellbore:1., valid for all index-property--Wellbore kinds for major version 1.",
-            "Code": "test:indexer:index-property--Wellbore:1.",
-            "AttributionAuthority": "OSDU",
-            "Configurations": [{
-                    "Name": "WellUWI",
-                    "Policy": "ExtractFirstMatch",
-                    "Paths": [{
-                            "ValueExtraction.RelatedConditionMatches": [
-                                "UniqueIdentifier:$",
-                                "RegulatoryName:$",
-                                "PreferredName:$",
-                                "CommonName:$",
-                                "ShortName:$"
-                            ],
-                            "ValueExtraction.RelatedConditionProperty": "data.NameAliases[].AliasNameTypeID",
-                            "ValueExtraction.ValuePath": "data.NameAliases[].AliasName"
-                            
-                        }
-                    ],
-                    "UseCase": "As a user I want to discover and match Wells by their UWI. I am aware that this is not globally reliable, however, I am able to specify a prioritized AliasNameType list to look up value in the NameAliases array."
-                }
-            ]
-        }
- }
- """;
-        String jsonBadString = """
-{       "id": "tenant1:reference-data--IndexPropertyPathConfiguration:index-property--Wellbore:1.",
-        "data": {
-            "Name": "Wellbore-IndexPropertyPathConfiguration",
-            "Description": "The index property list for index-property--Wellbore:1., valid for all index-property--Wellbore kinds for major version 1.",
-            "Code": "test:indexer:index-property--Wellbore:1.",
-            "AttributionAuthority": "OSDU",
-            "Configurations": [{
-                    "Name": "WellUWI",
-                    "Policy": "ExtractFirstMatch",
-                    "Paths": [{
-                            "ValueExtraction": {
-                                "RelatedConditionMatches": "[UniqueIdentifier:$,RegulatoryName:$,PreferredName:$]",
-                                "RelatedConditionProperty": "data.NameAliases[].AliasNameTypeID",
-                                "ValuePath": "data.NameAliases[].AliasName"
-                            }
-                        }
-                    ],
-                    "UseCase": "As a user I want to discover and match Wells by their UWI. I am aware that this is not globally reliable, however, I am able to specify a prioritized AliasNameType list to look up value in the NameAliases array."
-                }
-            ]
-        }
- }
- """;
-
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            Map<String, Object> dataMap = objectMapper.readValue(jsonGoodString, Map.class);
-            List<String> stringList = java.util.Arrays.asList("data.Configurations.Paths.ValueExtraction.RelatedConditionMatches".split("\\."));
-            Object found = FindArrayInJson(dataMap, stringList);
-            System.out.println("in Good String Found? "+ objectMapper.writeValueAsString(found));
-            dataMap = objectMapper.readValue(jsonBadString, Map.class);
-            found = FindArrayInJson(dataMap, stringList);
-            System.out.println("in Bad String Found? "+ objectMapper.writeValueAsString(found));
-            stringList = java.util.Arrays.asList("data.Configurations.Paths.ValueExtraction.SomeDifferentKey".split("\\."));
-            found = FindArrayInJson(dataMap, stringList);
-            System.out.println("in Bad String Found? "+ objectMapper.writeValueAsString(found));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    private JsonPathMatcher() {
     }
 
-    // Assure that field in the Json path (supporting flattened fields) is an array of strings
-    public static Object FindArrayInJson(Object data, List<String> stringList) {
+    /**
+     * Traverses a parsed JSON structure following the given path segments and returns the first
+     * array value found at the path, or {@code null} when not found.
+     *
+     * <p>Handles both nested maps and flattened field names. Array elements are traversed
+     * recursively.
+     *
+     * @param data       the root object (typically a {@code Map<String, Object>} parsed from JSON)
+     * @param stringList path segments (for example from splitting {@code "data.foo.bar"} on
+     *                   {@code "\\."})
+     * @return the array value at the path, or {@code null} when not found
+     */
+    public static Object findArrayInJson(Object data, List<String> stringList) {
         if (data instanceof Map) {
-            // Handle Map
             return handleMap((Map<String, Object>) data, stringList);
         } else if (data instanceof ArrayList) {
-            // Handle ArrayList
             return handleArrayList((ArrayList<?>) data, stringList);
-        } else {
-            // Handle other types
-            return null;
         }
+        return null;
     }
 
     private static boolean isPrefix(List<String> potentialPrefix, List<String> target) {
-        boolean result = true;
-        for (Integer i = 0; i < potentialPrefix.size(); i++) {
+        for (int i = 0; i < potentialPrefix.size(); i++) {
             if (!potentialPrefix.get(i).equals(target.get(i))) {
                 return false;
             }
@@ -122,22 +64,25 @@ public class JsonPathMatcher {
     }
 
     private static Object handleMap(Map<String, Object> map, List<String> stringList) {
-
         for (Map.Entry<String, Object> entry : map.entrySet()) {
             Object value = entry.getValue();
-            List<String> keyParts = java.util.Arrays.asList(entry.getKey().split("\\."));
+            List<String> keyParts = Arrays.asList(entry.getKey().split("\\."));
             if (keyParts.size() > stringList.size()) {
                 if (!isPrefix(keyParts.subList(0, stringList.size()), stringList)) {
                     continue;
                 }
-                Object result = FindArrayInJson(value, stringList.subList(0, 0));
-                if (result != null) { return result; }
+                Object result = findArrayInJson(value, stringList.subList(0, 0));
+                if (result != null) {
+                    return result;
+                }
             } else {
                 if (!isPrefix(keyParts, stringList)) {
                     continue;
                 }
-                Object result = FindArrayInJson(value, stringList.subList(keyParts.size(), stringList.size()));
-                if (result != null) { return result; }
+                Object result = findArrayInJson(value, stringList.subList(keyParts.size(), stringList.size()));
+                if (result != null) {
+                    return result;
+                }
             }
         }
         return null;
@@ -149,8 +94,10 @@ public class JsonPathMatcher {
             return null;
         }
         for (Object arrayElementValue : arrayList) {
-            Object result = FindArrayInJson(arrayElementValue, stringList);
-            if (result != null) { return result; }
+            Object result = findArrayInJson(arrayElementValue, stringList);
+            if (result != null) {
+                return result;
+            }
         }
         return null;
     }
