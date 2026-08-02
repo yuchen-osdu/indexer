@@ -45,6 +45,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import org.apache.http.HttpStatus;
 import org.junit.After;
 import org.junit.Before;
@@ -59,7 +61,9 @@ import org.opengroup.osdu.core.common.feature.IFeatureFlag;
 import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
 import org.opengroup.osdu.core.common.model.entitlements.Acl;
 import org.opengroup.osdu.core.common.model.http.AppException;
+import org.opengroup.osdu.core.common.model.http.CollaborationContext;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
+import org.opengroup.osdu.core.common.util.CollaborationContextUtil;
 import org.opengroup.osdu.core.common.model.indexer.*;
 import org.opengroup.osdu.core.common.model.search.RecordChangedMessages;
 import org.opengroup.osdu.core.common.model.storage.ConversionStatus;
@@ -661,6 +665,35 @@ public class IndexerServiceImplTest {
         verify(this.indicesService).createIndex(any(), eq(index2), any(), any());
         assertEquals(2, result.getIdsByIndexingStatus(IndexingStatus.SUCCESS).size());
         assertEquals(0, result.getIdsByIndexingStatus(IndexingStatus.FAIL).size());
+    }
+
+    @Test
+    public void should_reenqueueOriginalRecordIds_onBulkIndexNotFound_underCollaboration() throws Exception {
+        String index2 = "opendes-testindexer2-well-1.0.0";
+        prepareSingleKindTestDataAndEnv();
+
+        when(this.mappingService.getIndexMappingFromRecordSchema(any())).thenReturn(new HashMap<>());
+        when(this.indicesService.createIndex(any(), any(), any(), any())).thenReturn(true);
+
+        CollaborationContext collaborationContext = new CollaborationContext();
+        collaborationContext.setId(UUID.fromString("a99cef48-2ed6-4beb-8a43-002373431f21"));
+        when(this.xcollaborationHolder.isFeatureEnabledAndHeaderExists()).thenReturn(true);
+        when(this.xcollaborationHolder.getCollaborationContext()).thenReturn(Optional.of(collaborationContext));
+        String composedId2 = CollaborationContextUtil.composeIdWithNamespace(recordId2, Optional.of(collaborationContext));
+        String composedId3 = CollaborationContextUtil.composeIdWithNamespace(recordId3, Optional.of(collaborationContext));
+        when(this.xcollaborationHolder.removeXcollaborationValue(composedId2)).thenReturn(recordId2);
+        when(this.xcollaborationHolder.removeXcollaborationValue(composedId3)).thenReturn(recordId3);
+
+        List<BulkResponseItem> mixedItems = List.of(prepareIndexNotFoundResponse(composedId2, index2), prepareSuccessfulResponse(composedId3));
+        when(this.bulkResponse.items()).thenReturn(mixedItems);
+
+        this.sut.processRecordChangedMessages(recordChangedMessages, recordInfos);
+
+        verify(this.indicesService).invalidateCache(index2);
+
+        ArgumentCaptor<String> payloadCaptor = ArgumentCaptor.forClass(String.class);
+        verify(this.indexerQueueTaskBuilder).createWorkerTask(payloadCaptor.capture(), any());
+        assertTrue(payloadCaptor.getValue().contains(recordId2));
     }
 
     private BulkResponseItem prepareIndexNotFoundResponse(String recordId, String index) {

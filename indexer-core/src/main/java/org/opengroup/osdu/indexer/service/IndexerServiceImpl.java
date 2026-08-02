@@ -720,21 +720,26 @@ public class IndexerServiceImpl implements IndexerService {
             int failedResponses = 0;
             for (BulkResponseItem bulkItemResponse : bulkResponse.items()) {
                 if (bulkItemResponse.error() != null) {
+                    String recordId = bulkItemResponse.id();
+                    if (xcollaborationHolder.isFeatureEnabledAndHeaderExists()) {
+                        // bulk item ids carry the collaboration namespace; strip it so retry and status tracking match the original record ids
+                        recordId = xcollaborationHolder.removeXcollaborationValue(recordId);
+                    }
                     String failureMessage = String.format("elasticsearch bulk service status: %s | id: %s | message: %s",
                         bulkItemResponse.status(),
-                        bulkItemResponse.id(),
+                        recordId,
                         buildErrorReason(bulkItemResponse.error()));
                     bulkFailures.add(failureMessage);
-                    this.jobStatus.addOrUpdateRecordStatus(bulkItemResponse.id(), IndexingStatus.FAIL, bulkItemResponse.status(), buildErrorReason(bulkItemResponse.error()));
+                    this.jobStatus.addOrUpdateRecordStatus(recordId, IndexingStatus.FAIL, bulkItemResponse.status(), buildErrorReason(bulkItemResponse.error()));
 
                     if (isIndexNotFound(bulkItemResponse)) {
                         deletedIndices.add(bulkItemResponse.index());
                     }
 
                     if (bulkItemResponse.status() == HttpStatus.SC_BAD_REQUEST && isParsingException(bulkItemResponse.error())) {
-                        retryUpsertRecordIds.add(bulkItemResponse.id());
+                        retryUpsertRecordIds.add(recordId);
                     } else if (canIndexerRetry(bulkItemResponse)) {
-                        failureRecordIds.add(bulkItemResponse.id());
+                        failureRecordIds.add(recordId);
 
                         if (failedRequestCause == null) {
                             failedRequestCause = new Exception(bulkItemResponse.error().reason());
