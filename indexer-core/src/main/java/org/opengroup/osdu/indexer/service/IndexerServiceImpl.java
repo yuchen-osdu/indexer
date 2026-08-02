@@ -614,23 +614,24 @@ public class IndexerServiceImpl implements IndexerService {
                 try {
                     this.mappingService.syncMetaAttributeIndexMappingIfRequired(restClient, schema);
                     continue;
-                } catch (ElasticsearchMappingException e) {
-                    List<Record> schemaRecords = recordIndexerPayload.getRecords()
-                        .stream()
-                        .filter(schemaRecord -> Objects.equals(schemaRecord.getKind(), schema.getKind()))
-                        .toList();
-                    for (Record schemaRecord : schemaRecords) {
-                        this.jobStatus.addOrUpdateRecordStatus(schemaRecord.getId(), IndexingStatus.FAIL, e.getStatus(), String.format("Error reconciling index mapping with kind schema from schema-service: %s", e.getMessage()));
-                        schemaRecord.setData(Collections.emptyMap());
-                    }
-                    continue;
                 } catch (Exception e) {
-                    if (!isIndexNotFound(e)) {
+                    if (isIndexNotFound(e)) {
+                        // stale cache: the index was deleted after the entry was written; evict and fall through to recreate it
+                        this.indicesService.invalidateCache(index);
+                        jaxRsDpsLog.warning(String.format("index %s was deleted while cached as existing; recreating it", index));
+                    } else if (e instanceof ElasticsearchMappingException mappingException) {
+                        List<Record> schemaRecords = recordIndexerPayload.getRecords()
+                            .stream()
+                            .filter(schemaRecord -> Objects.equals(schemaRecord.getKind(), schema.getKind()))
+                            .toList();
+                        for (Record schemaRecord : schemaRecords) {
+                            this.jobStatus.addOrUpdateRecordStatus(schemaRecord.getId(), IndexingStatus.FAIL, mappingException.getStatus(), String.format("Error reconciling index mapping with kind schema from schema-service: %s", mappingException.getMessage()));
+                            schemaRecord.setData(Collections.emptyMap());
+                        }
+                        continue;
+                    } else {
                         throw e;
                     }
-                    // stale cache: the index was deleted after the entry was written; recreate it rather than retry forever
-                    this.indicesService.invalidateCache(index);
-                    jaxRsDpsLog.warning(String.format("index %s was deleted while cached as existing; recreating it", index));
                 }
             }
 
@@ -762,7 +763,7 @@ public class IndexerServiceImpl implements IndexerService {
                 this.jaxRsDpsLog.warning(bulkFailures);
             }
             if (!deletedIndices.isEmpty()) {
-                // evict so the rescheduled delivery recreates these indices instead of failing the same way again
+                // evict so the re-enqueued upserts (canIndexerRetry) recreate these indices instead of failing the same way again
                 deletedIndices.forEach(this.indicesService::invalidateCache);
                 this.jaxRsDpsLog.warning(String.format("evicted stale index-exists cache entries for deleted indices: %s", deletedIndices));
             }
@@ -838,6 +839,9 @@ public class IndexerServiceImpl implements IndexerService {
         if (exception instanceof ElasticsearchException elasticException) {
             return elasticException.status() == HttpStatus.SC_NOT_FOUND;
         }
+        if (exception instanceof ElasticsearchMappingException mappingException) {
+            return mappingException.getStatus() == HttpStatus.SC_NOT_FOUND;
+        }
         if (exception instanceof AppException appException) {
             return appException.getError().getCode() == HttpStatus.SC_NOT_FOUND;
         }
@@ -853,6 +857,11 @@ public class IndexerServiceImpl implements IndexerService {
     private boolean canIndexerRetry(BulkResponseItem bulkItemResponse) {
         if (RETRY_ELASTIC_EXCEPTION.contains(bulkItemResponse.status())) {
             return true;
+        }
+
+        if (isIndexNotFound(bulkItemResponse)) {
+            // deletes against a missing index need no retry; upserts must be re-enqueued so the redelivery recreates the evicted index
+            return bulkItemResponse.operationType() != co.elastic.clients.elasticsearch.core.bulk.OperationType.Delete;
         }
 
         return (bulkItemResponse.operationType() == co.elastic.clients.elasticsearch.core.bulk.OperationType.Create ||
