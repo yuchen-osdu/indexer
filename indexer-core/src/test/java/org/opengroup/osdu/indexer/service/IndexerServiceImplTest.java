@@ -696,6 +696,97 @@ public class IndexerServiceImplTest {
         assertTrue(payloadCaptor.getValue().contains(recordId2));
     }
 
+    @Test
+    public void should_skipIndexCreation_whenCachedIndexMappingIsInSync() throws Exception {
+        String index2 = "opendes-testindexer2-well-1.0.0";
+        prepareSingleKindTestDataAndEnv();
+
+        when(this.indicesService.isIndexReady(any(), eq(index2))).thenReturn(true);
+        List<BulkResponseItem> successItems = List.of(prepareSuccessfulResponse(recordId2), prepareSuccessfulResponse(recordId3));
+        when(this.bulkResponse.items()).thenReturn(successItems);
+
+        JobStatus result = this.sut.processRecordChangedMessages(recordChangedMessages, recordInfos);
+
+        verify(this.indicesService, never()).invalidateCache(anyString());
+        verify(this.indicesService, never()).createIndex(any(), any(), any(), any());
+        assertEquals(2, result.getIdsByIndexingStatus(IndexingStatus.SUCCESS).size());
+    }
+
+    @Test
+    public void should_recreateIndex_whenMappingSyncThrowsAppException404() throws Exception {
+        String index2 = "opendes-testindexer2-well-1.0.0";
+        IndexSchema indexSchema2 = prepareSingleKindTestDataAndEnv();
+
+        when(this.indicesService.isIndexReady(any(), eq(index2))).thenReturn(true);
+        doThrow(new AppException(HttpStatus.SC_NOT_FOUND, "Not Found", "no such index"))
+                .when(this.mappingService).syncMetaAttributeIndexMappingIfRequired(any(), eq(indexSchema2));
+        when(this.mappingService.getIndexMappingFromRecordSchema(any())).thenReturn(new HashMap<>());
+        when(this.indicesService.createIndex(any(), any(), any(), any())).thenReturn(true);
+        List<BulkResponseItem> successItems = List.of(prepareSuccessfulResponse(recordId2), prepareSuccessfulResponse(recordId3));
+        when(this.bulkResponse.items()).thenReturn(successItems);
+
+        JobStatus result = this.sut.processRecordChangedMessages(recordChangedMessages, recordInfos);
+
+        verify(this.indicesService).invalidateCache(index2);
+        verify(this.indicesService).createIndex(any(), eq(index2), any(), any());
+        assertEquals(2, result.getIdsByIndexingStatus(IndexingStatus.SUCCESS).size());
+    }
+
+    @Test
+    public void should_failMessage_whenIndexCreationIsNotConfirmed() throws Exception {
+        prepareSingleKindTestDataAndEnv();
+
+        when(this.mappingService.getIndexMappingFromRecordSchema(any())).thenReturn(new HashMap<>());
+        when(this.indicesService.createIndex(any(), any(), any(), any())).thenReturn(false);
+
+        try {
+            this.sut.processRecordChangedMessages(recordChangedMessages, recordInfos);
+            fail("expected AppException when elastic does not confirm index creation");
+        } catch (AppException e) {
+            assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, e.getError().getCode());
+        }
+    }
+
+    @Test
+    public void should_notTreatNonNotFoundElasticFailureAsDeletedIndex() throws Exception {
+        String index2 = "opendes-testindexer2-well-1.0.0";
+        IndexSchema indexSchema2 = prepareSingleKindTestDataAndEnv();
+
+        when(this.indicesService.isIndexReady(any(), eq(index2))).thenReturn(true);
+        doThrow(elasticsearchException(HttpStatus.SC_INTERNAL_SERVER_ERROR, "search_phase_execution_exception", "all shards failed"))
+                .when(this.mappingService).syncMetaAttributeIndexMappingIfRequired(any(), eq(indexSchema2));
+
+        try {
+            this.sut.processRecordChangedMessages(recordChangedMessages, recordInfos);
+            fail("expected a non-404 elastic failure to propagate");
+        } catch (AppException e) {
+            assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, e.getError().getCode());
+        }
+
+        verify(this.indicesService, never()).invalidateCache(anyString());
+        verify(this.indicesService, never()).createIndex(any(), any(), any(), any());
+    }
+
+    @Test
+    public void should_propagateFailure_whenMappingSyncFailsForUnrelatedReason() throws Exception {
+        String index2 = "opendes-testindexer2-well-1.0.0";
+        IndexSchema indexSchema2 = prepareSingleKindTestDataAndEnv();
+
+        when(this.indicesService.isIndexReady(any(), eq(index2))).thenReturn(true);
+        doThrow(new IllegalStateException("mapping service is misconfigured"))
+                .when(this.mappingService).syncMetaAttributeIndexMappingIfRequired(any(), eq(indexSchema2));
+
+        try {
+            this.sut.processRecordChangedMessages(recordChangedMessages, recordInfos);
+            fail("expected an unrelated mapping sync failure to propagate");
+        } catch (AppException e) {
+            assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, e.getError().getCode());
+        }
+
+        verify(this.indicesService, never()).invalidateCache(anyString());
+        verify(this.indicesService, never()).createIndex(any(), any(), any(), any());
+    }
+
     private BulkResponseItem prepareIndexNotFoundResponse(String recordId, String index) {
         BulkResponseItem responseFail = mock(BulkResponseItem.class);
         when(responseFail.error()).thenReturn(ErrorCause.of(builder -> builder
@@ -742,11 +833,15 @@ public class IndexerServiceImplTest {
     }
 
     private ElasticsearchException indexNotFoundException() {
+        return elasticsearchException(HttpStatus.SC_NOT_FOUND, "index_not_found_exception", "no such index");
+    }
+
+    private ElasticsearchException elasticsearchException(int status, String type, String reason) {
         return new ElasticsearchException("indices.get_mapping", ErrorResponse.of(builder -> builder
-                .status(HttpStatus.SC_NOT_FOUND)
+                .status(status)
                 .error(ErrorCause.of(errorBuilder -> errorBuilder
-                        .type("index_not_found_exception")
-                        .reason("no such index")))));
+                        .type(type)
+                        .reason(reason)))));
     }
 
     private Map<String, Object> createSchema() {

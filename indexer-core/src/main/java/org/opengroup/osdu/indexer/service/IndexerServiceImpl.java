@@ -609,37 +609,46 @@ public class IndexerServiceImpl implements IndexerService {
         for (IndexSchema schema : schemas) {
             String index = this.elasticIndexNameResolver.getIndexNameFromKind(schema.getKind());
 
-            // check if index exist and sync meta attribute schema if required
-            if (this.indicesService.isIndexReady(restClient, index)) {
-                try {
-                    this.mappingService.syncMetaAttributeIndexMappingIfRequired(restClient, schema);
-                    continue;
-                } catch (Exception e) {
-                    if (isIndexNotFound(e)) {
-                        // stale cache: the index was deleted after the entry was written; evict and fall through to recreate it
-                        this.indicesService.invalidateCache(index);
-                        jaxRsDpsLog.warning(String.format("index %s was deleted while cached as existing; recreating it", index));
-                    } else if (e instanceof ElasticsearchMappingException mappingException) {
-                        List<Record> schemaRecords = recordIndexerPayload.getRecords()
-                            .stream()
-                            .filter(schemaRecord -> Objects.equals(schemaRecord.getKind(), schema.getKind()))
-                            .toList();
-                        for (Record schemaRecord : schemaRecords) {
-                            this.jobStatus.addOrUpdateRecordStatus(schemaRecord.getId(), IndexingStatus.FAIL, mappingException.getStatus(), String.format("Error reconciling index mapping with kind schema from schema-service: %s", mappingException.getMessage()));
-                            schemaRecord.setData(Collections.emptyMap());
-                        }
-                        continue;
-                    } else {
-                        throw e;
-                    }
+            if (isIndexCreationRequired(restClient, index, schema, recordIndexerPayload)) {
+                Map<String, Object> mapping = this.mappingService.getIndexMappingFromRecordSchema(schema);
+                if (!this.indicesService.createIndex(restClient, index, null, mapping)) {
+                    throw new AppException(HttpStatus.SC_INTERNAL_SERVER_ERROR, ELASTIC_ERROR, "Error creating index.", String.format("Failed to get confirmation from elastic server for index: %s", index));
                 }
             }
+        }
+    }
 
-            // create index
-            Map<String, Object> mapping = this.mappingService.getIndexMappingFromRecordSchema(schema);
-            if (!this.indicesService.createIndex(restClient, index, null, mapping)) {
-                throw new AppException(HttpStatus.SC_INTERNAL_SERVER_ERROR, ELASTIC_ERROR, "Error creating index.", String.format("Failed to get confirmation from elastic server for index: %s", index));
+    private boolean isIndexCreationRequired(ElasticsearchClient restClient, String index, IndexSchema schema, RecordIndexerPayload recordIndexerPayload) throws Exception {
+        if (!this.indicesService.isIndexReady(restClient, index)) {
+            return true;
+        }
+
+        try {
+            this.mappingService.syncMetaAttributeIndexMappingIfRequired(restClient, schema);
+            return false;
+        } catch (Exception e) {
+            if (isIndexNotFound(e)) {
+                // stale cache: the index was deleted after the entry was written; evict so it gets recreated
+                this.indicesService.invalidateCache(index);
+                jaxRsDpsLog.warning(String.format("index %s was deleted while cached as existing; recreating it", index));
+                return true;
             }
+            if (e instanceof ElasticsearchMappingException mappingException) {
+                failRecordsWithUnreconciledMapping(recordIndexerPayload, schema, mappingException);
+                return false;
+            }
+            throw e;
+        }
+    }
+
+    private void failRecordsWithUnreconciledMapping(RecordIndexerPayload recordIndexerPayload, IndexSchema schema, ElasticsearchMappingException mappingException) {
+        List<Record> schemaRecords = recordIndexerPayload.getRecords()
+            .stream()
+            .filter(schemaRecord -> Objects.equals(schemaRecord.getKind(), schema.getKind()))
+            .toList();
+        for (Record schemaRecord : schemaRecords) {
+            this.jobStatus.addOrUpdateRecordStatus(schemaRecord.getId(), IndexingStatus.FAIL, mappingException.getStatus(), String.format("Error reconciling index mapping with kind schema from schema-service: %s", mappingException.getMessage()));
+            schemaRecord.setData(Collections.emptyMap());
         }
     }
 
