@@ -134,7 +134,15 @@ public class IndicesServiceImpl implements IndicesService {
                 this.log.info(String.format("Time taken to successfully create new index %s : %d milliseconds", index, stopTime - startTime));
 
                 // Create alias for index
-                indexAliasService.createIndexAlias(client, elasticIndexNameResolver.getKindFromIndexName(index));
+                String kind = elasticIndexNameResolver.getKindFromIndexName(index);
+                boolean aliasCreated = indexAliasService.createIndexAlias(client, kind);
+                if (!aliasCreated && elasticIndexNameResolver.isIndexAliasSupported(kind)
+                    && !client.indices().exists(ExistsRequest.of(builder -> builder.index(index))).value()) {
+                    // a concurrent delete mid-setup would leave the cache entry above pointing at a dead index
+                    this.invalidateCache(index);
+                    this.log.warning(String.format("index %s was deleted while its setup was still in flight", index));
+                    return false;
+                }
             }
 
             return indexStatus;
@@ -300,7 +308,7 @@ public class IndicesServiceImpl implements IndicesService {
             responseStatus &= removeIndexInElasticsearch(client, idx);
         }
         if (responseStatus) {
-            this.clearCacheOnIndexDeletion(index);
+            this.invalidateCache(index);
         }
         return responseStatus;
     }
@@ -376,10 +384,11 @@ public class IndicesServiceImpl implements IndicesService {
         return new Gson().fromJson(responseBody, typeOf);
     }
 
-    private void clearCacheOnIndexDeletion(String index) {
-        final String syncCacheKey = String.format("metaAttributeMappingSynced-%s", index);
+    @Override
+    public void invalidateCache(String index) {
         this.indexCache.delete(index);
-        this.indexCache.delete(syncCacheKey);
+        this.indexCache.delete(String.format("metaAttributeMappingSynced-%s", index));
+        this.indexCache.delete(String.format("metaCollaborationAttributeMappingSynced-%s", index));
     }
 
     public List<String> resolveIndex(ElasticsearchClient client, String index) throws IOException {

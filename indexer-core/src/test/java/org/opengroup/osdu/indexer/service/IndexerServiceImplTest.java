@@ -25,7 +25,9 @@ import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import co.elastic.clients.elasticsearch._types.ErrorCause;
+import co.elastic.clients.elasticsearch._types.ErrorResponse;
 import co.elastic.clients.elasticsearch.core.BulkRequest;
 import co.elastic.clients.elasticsearch.core.BulkResponse;
 import co.elastic.clients.elasticsearch.core.bulk.BulkResponseItem;
@@ -575,6 +577,88 @@ public class IndexerServiceImplTest {
         } catch (Exception e) {
             fail("Test failed due to reflection error: " + e.getMessage());
         }
+    }
+
+    @Test
+    public void should_recreateIndex_whenCachedIndexVanished() throws Exception {
+        String index2 = "opendes-testindexer2-well-1.0.0";
+        IndexSchema indexSchema2 = prepareSingleKindTestDataAndEnv();
+
+        when(this.indicesService.isIndexReady(any(), eq(index2))).thenReturn(true);
+        doThrow(indexNotFoundException()).when(this.mappingService).syncMetaAttributeIndexMappingIfRequired(any(), eq(indexSchema2));
+        when(this.mappingService.getIndexMappingFromRecordSchema(any())).thenReturn(new HashMap<>());
+        when(this.indicesService.createIndex(any(), any(), any(), any())).thenReturn(true);
+        List<BulkResponseItem> successItems = List.of(prepareSuccessfulResponse(recordId2), prepareSuccessfulResponse(recordId3));
+        when(this.bulkResponse.items()).thenReturn(successItems);
+
+        this.sut.processRecordChangedMessages(recordChangedMessages, recordInfos);
+
+        verify(this.indicesService).invalidateCache(index2);
+        verify(this.indicesService).createIndex(any(), eq(index2), any(), any());
+    }
+
+    @Test
+    public void should_evictStaleIndexCache_onBulkIndexNotFound() throws Exception {
+        String index2 = "opendes-testindexer2-well-1.0.0";
+        prepareSingleKindTestDataAndEnv();
+
+        when(this.mappingService.getIndexMappingFromRecordSchema(any())).thenReturn(new HashMap<>());
+        when(this.indicesService.createIndex(any(), any(), any(), any())).thenReturn(true);
+
+        BulkResponseItem notFoundItem = mock(BulkResponseItem.class);
+        when(notFoundItem.error()).thenReturn(ErrorCause.of(builder -> builder
+                .type("index_not_found_exception")
+                .reason(String.format("no such index [%s]", index2))));
+        when(notFoundItem.status()).thenReturn(HttpStatus.SC_NOT_FOUND);
+        when(notFoundItem.id()).thenReturn(recordId2);
+        when(notFoundItem.index()).thenReturn(index2);
+        List<BulkResponseItem> mixedItems = List.of(notFoundItem, prepareSuccessfulResponse(recordId3));
+        when(this.bulkResponse.items()).thenReturn(mixedItems);
+
+        this.sut.processRecordChangedMessages(recordChangedMessages, recordInfos);
+
+        verify(this.indicesService).invalidateCache(index2);
+    }
+
+    private IndexSchema prepareSingleKindTestDataAndEnv() throws Exception {
+        String singleKindMsg = "[{\"id\":\"opendes:doc:test2\",\"kind\":\"opendes:testindexer2:well:1.0.0\",\"op\":\"create\"}," +
+                "{\"id\":\"opendes:doc:test3\",\"kind\":\"opendes:testindexer2:well:1.0.0\",\"op\":\"create\"}]";
+
+        this.dpsHeaders = new DpsHeaders();
+        this.dpsHeaders.put(DpsHeaders.AUTHORIZATION, "testAuth");
+
+        Type listType = new TypeToken<List<RecordInfo>>() {
+        }.getType();
+        this.recordInfos = (new Gson()).fromJson(singleKindMsg, listType);
+        Map<String, String> messageAttributes = new HashMap<>();
+        messageAttributes.put(DpsHeaders.DATA_PARTITION_ID, "opendes");
+        this.recordChangedMessages = RecordChangedMessages.builder().attributes(messageAttributes).messageId("xxxx").publishTime("2000-01-02T10:10:44+0000").data("{}").build();
+
+        IndexSchema indexSchema2 = indexSchemaServiceMock(kind2, createSchema());
+        when(this.elasticIndexNameResolver.getIndexNameFromKind(eq(kind2))).thenReturn("opendes-testindexer2-well-1.0.0");
+
+        Map<String, Object> storageData = new HashMap<>();
+        storageData.put("schema1", "test-value");
+        List<Records.Entity> validRecords = new ArrayList<>();
+        validRecords.add(Records.Entity.builder().id(recordId2).kind(kind2).data(storageData).build());
+        validRecords.add(Records.Entity.builder().id(recordId3).kind(kind2).data(storageData).build());
+        Records storageRecords = Records.builder().records(validRecords).conversionStatuses(new LinkedList<>()).build();
+        when(this.storageService.getStorageRecords(any(), any())).thenReturn(storageRecords);
+
+        when(this.restHighLevelClient.bulk(any(BulkRequest.class))).thenReturn(this.bulkResponse);
+        Map<String, Object> indexerMappedPayload = new HashMap<>();
+        indexerMappedPayload.put("id", "keyword");
+        when(this.storageIndexerPayloadMapper.mapDataPayload(any(), any(), any(), any())).thenReturn(indexerMappedPayload);
+
+        return indexSchema2;
+    }
+
+    private ElasticsearchException indexNotFoundException() {
+        return new ElasticsearchException("indices.get_mapping", ErrorResponse.of(builder -> builder
+                .status(HttpStatus.SC_NOT_FOUND)
+                .error(ErrorCause.of(errorBuilder -> errorBuilder
+                        .type("index_not_found_exception")
+                        .reason("no such index")))));
     }
 
     private Map<String, Object> createSchema() {

@@ -613,6 +613,7 @@ public class IndexerServiceImpl implements IndexerService {
             if (this.indicesService.isIndexReady(restClient, index)) {
                 try {
                     this.mappingService.syncMetaAttributeIndexMappingIfRequired(restClient, schema);
+                    continue;
                 } catch (ElasticsearchMappingException e) {
                     List<Record> schemaRecords = recordIndexerPayload.getRecords()
                         .stream()
@@ -622,8 +623,15 @@ public class IndexerServiceImpl implements IndexerService {
                         this.jobStatus.addOrUpdateRecordStatus(schemaRecord.getId(), IndexingStatus.FAIL, e.getStatus(), String.format("Error reconciling index mapping with kind schema from schema-service: %s", e.getMessage()));
                         schemaRecord.setData(Collections.emptyMap());
                     }
+                    continue;
+                } catch (Exception e) {
+                    if (!isIndexNotFound(e)) {
+                        throw e;
+                    }
+                    // stale cache: the index was deleted after the entry was written; recreate it rather than retry forever
+                    this.indicesService.invalidateCache(index);
+                    jaxRsDpsLog.warning(String.format("index %s was deleted while cached as existing; recreating it", index));
                 }
-                continue;
             }
 
             // create index
@@ -696,6 +704,7 @@ public class IndexerServiceImpl implements IndexerService {
 
         List<String> failureRecordIds = new LinkedList<>();
         List<String> retryUpsertRecordIds = new LinkedList<>();
+        Set<String> deletedIndices = new LinkedHashSet<>();
         int failedRequestStatus = 500;
         Exception failedRequestCause = null;
 
@@ -716,6 +725,10 @@ public class IndexerServiceImpl implements IndexerService {
                         buildErrorReason(bulkItemResponse.error()));
                     bulkFailures.add(failureMessage);
                     this.jobStatus.addOrUpdateRecordStatus(bulkItemResponse.id(), IndexingStatus.FAIL, bulkItemResponse.status(), buildErrorReason(bulkItemResponse.error()));
+
+                    if (isIndexNotFound(bulkItemResponse)) {
+                        deletedIndices.add(bulkItemResponse.index());
+                    }
 
                     if (bulkItemResponse.status() == HttpStatus.SC_BAD_REQUEST && isParsingException(bulkItemResponse.error())) {
                         retryUpsertRecordIds.add(bulkItemResponse.id());
@@ -747,6 +760,11 @@ public class IndexerServiceImpl implements IndexerService {
             }
             if (!bulkFailures.isEmpty()) {
                 this.jaxRsDpsLog.warning(bulkFailures);
+            }
+            if (!deletedIndices.isEmpty()) {
+                // evict so the rescheduled delivery recreates these indices instead of failing the same way again
+                deletedIndices.forEach(this.indicesService::invalidateCache);
+                this.jaxRsDpsLog.warning(String.format("evicted stale index-exists cache entries for deleted indices: %s", deletedIndices));
             }
 
             jaxRsDpsLog.info(String.format("records in elasticsearch service bulk request: %s | successful: %s | failed: %s | time taken for bulk request: %d milliseconds",
@@ -814,6 +832,22 @@ public class IndexerServiceImpl implements IndexerService {
                 k -> xcollaborationHolder.getCollaborationContext().orElseThrow().getId());
         }
         return indexerPayload;
+    }
+
+    private static boolean isIndexNotFound(Exception exception) {
+        if (exception instanceof ElasticsearchException elasticException) {
+            return elasticException.status() == HttpStatus.SC_NOT_FOUND;
+        }
+        if (exception instanceof AppException appException) {
+            return appException.getError().getCode() == HttpStatus.SC_NOT_FOUND;
+        }
+        return false;
+    }
+
+    private static boolean isIndexNotFound(BulkResponseItem bulkItemResponse) {
+        return bulkItemResponse.status() == HttpStatus.SC_NOT_FOUND
+            && bulkItemResponse.error() != null
+            && "index_not_found_exception".equals(bulkItemResponse.error().type());
     }
 
     private boolean canIndexerRetry(BulkResponseItem bulkItemResponse) {
