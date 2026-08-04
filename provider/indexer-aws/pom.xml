@@ -24,6 +24,7 @@
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>indexer-aws</artifactId>
+  <version>0.30.0-SNAPSHOT</version>
   <description>Indexer service on AWS</description>
   <packaging>jar</packaging>
   
