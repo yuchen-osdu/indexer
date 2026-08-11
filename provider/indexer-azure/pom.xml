@@ -17,14 +17,14 @@
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>indexer-azure</artifactId>
-  <version>0.31.0-SNAPSHOT</version>
+  <version>0.30.0-SNAPSHOT</version>
   <description>Indexer Service Azure</description>
   <packaging>jar</packaging>
 
   <parent>
     <groupId>org.opengroup.osdu.indexer</groupId>
     <artifactId>indexer-service</artifactId>
-    <version>0.31.0-SNAPSHOT</version>
+    <version>0.30.0-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
 

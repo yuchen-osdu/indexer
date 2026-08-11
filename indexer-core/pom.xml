@@ -4,12 +4,12 @@
 	<parent>
 		<groupId>org.opengroup.osdu.indexer</groupId>
 		<artifactId>indexer-service</artifactId>
-		<version>0.31.0-SNAPSHOT</version>
+		<version>0.30.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<artifactId>indexer-core</artifactId>
-	<version>0.31.0-SNAPSHOT</version>
+	<version>0.30.0-SNAPSHOT</version>
 	<name>indexer-core</name>
 	<description>Indexer Service Core</description>
 	<packaging>jar</packaging>
