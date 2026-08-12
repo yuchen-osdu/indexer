@@ -509,4 +509,57 @@ public class IndicesServiceTest {
         this.sut.isIndexReady(restHighLevelClient, "anyIndex");
     }
 
+    @Test
+    public void create_elasticIndex_evictsCache_whenIndexDeletedDuringSetup() throws Exception {
+        String index = "common-welldb-wellbore-1.2.0";
+        String kind = "common:welldb:wellbore:1.2.0";
+        CreateIndexResponse indexResponse = CreateIndexResponse.of(builder -> builder.index(index).acknowledged(true).shardsAcknowledged(true));
+        when(elasticIndexNameResolver.getKindFromIndexName(index)).thenReturn(kind);
+        when(elasticIndexNameResolver.isIndexAliasSupported(kind)).thenReturn(true);
+        when(restHighLevelClient.indices()).thenReturn(indicesClient);
+        when(indicesClient.create(any(CreateIndexRequest.class))).thenReturn(indexResponse);
+        when(indexAliasService.createIndexAlias(any(), eq(kind))).thenReturn(false);
+        when(indicesClient.exists(any(ExistsRequest.class))).thenReturn(new BooleanResponse(false));
+        when(customIndexAnalyzerSetting.isEnabled()).thenReturn(false);
+
+        boolean result = sut.createIndex(restHighLevelClient, index, null, new HashMap<>());
+
+        assertFalse(result);
+        verify(indicesExistCache).put(index, true);
+        verify(indicesExistCache).delete(index);
+        verify(indicesExistCache).delete("metaAttributeMappingSynced-" + index);
+        verify(indicesExistCache).delete("metaCollaborationAttributeMappingSynced-" + index);
+    }
+
+    @Test
+    public void create_elasticIndex_keepsCache_whenAliasFailsButIndexStillExists() throws Exception {
+        String index = "common-welldb-wellbore-1.2.0";
+        String kind = "common:welldb:wellbore:1.2.0";
+        CreateIndexResponse indexResponse = CreateIndexResponse.of(builder -> builder.index(index).acknowledged(true).shardsAcknowledged(true));
+        when(elasticIndexNameResolver.getKindFromIndexName(index)).thenReturn(kind);
+        when(elasticIndexNameResolver.isIndexAliasSupported(kind)).thenReturn(true);
+        when(restHighLevelClient.indices()).thenReturn(indicesClient);
+        when(indicesClient.create(any(CreateIndexRequest.class))).thenReturn(indexResponse);
+        when(indexAliasService.createIndexAlias(any(), eq(kind))).thenReturn(false);
+        when(indicesClient.exists(any(ExistsRequest.class))).thenReturn(new BooleanResponse(true));
+        when(customIndexAnalyzerSetting.isEnabled()).thenReturn(false);
+
+        boolean result = sut.createIndex(restHighLevelClient, index, null, new HashMap<>());
+
+        assertTrue(result);
+        verify(indicesExistCache).put(index, true);
+        verify(indicesExistCache, never()).delete(anyString());
+    }
+
+    @Test
+    public void invalidateCache_clearsExistsAndMappingSyncEntries() {
+        String index = "common-welldb-wellbore-1.2.0";
+
+        sut.invalidateCache(index);
+
+        verify(indicesExistCache).delete(index);
+        verify(indicesExistCache).delete("metaAttributeMappingSynced-" + index);
+        verify(indicesExistCache).delete("metaCollaborationAttributeMappingSynced-" + index);
+    }
+
 }
