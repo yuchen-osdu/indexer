@@ -227,12 +227,6 @@
             </modules>
         </profile>
         <profile>
-            <id>aws</id>
-            <modules>
-                <module>provider/indexer-aws</module>
-            </modules>
-        </profile>
-        <profile>
             <id>azure</id>
             <modules>
                 <module>provider/indexer-azure</module>

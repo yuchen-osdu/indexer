@@ -17,7 +17,7 @@ All documentation for the Google Cloud implementation of `os-indexer` lives [her
 
 ## AWS Implementation
 
-All documentation for the AWS implementation of `os-indexer` lives [here](./provider/indexer-aws/README.md)
+The AWS provider has been removed from this repository.
 
 ## Open API 3.0 - Swagger
 - Swagger UI : https://host/context-path/swagger (will redirect to https://host/context-path/swagger-ui/index.html)
