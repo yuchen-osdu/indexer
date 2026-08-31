@@ -11,7 +11,7 @@
     <properties>
         <java.version>17</java.version>
         <maven.compiler.release>${java.version}</maven.compiler.release>
-        <os-core-common.version>7.1.3</os-core-common.version>
+        <os-core-common.version>7.2.0</os-core-common.version>
         <hibernate-validator.version>8.0.0.Final</hibernate-validator.version>
         <commons-codec.version>1.20.0</commons-codec.version>
         <woodstox-core.version>6.4.0</woodstox-core.version>
