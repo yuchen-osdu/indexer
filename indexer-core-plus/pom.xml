@@ -5,11 +5,11 @@
     <parent>
         <groupId>org.opengroup.osdu.indexer</groupId>
         <artifactId>indexer-service</artifactId>
-        <version>0.30.1-SNAPSHOT</version>
+        <version>0.30.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>indexer-core-plus</artifactId>
-    <version>0.30.1-SNAPSHOT</version>
+    <version>0.30.2-SNAPSHOT</version>
     <name>indexer-core-plus</name>
     <description>Indexer Core Plus Service</description>
     <packaging>jar</packaging>
@@ -23,7 +23,7 @@
         <dependency>
             <groupId>org.opengroup.osdu.indexer</groupId>
             <artifactId>indexer-core</artifactId>
-            <version>0.30.1-SNAPSHOT</version>
+            <version>0.30.2-SNAPSHOT</version>
         </dependency>
         <!--
             os-core-common declares lettuce-core as provided. core-plus is packaged
