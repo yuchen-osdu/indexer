@@ -86,7 +86,4 @@ download_plugins:
 
   only:
     variables:
-      - $CIMPL == '1'
-
-schemathesis-tests:
-  extends: .schemathesis-tests-template
+      - $PROTECTED == '1'
