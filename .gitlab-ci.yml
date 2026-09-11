@@ -14,8 +14,8 @@ variables:
   AZURE_TEST_SUBDIR: testing/indexer-test-azure
   SERVICE_JAVA_VERSION: "17"
 
-  CIMPL_OPENAPI_SPEC_PATH: docs/api/community/v2/openapi.yaml
-  CIMPL_OPENAPI_YAML_ROUTE: /api/indexer/v2/api-docs.yaml
+  CIMPL_OPENAPI_CONFIG_ROUTE: /api/indexer/v2/api-docs/swagger-config
+  SCHEMATHESIS_OPENAPI_YAML_ROUTE: /api/indexer/v2/api-docs.yaml
 
   CORE_BUILD_SUBDIR: indexer-core
   CORE_COVERAGE_THRESHOLD: "80"
