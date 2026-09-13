@@ -18,14 +18,14 @@
 package org.opengroup.osdu.config;
 
 import io.cucumber.java.DataTableType;
-import org.opengroup.osdu.models.Setup;
+import org.opengroup.osdu.models.TestIndexSetup;
 import java.util.Map;
 
 public class DataTableTypeConfiguration {
 
     @DataTableType
-    public Setup setupEntry(Map<String, String> entry) {
-        Setup setup = new Setup();
+    public TestIndexSetup setupEntry(Map<String, String> entry) {
+        TestIndexSetup setup = new TestIndexSetup();
         setup.setKind(entry.get("kind"));
         setup.setIndex(entry.get("index"));
         setup.setSchemaFile(entry.get("schemaFile"));
