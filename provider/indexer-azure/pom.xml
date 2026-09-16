@@ -30,7 +30,7 @@
 
   <properties>
     <!-- Core Dependencies -->
-    <core-lib-azure.version>2.5.9</core-lib-azure.version>
+    <core-lib-azure.version>3.0.4</core-lib-azure.version>
   </properties>
 
   <dependencyManagement>
