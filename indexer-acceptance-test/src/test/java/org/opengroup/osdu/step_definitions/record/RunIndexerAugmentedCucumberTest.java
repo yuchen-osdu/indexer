@@ -1,5 +1,6 @@
 /*
- *  Copyright 2020-2026 EPAM Systems, Inc
+ *  Copyright 2020-2022 Google LLC
+ *  Copyright 2020-2022 EPAM Systems, Inc
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,7 +22,6 @@ import org.junit.platform.suite.api.IncludeEngines;
 import org.junit.platform.suite.api.IncludeTags;
 import org.junit.platform.suite.api.SelectPackages;
 import org.junit.platform.suite.api.Suite;
-
 import org.opengroup.osdu.common.CucumberGlue;
 
 import static io.cucumber.junit.platform.engine.Constants.EXECUTION_MODE_FEATURE_PROPERTY_NAME;
@@ -29,19 +29,17 @@ import static io.cucumber.junit.platform.engine.Constants.GLUE_PROPERTY_NAME;
 import static io.cucumber.junit.platform.engine.Constants.PARALLEL_EXECUTION_ENABLED_PROPERTY_NAME;
 import static io.cucumber.junit.platform.engine.Constants.PLUGIN_PROPERTY_NAME;
 
-// Parallel execution is intentionally disabled for this focused suite. These tests use
-// persistent kinds and records in a shared environment, and concurrent feature execution can
-// race on setup, cleanup, and asynchronous indexing state. Keeping Cucumber parallel execution
-// disabled and forcing same_thread execution makes the tagged suite deterministic.
+// Extended/augmented indexer tests require the index-augmenter-enabled feature flag.
+// Excluded by default via Surefire configuration in pom.xml. To run:
+//   mvn verify -DincludeAugmentedTests=true
 @Suite
 @IncludeEngines("cucumber")
 @SelectPackages("features.indexrecord")
-@IncludeTags({"collaboration-test"})
-@ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = CucumberGlue.INDEX_RECORD)
-@ConfigurationParameter(key = PARALLEL_EXECUTION_ENABLED_PROPERTY_NAME, value = "false")
+@IncludeTags("indexer-extended")
+@ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = CucumberGlue.INDEX_AUGMENTED)
+@ConfigurationParameter(key = PARALLEL_EXECUTION_ENABLED_PROPERTY_NAME, value = "true")
 @ConfigurationParameter(key = EXECUTION_MODE_FEATURE_PROPERTY_NAME, value = "same_thread")
 @ConfigurationParameter(
     key = PLUGIN_PROPERTY_NAME,
-    value = "pretty,junit:target/cucumber-reports/TEST-indexrecord-collaboration.xml,io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm")
-public class RunCollaborationTest {
-}
+    value = "pretty,junit:target/cucumber-reports/TEST-indexrecord-augmented.xml,io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm")
+public class RunIndexerAugmentedCucumberTest {}

@@ -1,4 +1,5 @@
 /*
+ *  Copyright 2020-2022 Google LLC
  *  Copyright 2020-2026 EPAM Systems, Inc
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,7 +22,6 @@ import org.junit.platform.suite.api.IncludeEngines;
 import org.junit.platform.suite.api.IncludeTags;
 import org.junit.platform.suite.api.SelectPackages;
 import org.junit.platform.suite.api.Suite;
-
 import org.opengroup.osdu.common.CucumberGlue;
 
 import static io.cucumber.junit.platform.engine.Constants.EXECUTION_MODE_FEATURE_PROPERTY_NAME;
@@ -29,19 +29,19 @@ import static io.cucumber.junit.platform.engine.Constants.GLUE_PROPERTY_NAME;
 import static io.cucumber.junit.platform.engine.Constants.PARALLEL_EXECUTION_ENABLED_PROPERTY_NAME;
 import static io.cucumber.junit.platform.engine.Constants.PLUGIN_PROPERTY_NAME;
 
-// Parallel execution is intentionally disabled for this focused suite. These tests use
-// persistent kinds and records in a shared environment, and concurrent feature execution can
-// race on setup, cleanup, and asynchronous indexing state. Keeping Cucumber parallel execution
-// disabled and forcing same_thread execution makes the tagged suite deterministic.
+// Parallel execution is enabled with EXECUTION_MODE_FEATURE = "concurrent". Different feature
+// files run in separate threads while scenarios within a feature run sequentially. All test data
+// uses persistent kinds against a shared environment, so feature-level concurrency provides
+// parallelism while avoiding intra-feature data conflicts.
 @Suite
 @IncludeEngines("cucumber")
 @SelectPackages("features.indexrecord")
-@IncludeTags({"collaboration-test"})
+@IncludeTags({"default"})
 @ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = CucumberGlue.INDEX_RECORD)
-@ConfigurationParameter(key = PARALLEL_EXECUTION_ENABLED_PROPERTY_NAME, value = "false")
-@ConfigurationParameter(key = EXECUTION_MODE_FEATURE_PROPERTY_NAME, value = "same_thread")
+@ConfigurationParameter(key = PARALLEL_EXECUTION_ENABLED_PROPERTY_NAME, value = "true")
+@ConfigurationParameter(key = EXECUTION_MODE_FEATURE_PROPERTY_NAME, value = "concurrent")
 @ConfigurationParameter(
     key = PLUGIN_PROPERTY_NAME,
-    value = "pretty,junit:target/cucumber-reports/TEST-indexrecord-collaboration.xml,io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm")
-public class RunCollaborationTest {
+    value = "pretty,junit:target/cucumber-reports/TEST-indexrecord-basic.xml,io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm")
+public class RunIndexRecordCucumberTest {
 }
