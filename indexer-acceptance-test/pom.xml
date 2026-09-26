@@ -3,23 +3,20 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
-    <parent>
-        <groupId>org.opengroup.osdu.indexer</groupId>
-        <artifactId>indexer-service</artifactId>
-        <version>0.30.0-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
-    </parent>
-
+    <groupId>org.opengroup.osdu.indexer</groupId>
     <artifactId>indexer-acceptance-test</artifactId>
-    <version>0.30.0-SNAPSHOT</version>
+    <version>0.31.0-SNAPSHOT</version>
 
     <properties>
         <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <cucumber.version>7.20.1</cucumber.version>
-        <junit-platform.version>1.11.3</junit-platform.version>
-        <junit-jupiter.version>5.11.3</junit-jupiter.version>
+        <os-core-test.version>0.3.0</os-core-test.version>
+        <junit.version>5.14.4</junit.version>
+        <lombok.version>1.18.42</lombok.version>
+        <jackson.annotations.version>2.21</jackson.annotations.version>
+        <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
+        <repo.releases.id>community-maven-repo</repo.releases.id>
+        <repo.releases.url>https://community.opengroup.org/api/v4/groups/17/-/packages/maven</repo.releases.url>
         <argLine>
             --add-opens java.base/java.lang=ALL-UNNAMED
             --add-opens=java.base/java.util=ALL-UNNAMED
@@ -29,10 +26,38 @@
         </argLine>
     </properties>
 
+    <dependencyManagement>
+        <dependencies>
+            <!--
+                cucumber-junit-platform-engine:7.34.3 (from os-core-test) requires JUnit Platform 1.14.x.
+                Importing junit-bom here keeps the standalone module aligned with os-core-test.
+            -->
+            <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>${junit.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!--
+                commons-configuration2:2.15.0 (from os-core-test) calls ObjectUtils.getIfNull(Object, Object)
+                added in commons-lang3 3.15.0. Pin explicitly so transitive resolution cannot
+                choose an older commons-lang3.
+            -->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>3.20.0</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
+
         <dependency>
             <groupId>org.opengroup.osdu</groupId>
-            <artifactId>os-core-common</artifactId>
+            <artifactId>os-core-test</artifactId>
+            <version>${os-core-test.version}</version>
         </dependency>
 
         <dependency>
@@ -44,122 +69,10 @@
         </dependency>
 
         <dependency>
-            <groupId>com.nimbusds</groupId>
-            <artifactId>oauth2-oidc-sdk</artifactId>
-            <version>9.15</version>
-        </dependency>
-
-        <!-- region Cucumber -->
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>${junit-jupiter.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.platform</groupId>
-            <artifactId>junit-platform-suite</artifactId>
-            <version>${junit-platform.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.cucumber</groupId>
-            <artifactId>cucumber-java</artifactId>
-            <version>${cucumber.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.cucumber</groupId>
-            <artifactId>cucumber-junit-platform-engine</artifactId>
-            <version>${cucumber.version}</version>
-        </dependency>
-        <!-- endregion -->
-
-        <!-- region Elasticsearch-->
-        <dependency>
-            <groupId>org.elasticsearch.client</groupId>
-            <artifactId>elasticsearch-rest-client</artifactId>
-            <version>${elasticsearch.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>co.elastic.clients</groupId>
-            <artifactId>elasticsearch-java</artifactId>
-            <version>${elasticsearch.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.locationtech.jts.io</groupId>
-            <artifactId>jts-io-common</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.locationtech.spatial4j</groupId>
-            <artifactId>spatial4j</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.vividsolutions</groupId>
-            <artifactId>jts</artifactId>
-            <version>1.13</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>xerces</groupId>
-                    <artifactId>xercesImpl</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <!-- endregion -->
-
-        <!-- region Gson: Java to Json conversion -->
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>2.9.1</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
-        </dependency>
-        <!-- endregion -->
-
-
-        <dependency>
-            <groupId>com.google.api-client</groupId>
-            <artifactId>google-api-client</artifactId>
-            <version>1.28.0</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-core</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents.client5</groupId>
-            <artifactId>httpclient5</artifactId>
-            <version>5.4</version>
-        </dependency>
-        <dependency>
-            <groupId>io.qameta.allure</groupId>
-            <artifactId>allure-cucumber7-jvm</artifactId>
-            <version>2.20.1</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>io.cucumber</groupId>
-                    <artifactId>gherkin</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>io.cucumber</groupId>
-                    <artifactId>messages</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>io.cucumber</groupId>
-                    <artifactId>cucumber-core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>io.cucumber</groupId>
-                    <artifactId>cucumber-java</artifactId>
-                </exclusion>
-            </exclusions>
+            <version>${jackson.annotations.version}</version>
+            <scope>runtime</scope>
         </dependency>
     </dependencies>
 
@@ -168,6 +81,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
                 <configuration>
                     <annotationProcessorPaths>
                         <path>
@@ -181,9 +95,30 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.2.2</version>
+                <version>3.5.5</version>
+                <configuration>
+                    <systemPropertyVariables>
+                        <expose_featureflag.enabled>true</expose_featureflag.enabled>
+                        <ELASTIC_8_SSL_ENABLED>true</ELASTIC_8_SSL_ENABLED>
+                        <SECURITY_HTTPS_CERTIFICATE_TRUST>true</SECURITY_HTTPS_CERTIFICATE_TRUST>
+                    </systemPropertyVariables>
+                </configuration>
             </plugin>
         </plugins>
     </build>
+
+    <repositories>
+        <repository>
+            <id>${repo.releases.id}</id>
+            <url>${repo.releases.url}</url>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>${repo.releases.id}</id>
+            <url>${repo.releases.url}</url>
+        </pluginRepository>
+    </pluginRepositories>
 
 </project>

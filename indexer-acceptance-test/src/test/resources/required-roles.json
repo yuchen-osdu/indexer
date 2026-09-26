@@ -1,0 +1,10 @@
+{
+  "PRIVILEGED_USER": [
+    "users",
+    "users.datalake.ops",
+    "service.storage.creator",
+    "service.entitlements.user",
+    "service.search.user",
+    "service.search.admin"
+  ]
+}

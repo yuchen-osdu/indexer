@@ -20,10 +20,6 @@ analyze:
       type: mvn
       target: indexer-core-plus/pom.xml
       path: .
-    - name: indexer-aws
-      type: mvn
-      target: provider/indexer-aws/pom.xml
-      path: .
     - name: indexer-azure
       type: mvn
       target: provider/indexer-azure/pom.xml

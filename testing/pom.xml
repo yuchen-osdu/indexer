@@ -18,7 +18,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.opengroup.osdu</groupId>
 	<artifactId>indexer-test</artifactId>
-	<version>0.30.0-SNAPSHOT</version>
+	<version>0.31.0-SNAPSHOT</version>
 	<description>Indexer Service Integration Test Root Project</description>
 	<properties>
 		<java.version>17</java.version>
@@ -47,7 +47,6 @@
 	<modules>
 		<module>indexer-test-core</module>
 		<module>indexer-test-gc</module>
-		<module>indexer-test-aws</module>
 		<module>indexer-test-azure</module>
 		<module>indexer-test-ibm</module>
         <module>indexer-test-baremetal</module>
