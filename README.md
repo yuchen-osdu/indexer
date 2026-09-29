@@ -13,7 +13,7 @@ running the `os-indexer` Azure implementation
 
 ## Google Cloud Implementation
 
-All documentation for the Google Cloud implementation of `os-indexer` lives [here](./provider/indexer-gc/README.md)
+The Google Cloud provider has been moved to the [gc-osdu-services](https://community.opengroup.org/osdu/platform/deployment-and-operations/base-containers-gcp/gc-osdu-services) repository.
 
 ## AWS Implementation
 

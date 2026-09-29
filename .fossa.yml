@@ -24,10 +24,6 @@ analyze:
       type: mvn
       target: provider/indexer-azure/pom.xml
       path: .
-    - name: indexer-gcp
-      type: mvn
-      target: provider/indexer-gc/pom.xml
-      path: .
     - name: indexer-ibm
       type: mvn
       target: provider/indexer-ibm/pom.xml
