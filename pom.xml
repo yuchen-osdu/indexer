@@ -263,12 +263,6 @@
             </modules>
         </profile>
         <profile>
-            <id>gc</id>
-            <modules>
-                <module>provider/indexer-gc</module>
-            </modules>
-        </profile>
-        <profile>
             <id>ibm</id>
             <modules>
                 <module>provider/indexer-ibm</module>

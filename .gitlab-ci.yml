@@ -1,14 +1,4 @@
 variables:
-  GCP_BUILD_SUBDIR: provider/indexer-gcp
-  GCP_INT_TEST_SUBDIR: testing/indexer-test-gcp
-  GCP_APPLICATION_NAME: osdu-indexer
-  GCP_ENVIRONMENT: dev
-  GCP_PROJECT: opendes
-  GCP_TENANT_NAME: opendes
-  GCP_DEPLOY_ENV: p4d
-  GCP_DOMAIN: cloud.slb-ds.com
-  GCP_STORAGE_URL: https://osdu-indexer-dot-opendes.appspot.com/api/storage/v2/
-
   AZURE_SERVICE: indexer
   AZURE_BUILD_SUBDIR: provider/indexer-azure
   AZURE_TEST_SUBDIR: testing/indexer-test-azure
@@ -44,9 +34,6 @@ include:
     file: "cloud-providers/azure.yml"
 
   - project: "osdu/platform/ci-cd-pipelines"
-    file: "cloud-providers/gc-global.yml"
-
-  - project: "osdu/platform/ci-cd-pipelines"
     file: "cloud-providers/cimpl-global.yml"
 
   - project: "osdu/platform/ci-cd-pipelines"
@@ -56,12 +43,8 @@ include:
     file: "cloud-providers/azure-one-pipeline.yml"
 
   - project: "osdu/platform/ci-cd-pipelines"
-    file: "cloud-providers/gc-one-pipeline.yml"
-
-  - project: "osdu/platform/ci-cd-pipelines"
     file: "reporting/schemathesis.yml"
 
-  - local: "devops/gc/pipeline/override-stages.yml"
   - local: "devops/core-plus/pipeline/override-stages.yml"
 
 download_plugins:
