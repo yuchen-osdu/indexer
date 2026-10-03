@@ -28,4 +28,17 @@ public class IndexRedisCache extends RedisAzureCache<Boolean> implements IIndexC
     public IndexRedisCache(final RedisConfig redisConfig) {
         super(Boolean.class, redisConfig.createConfiguration(redisConfig.getIndexRedisTtl()));
     }
+
+    /**
+     * Clears all index cache entries using pattern-based deletion.
+     * This avoids flushing the entire Redis database and only removes keys managed by this cache.
+     *
+     * <p>The pattern {@code *-indexcache-*} matches keys with the format:
+     * {@code {prefix}{partitionId}-indexcache-{key}}, where prefix is added
+     * automatically by RedisAzureCache for database isolation on Azure Managed Redis.
+     */
+    @Override
+    public void clearAll() {
+        super.deleteByPattern("*-indexcache-*");
+    }
 }

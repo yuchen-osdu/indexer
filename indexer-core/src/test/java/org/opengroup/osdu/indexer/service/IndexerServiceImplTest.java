@@ -17,6 +17,8 @@ package org.opengroup.osdu.indexer.service;
 
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -25,7 +27,9 @@ import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import co.elastic.clients.elasticsearch._types.ErrorCause;
+import co.elastic.clients.elasticsearch._types.ErrorResponse;
 import co.elastic.clients.elasticsearch.core.BulkRequest;
 import co.elastic.clients.elasticsearch.core.BulkResponse;
 import co.elastic.clients.elasticsearch.core.bulk.BulkResponseItem;
@@ -41,6 +45,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import org.apache.http.HttpStatus;
 import org.junit.After;
 import org.junit.Before;
@@ -54,7 +60,10 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.opengroup.osdu.core.common.feature.IFeatureFlag;
 import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
 import org.opengroup.osdu.core.common.model.entitlements.Acl;
+import org.opengroup.osdu.core.common.model.http.AppException;
+import org.opengroup.osdu.core.common.model.http.CollaborationContext;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
+import org.opengroup.osdu.core.common.util.CollaborationContextUtil;
 import org.opengroup.osdu.core.common.model.indexer.*;
 import org.opengroup.osdu.core.common.model.search.RecordChangedMessages;
 import org.opengroup.osdu.core.common.model.storage.ConversionStatus;
@@ -575,6 +584,264 @@ public class IndexerServiceImplTest {
         } catch (Exception e) {
             fail("Test failed due to reflection error: " + e.getMessage());
         }
+    }
+
+    @Test
+    public void should_recreateIndex_whenCachedIndexVanished() throws Exception {
+        String index2 = "opendes-testindexer2-well-1.0.0";
+        IndexSchema indexSchema2 = prepareSingleKindTestDataAndEnv();
+
+        when(this.indicesService.isIndexReady(any(), eq(index2))).thenReturn(true);
+        doThrow(indexNotFoundException()).when(this.mappingService).syncMetaAttributeIndexMappingIfRequired(any(), eq(indexSchema2));
+        when(this.mappingService.getIndexMappingFromRecordSchema(any())).thenReturn(new HashMap<>());
+        when(this.indicesService.createIndex(any(), any(), any(), any())).thenReturn(true);
+        List<BulkResponseItem> successItems = List.of(prepareSuccessfulResponse(recordId2), prepareSuccessfulResponse(recordId3));
+        when(this.bulkResponse.items()).thenReturn(successItems);
+
+        this.sut.processRecordChangedMessages(recordChangedMessages, recordInfos);
+
+        verify(this.indicesService).invalidateCache(index2);
+        verify(this.indicesService).createIndex(any(), eq(index2), any(), any());
+    }
+
+    @Test
+    public void should_evictStaleIndexCacheAndReenqueueRecord_onBulkIndexNotFound() throws Exception {
+        String index2 = "opendes-testindexer2-well-1.0.0";
+        prepareSingleKindTestDataAndEnv();
+
+        when(this.mappingService.getIndexMappingFromRecordSchema(any())).thenReturn(new HashMap<>());
+        when(this.indicesService.createIndex(any(), any(), any(), any())).thenReturn(true);
+
+        List<BulkResponseItem> mixedItems = List.of(prepareIndexNotFoundResponse(recordId2, index2), prepareSuccessfulResponse(recordId3));
+        when(this.bulkResponse.items()).thenReturn(mixedItems);
+
+        this.sut.processRecordChangedMessages(recordChangedMessages, recordInfos);
+
+        verify(this.indicesService).invalidateCache(index2);
+
+        ArgumentCaptor<String> payloadCaptor = ArgumentCaptor.forClass(String.class);
+        verify(this.indexerQueueTaskBuilder).createWorkerTask(payloadCaptor.capture(), any());
+        assertTrue(payloadCaptor.getValue().contains(recordId2));
+        assertFalse(payloadCaptor.getValue().contains(recordId3));
+    }
+
+    @Test
+    public void should_retryWholeMessage_whenAllRecordsHitDeletedIndex() throws Exception {
+        String index2 = "opendes-testindexer2-well-1.0.0";
+        prepareSingleKindTestDataAndEnv();
+
+        when(this.mappingService.getIndexMappingFromRecordSchema(any())).thenReturn(new HashMap<>());
+        when(this.indicesService.createIndex(any(), any(), any(), any())).thenReturn(true);
+
+        List<BulkResponseItem> notFoundItems = List.of(prepareIndexNotFoundResponse(recordId2, index2), prepareIndexNotFoundResponse(recordId3, index2));
+        when(this.bulkResponse.items()).thenReturn(notFoundItems);
+
+        try {
+            this.sut.processRecordChangedMessages(recordChangedMessages, recordInfos);
+            fail("expected AppException so the task queue redelivers the message");
+        } catch (AppException e) {
+            assertEquals(HttpStatus.SC_NOT_FOUND, e.getError().getCode());
+        }
+
+        verify(this.indicesService).invalidateCache(index2);
+    }
+
+    @Test
+    public void should_recreateIndex_whenMappingSyncThrowsWrapped404() throws Exception {
+        String index2 = "opendes-testindexer2-well-1.0.0";
+        IndexSchema indexSchema2 = prepareSingleKindTestDataAndEnv();
+
+        when(this.indicesService.isIndexReady(any(), eq(index2))).thenReturn(true);
+        doThrow(new ElasticsearchMappingException("Failed to create mapping: no such index", HttpStatus.SC_NOT_FOUND))
+                .when(this.mappingService).syncMetaAttributeIndexMappingIfRequired(any(), eq(indexSchema2));
+        when(this.mappingService.getIndexMappingFromRecordSchema(any())).thenReturn(new HashMap<>());
+        when(this.indicesService.createIndex(any(), any(), any(), any())).thenReturn(true);
+        List<BulkResponseItem> successItems = List.of(prepareSuccessfulResponse(recordId2), prepareSuccessfulResponse(recordId3));
+        when(this.bulkResponse.items()).thenReturn(successItems);
+
+        JobStatus result = this.sut.processRecordChangedMessages(recordChangedMessages, recordInfos);
+
+        verify(this.indicesService).invalidateCache(index2);
+        verify(this.indicesService).createIndex(any(), eq(index2), any(), any());
+        assertEquals(2, result.getIdsByIndexingStatus(IndexingStatus.SUCCESS).size());
+        assertEquals(0, result.getIdsByIndexingStatus(IndexingStatus.FAIL).size());
+    }
+
+    @Test
+    public void should_reenqueueOriginalRecordIds_onBulkIndexNotFound_underCollaboration() throws Exception {
+        String index2 = "opendes-testindexer2-well-1.0.0";
+        prepareSingleKindTestDataAndEnv();
+
+        when(this.mappingService.getIndexMappingFromRecordSchema(any())).thenReturn(new HashMap<>());
+        when(this.indicesService.createIndex(any(), any(), any(), any())).thenReturn(true);
+
+        CollaborationContext collaborationContext = new CollaborationContext();
+        collaborationContext.setId(UUID.fromString("a99cef48-2ed6-4beb-8a43-002373431f21"));
+        when(this.xcollaborationHolder.isFeatureEnabledAndHeaderExists()).thenReturn(true);
+        when(this.xcollaborationHolder.getCollaborationContext()).thenReturn(Optional.of(collaborationContext));
+        String composedId2 = CollaborationContextUtil.composeIdWithNamespace(recordId2, Optional.of(collaborationContext));
+        String composedId3 = CollaborationContextUtil.composeIdWithNamespace(recordId3, Optional.of(collaborationContext));
+        when(this.xcollaborationHolder.removeXcollaborationValue(composedId2)).thenReturn(recordId2);
+        when(this.xcollaborationHolder.removeXcollaborationValue(composedId3)).thenReturn(recordId3);
+
+        List<BulkResponseItem> mixedItems = List.of(prepareIndexNotFoundResponse(composedId2, index2), prepareSuccessfulResponse(composedId3));
+        when(this.bulkResponse.items()).thenReturn(mixedItems);
+
+        this.sut.processRecordChangedMessages(recordChangedMessages, recordInfos);
+
+        verify(this.indicesService).invalidateCache(index2);
+
+        ArgumentCaptor<String> payloadCaptor = ArgumentCaptor.forClass(String.class);
+        verify(this.indexerQueueTaskBuilder).createWorkerTask(payloadCaptor.capture(), any());
+        assertTrue(payloadCaptor.getValue().contains(recordId2));
+    }
+
+    @Test
+    public void should_skipIndexCreation_whenCachedIndexMappingIsInSync() throws Exception {
+        String index2 = "opendes-testindexer2-well-1.0.0";
+        prepareSingleKindTestDataAndEnv();
+
+        when(this.indicesService.isIndexReady(any(), eq(index2))).thenReturn(true);
+        List<BulkResponseItem> successItems = List.of(prepareSuccessfulResponse(recordId2), prepareSuccessfulResponse(recordId3));
+        when(this.bulkResponse.items()).thenReturn(successItems);
+
+        JobStatus result = this.sut.processRecordChangedMessages(recordChangedMessages, recordInfos);
+
+        verify(this.indicesService, never()).invalidateCache(anyString());
+        verify(this.indicesService, never()).createIndex(any(), any(), any(), any());
+        assertEquals(2, result.getIdsByIndexingStatus(IndexingStatus.SUCCESS).size());
+    }
+
+    @Test
+    public void should_recreateIndex_whenMappingSyncThrowsAppException404() throws Exception {
+        String index2 = "opendes-testindexer2-well-1.0.0";
+        IndexSchema indexSchema2 = prepareSingleKindTestDataAndEnv();
+
+        when(this.indicesService.isIndexReady(any(), eq(index2))).thenReturn(true);
+        doThrow(new AppException(HttpStatus.SC_NOT_FOUND, "Not Found", "no such index"))
+                .when(this.mappingService).syncMetaAttributeIndexMappingIfRequired(any(), eq(indexSchema2));
+        when(this.mappingService.getIndexMappingFromRecordSchema(any())).thenReturn(new HashMap<>());
+        when(this.indicesService.createIndex(any(), any(), any(), any())).thenReturn(true);
+        List<BulkResponseItem> successItems = List.of(prepareSuccessfulResponse(recordId2), prepareSuccessfulResponse(recordId3));
+        when(this.bulkResponse.items()).thenReturn(successItems);
+
+        JobStatus result = this.sut.processRecordChangedMessages(recordChangedMessages, recordInfos);
+
+        verify(this.indicesService).invalidateCache(index2);
+        verify(this.indicesService).createIndex(any(), eq(index2), any(), any());
+        assertEquals(2, result.getIdsByIndexingStatus(IndexingStatus.SUCCESS).size());
+    }
+
+    @Test
+    public void should_failMessage_whenIndexCreationIsNotConfirmed() throws Exception {
+        prepareSingleKindTestDataAndEnv();
+
+        when(this.mappingService.getIndexMappingFromRecordSchema(any())).thenReturn(new HashMap<>());
+        when(this.indicesService.createIndex(any(), any(), any(), any())).thenReturn(false);
+
+        try {
+            this.sut.processRecordChangedMessages(recordChangedMessages, recordInfos);
+            fail("expected AppException when elastic does not confirm index creation");
+        } catch (AppException e) {
+            assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, e.getError().getCode());
+        }
+    }
+
+    @Test
+    public void should_notTreatNonNotFoundElasticFailureAsDeletedIndex() throws Exception {
+        String index2 = "opendes-testindexer2-well-1.0.0";
+        IndexSchema indexSchema2 = prepareSingleKindTestDataAndEnv();
+
+        when(this.indicesService.isIndexReady(any(), eq(index2))).thenReturn(true);
+        doThrow(elasticsearchException(HttpStatus.SC_INTERNAL_SERVER_ERROR, "search_phase_execution_exception", "all shards failed"))
+                .when(this.mappingService).syncMetaAttributeIndexMappingIfRequired(any(), eq(indexSchema2));
+
+        try {
+            this.sut.processRecordChangedMessages(recordChangedMessages, recordInfos);
+            fail("expected a non-404 elastic failure to propagate");
+        } catch (AppException e) {
+            assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, e.getError().getCode());
+        }
+
+        verify(this.indicesService, never()).invalidateCache(anyString());
+        verify(this.indicesService, never()).createIndex(any(), any(), any(), any());
+    }
+
+    @Test
+    public void should_propagateFailure_whenMappingSyncFailsForUnrelatedReason() throws Exception {
+        String index2 = "opendes-testindexer2-well-1.0.0";
+        IndexSchema indexSchema2 = prepareSingleKindTestDataAndEnv();
+
+        when(this.indicesService.isIndexReady(any(), eq(index2))).thenReturn(true);
+        doThrow(new IllegalStateException("mapping service is misconfigured"))
+                .when(this.mappingService).syncMetaAttributeIndexMappingIfRequired(any(), eq(indexSchema2));
+
+        try {
+            this.sut.processRecordChangedMessages(recordChangedMessages, recordInfos);
+            fail("expected an unrelated mapping sync failure to propagate");
+        } catch (AppException e) {
+            assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, e.getError().getCode());
+        }
+
+        verify(this.indicesService, never()).invalidateCache(anyString());
+        verify(this.indicesService, never()).createIndex(any(), any(), any(), any());
+    }
+
+    private BulkResponseItem prepareIndexNotFoundResponse(String recordId, String index) {
+        BulkResponseItem responseFail = mock(BulkResponseItem.class);
+        when(responseFail.error()).thenReturn(ErrorCause.of(builder -> builder
+                .type("index_not_found_exception")
+                .reason(String.format("no such index [%s]", index))));
+        when(responseFail.status()).thenReturn(HttpStatus.SC_NOT_FOUND);
+        when(responseFail.id()).thenReturn(recordId);
+        when(responseFail.index()).thenReturn(index);
+        when(responseFail.operationType()).thenReturn(co.elastic.clients.elasticsearch.core.bulk.OperationType.Index);
+        return responseFail;
+    }
+
+    private IndexSchema prepareSingleKindTestDataAndEnv() throws Exception {
+        String singleKindMsg = "[{\"id\":\"opendes:doc:test2\",\"kind\":\"opendes:testindexer2:well:1.0.0\",\"op\":\"create\"}," +
+                "{\"id\":\"opendes:doc:test3\",\"kind\":\"opendes:testindexer2:well:1.0.0\",\"op\":\"create\"}]";
+
+        this.dpsHeaders = new DpsHeaders();
+        this.dpsHeaders.put(DpsHeaders.AUTHORIZATION, "testAuth");
+
+        Type listType = new TypeToken<List<RecordInfo>>() {
+        }.getType();
+        this.recordInfos = (new Gson()).fromJson(singleKindMsg, listType);
+        Map<String, String> messageAttributes = new HashMap<>();
+        messageAttributes.put(DpsHeaders.DATA_PARTITION_ID, "opendes");
+        this.recordChangedMessages = RecordChangedMessages.builder().attributes(messageAttributes).messageId("xxxx").publishTime("2000-01-02T10:10:44+0000").data("{}").build();
+
+        IndexSchema indexSchema2 = indexSchemaServiceMock(kind2, createSchema());
+        when(this.elasticIndexNameResolver.getIndexNameFromKind(eq(kind2))).thenReturn("opendes-testindexer2-well-1.0.0");
+
+        Map<String, Object> storageData = new HashMap<>();
+        storageData.put("schema1", "test-value");
+        List<Records.Entity> validRecords = new ArrayList<>();
+        validRecords.add(Records.Entity.builder().id(recordId2).kind(kind2).data(storageData).build());
+        validRecords.add(Records.Entity.builder().id(recordId3).kind(kind2).data(storageData).build());
+        Records storageRecords = Records.builder().records(validRecords).conversionStatuses(new LinkedList<>()).build();
+        when(this.storageService.getStorageRecords(any(), any())).thenReturn(storageRecords);
+
+        when(this.restHighLevelClient.bulk(any(BulkRequest.class))).thenReturn(this.bulkResponse);
+        Map<String, Object> indexerMappedPayload = new HashMap<>();
+        indexerMappedPayload.put("id", "keyword");
+        when(this.storageIndexerPayloadMapper.mapDataPayload(any(), any(), any(), any())).thenReturn(indexerMappedPayload);
+
+        return indexSchema2;
+    }
+
+    private ElasticsearchException indexNotFoundException() {
+        return elasticsearchException(HttpStatus.SC_NOT_FOUND, "index_not_found_exception", "no such index");
+    }
+
+    private ElasticsearchException elasticsearchException(int status, String type, String reason) {
+        return new ElasticsearchException("indices.get_mapping", ErrorResponse.of(builder -> builder
+                .status(status)
+                .error(ErrorCause.of(errorBuilder -> errorBuilder
+                        .type(type)
+                        .reason(reason)))));
     }
 
     private Map<String, Object> createSchema() {

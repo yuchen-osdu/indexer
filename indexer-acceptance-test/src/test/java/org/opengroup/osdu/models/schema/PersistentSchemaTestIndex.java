@@ -16,47 +16,68 @@
 
 package org.opengroup.osdu.models.schema;
 
+import lombok.extern.slf4j.Slf4j;
 import org.opengroup.osdu.common.SchemaServiceRecordSteps;
+import org.opengroup.osdu.core.test.auth.UserType;
+import org.opengroup.osdu.core.test.client.IndexerClient;
+import org.opengroup.osdu.core.test.client.SchemaClient;
+import org.opengroup.osdu.core.test.client.StringHttpClient;
+import org.opengroup.osdu.core.test.client.model.schema.SchemaIdentity;
+import org.opengroup.osdu.core.test.client.model.schema.SchemaModel;
+import org.opengroup.osdu.core.test.util.TestFileUtil;
+import org.opengroup.osdu.core.test.client.ElasticClient;
 import org.opengroup.osdu.models.TestIndex;
-import org.opengroup.osdu.util.ElasticUtils;
-import org.opengroup.osdu.util.FileHandler;
-import org.opengroup.osdu.util.HTTPClient;
-import org.opengroup.osdu.util.SchemaServiceClient;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-
+/**
+ * A {@link TestIndex} backed by a schema registered with the Schema service.
+ *
+ * <p>Uses the os-core-test {@link SchemaClient} (Schema v1 API) instead of the previous in-repo
+ * Spring {@code RestTemplate}-based client, and the os-core-test schema model types.
+ */
+@Slf4j
 public class PersistentSchemaTestIndex extends TestIndex {
 
-    private static final Logger LOGGER = Logger.getLogger(PersistentSchemaTestIndex.class.getName());
-    private final SchemaServiceClient schemaServiceClient;
+    private final SchemaClient schemaClient;
     private final SchemaServiceRecordSteps recordSteps;
     private SchemaModel schemaModel;
 
-    public PersistentSchemaTestIndex(ElasticUtils elasticUtils, HTTPClient client, SchemaServiceRecordSteps recordSteps) {
-        super(elasticUtils);
-        this.schemaServiceClient = new SchemaServiceClient(client);
+    public PersistentSchemaTestIndex(ElasticClient elasticClient, IndexerClient indexerClient,
+                                     StringHttpClient client, SchemaServiceRecordSteps recordSteps) {
+        super(elasticClient, indexerClient);
+        this.schemaClient = new SchemaClient(client, UserType.PRIVILEGED_USER);
         this.recordSteps = recordSteps;
     }
 
     @Override
     public void setupSchema() {
         loadAndPrepareSchema();
-        LOGGER.log(Level.INFO, "Setting up the schema={0}", schemaModel.getSchemaInfo().getSchemaIdentity());
-        schemaServiceClient.createIfNotExist(schemaModel);
-        LOGGER.log(Level.INFO, "Finished setting up the schema={0}", schemaModel.getSchemaInfo().getSchemaIdentity());
+        log.info("Setting up the schema={}", schemaModel.getSchemaInfo().getSchemaIdentity());
+        schemaClient.createIfNotExist(schemaModel);
+        log.info("Finished setting up the schema={}", schemaModel.getSchemaInfo().getSchemaIdentity());
     }
 
     private void loadAndPrepareSchema() {
         this.schemaModel = readSchemaFromJson();
         SchemaIdentity schemaIdentity = schemaModel.getSchemaInfo().getSchemaIdentity();
-        LOGGER.log(Level.INFO, "Read the schema={0}", schemaIdentity);
+        log.info("Read the schema={}", schemaIdentity.getId());
+        String timeStamp = recordSteps.getTimeStamp();
         schemaIdentity.setAuthority(recordSteps.generateActualNameWithoutTs(schemaIdentity.getAuthority()));
-        schemaIdentity.setSource(recordSteps.generateActualName(schemaIdentity.getSource()));
-        LOGGER.log(Level.INFO, "Prepared the schema identity={0}", schemaIdentity);
+        schemaIdentity.setSource(recordSteps.generateActualName(schemaIdentity.getSource(), timeStamp));
+        schemaIdentity.setId(toSchemaId(schemaIdentity));
+        log.info("Prepared the schema identity={}", schemaIdentity.getId());
+    }
+
+    private String toSchemaId(SchemaIdentity schemaIdentity) {
+        return String.format("%s:%s:%s:%s.%s.%s",
+            schemaIdentity.getAuthority(),
+            schemaIdentity.getSource(),
+            schemaIdentity.getEntityType(),
+            schemaIdentity.getSchemaVersionMajor(),
+            schemaIdentity.getSchemaVersionMinor(),
+            schemaIdentity.getSchemaVersionPatch());
     }
 
     @Override
@@ -67,9 +88,9 @@ public class PersistentSchemaTestIndex extends TestIndex {
         // If a developer updates the schema manually, the developer is supposed to update its version as well
     }
 
-    private SchemaModel readSchemaFromJson(){
+    private SchemaModel readSchemaFromJson() {
         try {
-            return FileHandler.readFile(getSchemaFile(), SchemaModel.class);
+            return TestFileUtil.readTestDataFile(getSchemaFile(), SchemaModel.class);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -79,8 +100,4 @@ public class PersistentSchemaTestIndex extends TestIndex {
         return schemaModel;
     }
 
-    @Override
-    protected String getSchemaFile() {
-        return super.getSchemaFile() + ".json";
-    }
 }
