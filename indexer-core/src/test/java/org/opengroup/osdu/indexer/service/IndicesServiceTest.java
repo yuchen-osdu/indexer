@@ -47,6 +47,7 @@ import org.opengroup.osdu.core.common.model.search.IndexInfo;
 import org.opengroup.osdu.core.common.search.ElasticIndexNameResolver;
 import org.opengroup.osdu.indexer.cache.partitionsafe.IndexCache;
 import org.opengroup.osdu.indexer.util.CustomIndexAnalyzerSetting;
+import org.opengroup.osdu.indexer.util.ElasticAliasUtil;
 import org.opengroup.osdu.indexer.util.RequestScopedElasticsearchClient;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -60,6 +61,10 @@ import java.util.Map;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.startsWith;
+import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.opengroup.osdu.indexer.testutils.ReflectionTestUtil.setFieldValueForClass;
@@ -85,6 +90,8 @@ public class IndicesServiceTest {
     private IndexAliasService indexAliasService;
     @Mock
     private CustomIndexAnalyzerSetting customIndexAnalyzerSetting;
+    @Mock
+    private ElasticAliasUtil aliasUtil;
     @Spy
     private ObjectMapper objectMapper = new ObjectMapper();
     @InjectMocks
@@ -95,7 +102,7 @@ public class IndicesServiceTest {
     private RestClientTransport restClientTransport;
 
     @Before
-    public void setup() {
+    public void setup() throws IOException {
         initMocks(this);
         indicesClient = mock(ElasticsearchIndicesClient.class);
         restHighLevelClient = mock(ElasticsearchClient.class);
@@ -103,20 +110,30 @@ public class IndicesServiceTest {
         when(requestScopedClient.getClient()).thenReturn(restHighLevelClient);
         setFieldValueForClass(sut, "healthRetryThreshold", 1);
         setFieldValueForClass(sut, "healthRetrySleepPeriodInMilliseconds", 1);
+
+        // Setup alias util mock
+        when(aliasUtil.getPhysicalIndexNameForCreation(anyString())).thenAnswer(invocation -> {
+            String indexName = invocation.getArgument(0);
+            return indexName + "-r1";
+        });
     }
 
     @Test
     public void create_elasticIndex() throws Exception {
         String index = "common-welldb-wellbore-1.2.0";
         CreateIndexResponse indexResponse = CreateIndexResponse.of(builder -> builder.index(index).acknowledged(true).shardsAcknowledged(true));
-        PutAliasResponse putAliasResponse = PutAliasResponse.of(builder -> builder.acknowledged(true));
         ArgumentCaptor<CreateIndexRequest> createIndexRequestArgumentCaptor = ArgumentCaptor.forClass(CreateIndexRequest.class);
 
         when(elasticIndexNameResolver.getIndexNameFromKind(any())).thenReturn(index);
         when(restHighLevelClient.indices()).thenReturn(indicesClient);
         when(indicesClient.create(any(CreateIndexRequest.class))).thenReturn(indexResponse);
-        when(indicesClient.putAlias(any(PutAliasRequest.class))).thenReturn(putAliasResponse);
         when(customIndexAnalyzerSetting.isEnabled()).thenReturn(false);
+        when(aliasUtil.createAlias(any(), anyString(), anyString())).thenReturn(true);
+
+        // Mock the exists check
+        BooleanResponse existsResponse = mock(BooleanResponse.class);
+        when(existsResponse.value()).thenReturn(false);
+        when(indicesClient.exists(any(ExistsRequest.class))).thenReturn(existsResponse);
 
         boolean response = this.sut.createIndex(restHighLevelClient, index, null,  new HashMap<>());
         assertTrue(response);
@@ -127,19 +144,29 @@ public class IndicesServiceTest {
         CreateIndexRequest request = createIndexRequestArgumentCaptor.getValue();
         IndexSettingsAnalysis analysis =request.settings().analysis();
         Assert.assertNull(analysis);
+
+        // Verify the physical index is created with -r1 suffix
+        assertEquals(index + "-r1", request.index());
+
+        // Verify alias is created
+        verify(aliasUtil).createAlias(any(), eq(index), eq(index + "-r1"));
     }
 
     @Test
     public void create_elasticIndex_with_custom_analyzer() throws Exception {
         String index = "common-welldb-wellbore-1.2.0";
         CreateIndexResponse indexResponse = CreateIndexResponse.of(builder -> builder.index(index).acknowledged(true).shardsAcknowledged(true));
-        PutAliasResponse putAliasResponse = PutAliasResponse.of(builder -> builder.acknowledged(true));
         ArgumentCaptor<CreateIndexRequest> createIndexRequestArgumentCaptor = ArgumentCaptor.forClass(CreateIndexRequest.class);
+
+        // Mock the exists check
+        BooleanResponse existsResponse = mock(BooleanResponse.class);
+        when(existsResponse.value()).thenReturn(false);
+        when(indicesClient.exists(any(ExistsRequest.class))).thenReturn(existsResponse);
 
         when(elasticIndexNameResolver.getIndexNameFromKind(any())).thenReturn(index);
         when(restHighLevelClient.indices()).thenReturn(indicesClient);
         when(indicesClient.create(any(CreateIndexRequest.class))).thenReturn(indexResponse);
-        when(indicesClient.putAlias(any(PutAliasRequest.class))).thenReturn(putAliasResponse);
+        when(aliasUtil.createAlias(eq(restHighLevelClient), eq(index), startsWith(index))).thenReturn(true);
         when(customIndexAnalyzerSetting.isEnabled()).thenReturn(true);
 
         boolean response = this.sut.createIndex(restHighLevelClient, index, null,  new HashMap<>());
@@ -226,13 +253,18 @@ public class IndicesServiceTest {
         String index = "common-welldb-wellbore-1.2.0";
         CreateIndexResponse indexResponse = CreateIndexResponse.of(builder -> builder.shardsAcknowledged(false).acknowledged(false).index(index));
 
+        // Mock the exists check
+        BooleanResponse existsResponse = mock(BooleanResponse.class);
+        when(existsResponse.value()).thenReturn(false);
+        when(indicesClient.exists(any(ExistsRequest.class))).thenReturn(existsResponse);
+
         when(restHighLevelClient.indices()).thenReturn(indicesClient);
         when(indicesClient.create(any(CreateIndexRequest.class))).thenReturn(indexResponse);
         when(customIndexAnalyzerSetting.isEnabled()).thenReturn(false);
         boolean response = this.sut.createIndex(restHighLevelClient, index, null, new HashMap<>());
         assertFalse(response);
         verify(this.indicesExistCache, times(0)).put(any(), any());
-        verify(this.indicesClient, times(0)).putAlias(any(PutAliasRequest.class));
+        verify(this.aliasUtil, times(0)).createAlias(any(), any(), any());
     }
 
     @Test
@@ -246,13 +278,18 @@ public class IndicesServiceTest {
 
         ElasticsearchException existsException = new ElasticsearchException(null, errorResponse);
 
+        // Mock the exists check - should return true since index already exists
+        BooleanResponse existsResponse = mock(BooleanResponse.class);
+        when(existsResponse.value()).thenReturn(true);
+        when(indicesClient.exists(any(ExistsRequest.class))).thenReturn(existsResponse);
+
         when(restHighLevelClient.indices()).thenReturn(indicesClient);
         when(indicesClient.create(any(CreateIndexRequest.class))).thenThrow(existsException);
         when(customIndexAnalyzerSetting.isEnabled()).thenReturn(false);
         boolean response = this.sut.createIndex(restHighLevelClient, index, null, new HashMap<>());
         assertTrue(response);
         verify(this.indicesExistCache, times(1)).put(any(), any());
-        verify(this.indicesClient, times(0)).putAlias(any(PutAliasRequest.class));
+        verify(this.aliasUtil, times(0)).createAlias(any(), any(), any());
     }
 
     @Test
@@ -281,6 +318,59 @@ public class IndicesServiceTest {
         doReturn(indices).when(getIndexResponse).result();
         boolean response = this.sut.deleteIndex(restHighLevelClient, "anyIndex");
         assertTrue(response);
+    }
+
+    @Test
+    public void delete_alias_invalidatesPhysicalAndAllAliasCaches() throws Exception {
+        assertDeletionInvalidatesCaches("logical-index");
+    }
+
+    @Test
+    public void delete_physicalIndex_invalidatesLogicalAliasCaches() throws Exception {
+        assertDeletionInvalidatesCaches("logical-index-r1");
+    }
+
+    @Test
+    public void delete_multipleIndices_invalidatesSuccessfulDeletesBeforeLaterFailure() throws Exception {
+        IndexState state = IndexState.of(builder -> builder.aliases("logical-index", alias -> alias));
+        when(restHighLevelClient.indices()).thenReturn(indicesClient);
+        when(indicesClient.get(any(GetIndexRequest.class))).thenReturn(GetIndexResponse.of(builder ->
+            builder.result("logical-index-r1", state).result("logical-index-r2", state)));
+        String[] deletedIndex = new String[1];
+        when(indicesClient.delete(any(DeleteIndexRequest.class))).thenAnswer(invocation -> {
+            if (deletedIndex[0] != null) {
+                throw new IOException("Second index deletion failed");
+            }
+            DeleteIndexRequest request = invocation.getArgument(0);
+            deletedIndex[0] = request.index().get(0);
+            return DeleteIndexResponse.of(builder -> builder.acknowledged(true));
+        });
+
+        assertThrows(IOException.class, () -> sut.deleteIndex(restHighLevelClient, "logical-index"));
+
+        verify(indicesExistCache).delete(deletedIndex[0]);
+        verify(indicesExistCache, atLeastOnce()).delete("logical-index");
+        verify(indicesExistCache, atLeastOnce()).delete("metaAttributeMappingSynced-logical-index");
+    }
+
+    private void assertDeletionInvalidatesCaches(String requestedIndex) throws Exception {
+        String physicalIndex = "logical-index-r1";
+        IndexState state = IndexState.of(builder -> builder
+            .aliases("logical-index", alias -> alias)
+            .aliases("kind-alias", alias -> alias));
+        when(restHighLevelClient.indices()).thenReturn(indicesClient);
+        when(indicesClient.get(any(GetIndexRequest.class))).thenReturn(
+            GetIndexResponse.of(builder -> builder.result(physicalIndex, state)));
+        when(indicesClient.delete(any(DeleteIndexRequest.class))).thenReturn(
+            DeleteIndexResponse.of(builder -> builder.acknowledged(true)));
+
+        assertTrue(sut.deleteIndex(restHighLevelClient, requestedIndex));
+
+        for (String name : List.of(physicalIndex, "logical-index", "kind-alias")) {
+            verify(indicesExistCache, atLeastOnce()).delete(name);
+            verify(indicesExistCache, atLeastOnce()).delete("metaAttributeMappingSynced-" + name);
+            verify(indicesExistCache, atLeastOnce()).delete("metaCollaborationAttributeMappingSynced-" + name);
+        }
     }
 
     @Test
@@ -519,6 +609,7 @@ public class IndicesServiceTest {
         when(restHighLevelClient.indices()).thenReturn(indicesClient);
         when(indicesClient.create(any(CreateIndexRequest.class))).thenReturn(indexResponse);
         when(indexAliasService.createIndexAlias(any(), eq(kind))).thenReturn(false);
+        when(aliasUtil.createAlias(any(), anyString(), anyString())).thenReturn(true);
         when(indicesClient.exists(any(ExistsRequest.class))).thenReturn(new BooleanResponse(false));
         when(customIndexAnalyzerSetting.isEnabled()).thenReturn(false);
 
@@ -541,7 +632,11 @@ public class IndicesServiceTest {
         when(restHighLevelClient.indices()).thenReturn(indicesClient);
         when(indicesClient.create(any(CreateIndexRequest.class))).thenReturn(indexResponse);
         when(indexAliasService.createIndexAlias(any(), eq(kind))).thenReturn(false);
-        when(indicesClient.exists(any(ExistsRequest.class))).thenReturn(new BooleanResponse(true));
+        when(aliasUtil.createAlias(any(), anyString(), anyString())).thenReturn(true);
+        // The logical name does not exist yet, nor does the physical index, but it is still
+        // there after the kind alias failed, so the index-exists cache must be kept.
+        when(indicesClient.exists(any(ExistsRequest.class))).thenReturn(
+            new BooleanResponse(false), new BooleanResponse(false), new BooleanResponse(true));
         when(customIndexAnalyzerSetting.isEnabled()).thenReturn(false);
 
         boolean result = sut.createIndex(restHighLevelClient, index, null, new HashMap<>());

@@ -45,3 +45,4 @@ target/*
 
 # Local history plugin
 .history/*
+app.jar

@@ -59,6 +59,14 @@ public class PersistentSchemaTestIndex extends TestIndex {
         log.info("Finished setting up the schema={}", schemaModel.getSchemaInfo().getSchemaIdentity());
     }
 
+    public void updateSchema() {
+        loadAndPrepareSchema();
+        log.info("Updating the schema={}", schemaModel.getSchemaInfo().getSchemaIdentity());
+        // SchemaClient.create() issues PUT /schema, which creates or updates the schema.
+        schemaClient.create(schemaModel);
+        log.info("Finished updating the schema={}", schemaModel.getSchemaInfo().getSchemaIdentity());
+    }
+
     private void loadAndPrepareSchema() {
         this.schemaModel = readSchemaFromJson();
         SchemaIdentity schemaIdentity = schemaModel.getSchemaInfo().getSchemaIdentity();
