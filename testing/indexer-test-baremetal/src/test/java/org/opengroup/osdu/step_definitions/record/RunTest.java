@@ -30,7 +30,7 @@ import static io.cucumber.junit.platform.engine.Constants.EXECUTION_MODE_FEATURE
 @Suite
 @IncludeEngines("cucumber")
 @SelectPackages("features.indexrecord")
-@IncludeTags({"default", "keyword-lower", "as-ingested-coordinates", "bag-of-words"})
+@IncludeTags({"default", "keyword-lower", "as-ingested-coordinates", "bag-of-words", "alias", "schema-merge"})
 @ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "org.opengroup.osdu.step_definitions.record")
 @ConfigurationParameter(key = PARALLEL_EXECUTION_ENABLED_PROPERTY_NAME, value = "true")
 @ConfigurationParameter(key = EXECUTION_MODE_FEATURE_PROPERTY_NAME, value = "concurrent")

@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.opengroup.osdu.util.JsonPathMatcher.findArrayInJson;
 import co.elastic.clients.elasticsearch._types.Result;
+import co.elastic.clients.elasticsearch._types.mapping.Property;
 import co.elastic.clients.elasticsearch._types.mapping.TypeMapping;
 import co.elastic.clients.elasticsearch.core.DeleteResponse;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
@@ -43,6 +44,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import lombok.Getter;
@@ -142,7 +144,7 @@ public class RecordSteps extends TestsBase {
 
     public void i_should_get_the_documents_for_the_in_the_Elastic_Search(int expectedCount, String index) throws Throwable {
         index = generateActualName(index, timeStamp);
-        long numOfIndexedDocuments = createIndex(index);
+        long numOfIndexedDocuments = getRecordsInIndex(index, expectedCount);
         assertEquals(expectedCount, numOfIndexedDocuments);
     }
 
@@ -493,6 +495,163 @@ public class RecordSteps extends TestsBase {
             log.info("difference: {}", result.entriesDiffering());
         }
         return equal;
+    }
+
+    // ============ ALIAS-SPECIFIC METHODS ============
+
+    public void i_verify_alias_exists_and_points_to_physical_index(String aliasName, String physicalIndexName) {
+        String actualAlias = generateActualName(aliasName, timeStamp);
+        String expectedPhysicalIndex = generateActualName(physicalIndexName, timeStamp);
+
+        awaitCondition(
+            String.format("alias '%s' to exist and point to physical index '%s'", actualAlias, expectedPhysicalIndex),
+            () -> elasticClient.aliasExists(actualAlias)
+                && expectedPhysicalIndex.equals(elasticClient.getPhysicalIndexFromAlias(actualAlias)));
+
+        log.info("Verified alias '{}' exists and points to physical index '{}'", actualAlias, expectedPhysicalIndex);
+    }
+
+    public void i_delete_index_via_service_endpoint(String kind) {
+        String actualKind = generateActualName(kind, timeStamp);
+        indexerClient.deleteIndex(actualKind);
+        log.info("Deleted index via indexer service for kind '{}'", actualKind);
+    }
+
+    public void i_verify_physical_index_exists(String physicalIndexName) {
+        String actualPhysicalIndex = generateActualName(physicalIndexName, timeStamp);
+        awaitCondition(String.format("physical index '%s' to exist", actualPhysicalIndex),
+            () -> isPhysicalIndex(actualPhysicalIndex));
+        log.info("Verified physical index exists: {}", actualPhysicalIndex);
+    }
+
+    public void i_create_physical_index(String indexName) {
+        String actualIndexName = generateActualName(indexName, timeStamp);
+        elasticClient.createIndex(actualIndexName, "{}");
+        log.info("Created physical index: {}", actualIndexName);
+    }
+
+    public void i_verify_physical_index_does_not_exist(String physicalIndexName) {
+        String actualPhysicalIndex = generateActualName(physicalIndexName, timeStamp);
+        awaitCondition(String.format("physical index '%s' to be deleted", actualPhysicalIndex),
+            () -> !isPhysicalIndex(actualPhysicalIndex));
+        log.info("Verified physical index does not exist: {}", actualPhysicalIndex);
+    }
+
+    public void i_verify_alias_does_not_exist(String aliasName) {
+        String actualAlias = generateActualName(aliasName, timeStamp);
+        awaitCondition(String.format("alias '%s' to be deleted", actualAlias),
+            () -> !elasticClient.aliasExists(actualAlias));
+        log.info("Verified alias does not exist: {}", actualAlias);
+    }
+
+    // ============ SCHEMA MERGE METHODS ============
+
+    public void i_verify_mapping_merged_in_physical_index(String physicalIndexName) {
+        String actualIndex = generateActualName(physicalIndexName, timeStamp);
+
+        assertTrue(isPhysicalIndex(actualIndex),
+            "Physical index should still exist after merge: " + actualIndex);
+
+        PollingResult<Long> result = pollingClient().pollForDocuments(actualIndex);
+        if (!result.isSuccess()) {
+            fail(String.format("Documents should still be available after mapping merge on '%s': %s",
+                actualIndex, result.getFailureReason()));
+        }
+        assertTrue(result.getValue() > 0, "Documents should still exist after mapping merge");
+
+        log.info("Verified mapping merged in physical index '{}' with {} documents", actualIndex, result.getValue());
+    }
+
+    public void i_verify_fields_present_in_mapping(String newFields, String physicalIndexName) {
+        String actualIndex = generateActualName(physicalIndexName, timeStamp);
+        String[] fieldNames = newFields.split(",");
+
+        awaitCondition(String.format("fields '%s' to be present in the mapping of '%s'", newFields, actualIndex),
+            () -> dataMappingFieldsExist(actualIndex, fieldNames));
+
+        log.info("Verified fields are present in the mapping: {}", newFields);
+    }
+
+    // os-core-test's ElasticClient.physicalIndexExists uses indices.exists, which is also true for aliases.
+    private boolean isPhysicalIndex(String indexName) {
+        return elasticClient.isIndexExist(indexName) && !elasticClient.aliasExists(indexName);
+    }
+
+    // os-core-test's ElasticClient.checkMappingFieldsExist only inspects top-level properties,
+    // whereas record attributes are mapped under "data".
+    private boolean dataMappingFieldsExist(String indexName, String[] fieldNames) {
+        IndexMappingRecord mappingRecord = elasticClient.getMapping(indexName).get(indexName);
+        if (mappingRecord == null || mappingRecord.mappings() == null) {
+            return false;
+        }
+        Property data = mappingRecord.mappings().properties().get("data");
+        if (data == null || !data.isObject()) {
+            return false;
+        }
+        Map<String, Property> dataProperties = data.object().properties();
+        for (String fieldName : fieldNames) {
+            if (!dataProperties.containsKey(fieldName.trim())) {
+                log.info("Field '{}' not yet present in mapping of '{}'", fieldName.trim(), indexName);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void i_create_physical_index_with_initial_mapping(String indexName) {
+        String actualIndexName = generateActualName(indexName, timeStamp);
+
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("id", Map.of("type", "keyword"));
+        properties.put("kind", Map.of("type", "keyword"));
+        properties.put("version", Map.of("type", "long"));
+        properties.put("acl", Map.of("properties", Map.of(
+            "viewers", Map.of("type", "keyword"),
+            "owners", Map.of("type", "keyword"))));
+
+        Map<String, Object> dataProperties = new HashMap<>();
+        dataProperties.put("TestField1", textWithKeyword());
+        dataProperties.put("TestField2", Map.of("type", "integer"));
+        dataProperties.put("Location", Map.of("type", "geo_point"));
+        dataProperties.put("WellName", textWithKeyword());
+        dataProperties.put("Status", textWithKeyword());
+        dataProperties.put("CreatedDate", Map.of("type", "date"));
+        dataProperties.put("Score", Map.of("type", "integer"));
+        properties.put("data", Map.of("properties", dataProperties));
+
+        String mappingJson = new Gson().toJson(Map.of("mappings", Map.of("properties", properties)));
+        elasticClient.createIndex(actualIndexName, mappingJson);
+
+        log.info("Created physical index with initial mapping: {}", actualIndexName);
+    }
+
+    private static Map<String, Object> textWithKeyword() {
+        return Map.of("type", "text", "fields", Map.of("keyword", Map.of("type", "keyword")));
+    }
+
+    /**
+     * Polls {@code condition} until it holds, using the same attempt/interval budget as
+     * {@link PollingClient}. Elasticsearch state (alias creation, index deletion, mapping merge)
+     * is applied asynchronously, so a single check right after the triggering call is flaky.
+     */
+    private void awaitCondition(String description, BooleanSupplier condition) {
+        for (int attempt = 0; attempt < PollingClient.DEFAULT_MAX_ATTEMPTS; attempt++) {
+            try {
+                if (condition.getAsBoolean()) {
+                    return;
+                }
+            } catch (Exception e) {
+                log.warn("Attempt {} while waiting for {} failed: {}", attempt + 1, description, e.getMessage());
+            }
+            try {
+                Thread.sleep(PollingClient.DEFAULT_INTERVAL_SECONDS * 1000L);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+        }
+        fail(String.format("Timed out after %d attempts waiting for %s",
+            PollingClient.DEFAULT_MAX_ATTEMPTS, description));
     }
 
 }

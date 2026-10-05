@@ -33,6 +33,7 @@ import co.elastic.clients.elasticsearch.indices.GetIndexRequest;
 import co.elastic.clients.elasticsearch.indices.GetIndexResponse;
 import co.elastic.clients.elasticsearch.indices.IndexSettings;
 import co.elastic.clients.elasticsearch.indices.IndexSettingsAnalysis;
+import co.elastic.clients.elasticsearch.indices.IndexState;
 import co.elastic.clients.transport.endpoints.BooleanResponse;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -54,6 +55,7 @@ import org.opengroup.osdu.indexer.cache.partitionsafe.IndexCache;
 import org.opengroup.osdu.indexer.util.CustomIndexAnalyzerSetting;
 import org.opengroup.osdu.indexer.util.RequestScopedElasticsearchClient;
 import org.opengroup.osdu.indexer.util.TypeMapper;
+import org.opengroup.osdu.indexer.util.ElasticAliasUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -62,7 +64,6 @@ import org.springframework.web.context.annotation.RequestScope;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -95,6 +96,8 @@ public class IndicesServiceImpl implements IndicesService {
     private ObjectMapper objectMapper;
     @Autowired
     private CustomIndexAnalyzerSetting customIndexAnalyzerSetting;
+    @Autowired
+    private ElasticAliasUtil aliasUtil;
     @Value("${index.health.retry.threshold:5}")
     private int healthRetryThreshold;
     @Value("${index.health.retry.sleepPeriodInMilliseconds:5000}")
@@ -112,49 +115,84 @@ public class IndicesServiceImpl implements IndicesService {
     public boolean createIndex(ElasticsearchClient client, String index, IndexSettings settings, Map<String, Object> mapping) throws ElasticsearchException, IOException {
         Preconditions.checkArgument(client, Objects::nonNull, CLIENT_CANNOT_BE_NULL);
         Preconditions.checkArgument(index, Objects::nonNull, INDEX_CANNOT_BE_NULL);
-        try {
-            CreateIndexRequest.Builder createIndexBuilder = new Builder();
-            createIndexBuilder.index(index);
-            createIndexBuilder.settings(settings != null ? settings : getDefaultIndexSettings());
 
-            if (mapping != null) {
-                Map<String, Map<String, Object>> mappings = Map.of("mappings", mapping);
-                String mappingJson = objectMapper.writeValueAsString(mappings);
-                createIndexBuilder.withJson(new ByteArrayInputStream(mappingJson.getBytes()));
-            }
-            createIndexBuilder.timeout(REQUEST_TIMEOUT);
-            long startTime = System.currentTimeMillis();
-
-            CreateIndexResponse createIndexResponse = client.indices().create(createIndexBuilder.build());
-            long stopTime = System.currentTimeMillis();
-            // cache the index status
-            boolean indexStatus = createIndexResponse.acknowledged() && createIndexResponse.shardsAcknowledged();
-            if (indexStatus) {
-                this.indexCache.put(index, true);
-                this.log.info(String.format("Time taken to successfully create new index %s : %d milliseconds", index, stopTime - startTime));
-
-                // Create alias for index
-                String kind = elasticIndexNameResolver.getKindFromIndexName(index);
-                boolean aliasCreated = indexAliasService.createIndexAlias(client, kind);
-                if (!aliasCreated && elasticIndexNameResolver.isIndexAliasSupported(kind)
-                    && !client.indices().exists(ExistsRequest.of(builder -> builder.index(index))).value()) {
-                    // a concurrent delete mid-setup would leave the cache entry above pointing at a dead index
-                    this.invalidateCache(index);
-                    this.log.warning(String.format("index %s was deleted while its setup was still in flight", index));
-                    return false;
-                }
-            }
-
-            return indexStatus;
-        } catch (ElasticsearchException e) {
-            if (e.status() == HttpStatus.SC_BAD_REQUEST && (e.getMessage().contains("resource_already_exists_exception"))) {
-                log.info("Index already exists. Ignoring error...");
-                // cache the index status
-                this.indexCache.put(index, true);
-                return true;
-            }
-            throw e;
+        // Check if index already exists (handles both alias and physical for backward compatibility)
+        if (isIndexExist(client, index)) {
+            log.info(String.format("Index %s already exists, skipping creation", index));
+            return true;
         }
+
+        // New indexes are always created with alias architecture
+        String physicalIndexName = aliasUtil.getPhysicalIndexNameForCreation(index);
+        boolean physicalIndexReady = false;
+
+        // Step 1: Ensure physical index exists
+        try {
+            if (!isIndexExist(client, physicalIndexName)) {
+                long startTime = System.currentTimeMillis();
+                CreateIndexRequest.Builder createIndexBuilder = new Builder();
+                createIndexBuilder.index(physicalIndexName);
+                createIndexBuilder.settings(settings != null ? settings : getDefaultIndexSettings());
+
+                if (mapping != null) {
+                    Map<String, Map<String, Object>> mappings = Map.of("mappings", mapping);
+                    String mappingJson = objectMapper.writeValueAsString(mappings);
+                    createIndexBuilder.withJson(new ByteArrayInputStream(mappingJson.getBytes()));
+                }
+                createIndexBuilder.timeout(REQUEST_TIMEOUT);
+                CreateIndexResponse createIndexResponse = client.indices().create(createIndexBuilder.build());
+
+                // Use acknowledged() alone to determine readiness for alias creation.
+                // shardsAcknowledged can be false when shards haven't fully allocated yet,
+                // but the index exists and alias creation will succeed. On master (no aliases),
+                // this was harmless because the physical index name IS the logical name.
+                // With aliases, we must create the alias even when shards are still allocating,
+                // otherwise the logical name won't resolve and searches will get index_not_found.
+                physicalIndexReady = createIndexResponse.acknowledged();
+                long stopTime = System.currentTimeMillis();
+                log.info(String.format("Time taken to create new physical index %s : %d milliseconds, acknowledged=%s, shardsAcknowledged=%s",
+                    physicalIndexName, stopTime - startTime,
+                    createIndexResponse.acknowledged(), createIndexResponse.shardsAcknowledged()));
+                log.info(String.format("Created Index %s with mapping %s", physicalIndexName, mapping));
+            } else {
+                log.info(String.format("Physical index %s already exists from previous attempt", physicalIndexName));
+                physicalIndexReady = true;
+            }
+        } catch (ElasticsearchException e) {
+            if (e.status() == HttpStatus.SC_BAD_REQUEST && e.getMessage().contains("resource_already_exists_exception")) {
+                // Physical index was created by concurrent request (race condition) - proceed to alias creation
+                log.info(String.format("Physical index %s created by concurrent request, proceeding with alias creation", physicalIndexName));
+                physicalIndexReady = true;
+            } else {
+                log.error(e.getMessage(), e);
+                throw e;
+            }
+        }
+
+        // Step 2: Create alias (single code path for all scenarios)
+        if (physicalIndexReady) {
+            boolean aliasCreated = aliasUtil.createAlias(client, index, physicalIndexName);
+            if (!aliasCreated) {
+                log.error(String.format("Alias %s creation failed for physical index %s. " +
+                    "Index will not be accessible via expected name",
+                    index, physicalIndexName));
+                return false;
+            }
+
+            this.indexCache.put(index, true);
+            String kind = elasticIndexNameResolver.getKindFromIndexName(index);
+            boolean kindAliasCreated = indexAliasService.createIndexAlias(client, kind);
+            if (!kindAliasCreated && elasticIndexNameResolver.isIndexAliasSupported(kind)
+                && !client.indices().exists(ExistsRequest.of(builder -> builder.index(index))).value()) {
+                // a concurrent delete mid-setup would leave the cache entry above pointing at a dead index
+                this.invalidateCache(index);
+                this.log.warning(String.format("index %s was deleted while its setup was still in flight", index));
+                return false;
+            }
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -302,13 +340,18 @@ public class IndicesServiceImpl implements IndicesService {
      * @param index  Index name
      */
     public boolean deleteIndex(ElasticsearchClient client, String index) throws ElasticsearchException, IOException, AppException {
-        List<String> indices = this.resolveIndex(client, index);
+        Map<String, IndexState> indices = this.resolveIndexStates(client, index);
         boolean responseStatus = true;
-        for (String idx : indices) {
-            responseStatus &= removeIndexInElasticsearch(client, idx);
-        }
-        if (responseStatus) {
-            this.invalidateCache(index);
+        for (Map.Entry<String, IndexState> entry : indices.entrySet()) {
+            String physicalIndex = entry.getKey();
+            log.info(String.format("Deleting physical index %s for %s", physicalIndex, index));
+            boolean deleted = removeIndexInElasticsearch(client, physicalIndex);
+            responseStatus &= deleted;
+            if (deleted) {
+                this.invalidateCache(physicalIndex);
+                entry.getValue().aliases().keySet().forEach(this::invalidateCache);
+                this.invalidateCache(index);
+            }
         }
         return responseStatus;
     }
@@ -392,7 +435,10 @@ public class IndicesServiceImpl implements IndicesService {
     }
 
     public List<String> resolveIndex(ElasticsearchClient client, String index) throws IOException {
+        return this.resolveIndexStates(client, index).keySet().stream().toList();
+    }
 
+    private Map<String, IndexState> resolveIndexStates(ElasticsearchClient client, String index) throws IOException {
         Preconditions.checkArgument(client, Objects::nonNull, CLIENT_CANNOT_BE_NULL);
         Preconditions.checkArgument(index, Objects::nonNull, INDEX_CANNOT_BE_NULL);
 
@@ -400,9 +446,8 @@ public class IndicesServiceImpl implements IndicesService {
             GetIndexRequest request = new GetIndexRequest.Builder().index(index).build();
             GetIndexResponse getIndexResponse = client.indices().get(request);
 
-            String[] indices = getIndexResponse.result().keySet().toArray(new String[0]);
-            if (indices.length != 0) {
-                return Arrays.asList(indices);
+            if (!getIndexResponse.result().isEmpty()) {
+                return getIndexResponse.result();
             } else {
                 throw new AppException(HttpStatus.SC_NOT_FOUND, "Index resolving error", notFoundErrorMessage(index));
             }

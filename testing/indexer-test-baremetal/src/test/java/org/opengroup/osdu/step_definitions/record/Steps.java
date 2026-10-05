@@ -179,4 +179,63 @@ public class Steps extends SchemaServiceRecordSteps {
             int expectedCount, String index, Double topPointX, Double bottomPointX, String pointX, Double topPointY, Double bottomPointY, String pointY) throws Throwable {
         super.i_should_get_the_documents_for_the_in_the_Elastic_Search_by_AsIngestedCoordinates(expectedCount, index, topPointX, bottomPointX, pointX, topPointY, bottomPointY, pointY);
     }
+
+    // ============ ALIAS-SPECIFIC STEP DEFINITIONS ============
+
+    @Given("^I have ingested records with the \"([^\"]*)\" with \"([^\"]*)\" for a given \"([^\"]*)\"$")
+    public void iHaveIngestedRecordsWithTheWithForAGiven(String recordFile, String acl, String kind) {
+        super.i_ingest_records_with_the_for_a_given(recordFile, acl, kind);
+    }
+
+    @When("^the schema is updated with the following kind$")
+    public void the_schema_is_updated_with_the_following_kind(DataTable dataTable) {
+        super.the_schema_is_updated_with_the_following_kind(dataTable);
+    }
+
+    @io.cucumber.java.en.And("^I verify in Elasticsearch that alias \"([^\"]*)\" exists and points to physical index \"([^\"]*)\"$")
+    public void verifyAliasExistsAndPointsToPhysicalIndex(String aliasName, String physicalIndexName) throws InterruptedException {
+        super.i_verify_alias_exists_and_points_to_physical_index(aliasName, physicalIndexName);
+    }
+
+    @When("^I delete the index using indexer service endpoint for kind \"([^\"]*)\"$")
+    public void deleteIndexViaServiceEndpoint(String kind) {
+        super.i_delete_index_via_service_endpoint(kind);
+    }
+
+    @io.cucumber.java.en.And("^I verify in Elasticsearch that physical index \"([^\"]*)\" exists$")
+    public void verifyPhysicalIndexExists(String physicalIndexName) throws InterruptedException {
+        super.i_verify_physical_index_exists(physicalIndexName);
+    }
+
+    @Given("^I manually create a physical index \"([^\"]*)\" in Elasticsearch$")
+    public void createPhysicalIndex(String indexName) {
+        super.i_create_physical_index(indexName);
+    }
+
+    @Then("^I verify in Elasticsearch that physical index \"([^\"]*)\" does not exist$")
+    public void verifyPhysicalIndexDoesNotExist(String physicalIndexName) throws InterruptedException {
+        super.i_verify_physical_index_does_not_exist(physicalIndexName);
+    }
+
+    @io.cucumber.java.en.And("^I verify in Elasticsearch that alias \"([^\"]*)\" does not exist$")
+    public void verifyAliasDoesNotExist(String aliasName) throws InterruptedException {
+        super.i_verify_alias_does_not_exist(aliasName);
+    }
+
+    // ============ SCHEMA MERGE STEP DEFINITIONS ============
+
+    @Then("^I verify the mapping is merged in physical index \"([^\"]*)\"$")
+    public void verifyMappingMergedInPhysicalIndex(String physicalIndexName) throws Exception {
+        super.i_verify_mapping_merged_in_physical_index(physicalIndexName);
+    }
+
+    @Then("I verify fields {string} are present in the mapping for physical index {string}")
+    public void verifyNewFieldsPresentInMapping(String newFields, String physicalIndexName) throws Exception {
+        super.i_verify_fields_present_in_mapping(newFields, physicalIndexName);
+    }
+
+    @Given("^I manually create a physical index \"([^\"]*)\" in Elasticsearch with initial mapping$")
+    public void createPhysicalIndexWithInitialMapping(String indexName) throws Exception {
+        super.i_create_physical_index_with_initial_mapping(indexName);
+    }
 }

@@ -19,6 +19,7 @@ package org.opengroup.osdu.common;
 import io.cucumber.datatable.DataTable;
 import lombok.extern.slf4j.Slf4j;
 import org.opengroup.osdu.core.test.client.ClientException;
+import org.opengroup.osdu.models.TestIndex;
 import org.opengroup.osdu.models.TestIndexSetup;
 import org.opengroup.osdu.models.schema.PersistentSchemaTestIndex;
 
@@ -70,6 +71,24 @@ public class SchemaServiceRecordSteps extends RecordSteps {
         } catch (ClientException e) {
             log.warn("Index for kind '{}' not found during pre-test cleanup (may not exist yet): {}", kind, e.getMessage());
         }
+    }
+
+    public void the_schema_is_updated_with_the_following_kind(DataTable dataTable) {
+        List<TestIndexSetup> inputList = dataTable.asList(TestIndexSetup.class);
+        inputList.forEach(this::updateSchema);
+    }
+
+    private void updateSchema(TestIndexSetup input) {
+        String actualKind = generateActualName(input.getKind(), getTimeStamp());
+        TestIndex existingTestIndex = getInputIndexMap().get(actualKind);
+
+        if (!(existingTestIndex instanceof PersistentSchemaTestIndex testIndex)) {
+            throw new AssertionError(
+                "Cannot update schema - no PersistentSchemaTestIndex registered for kind: " + actualKind);
+        }
+
+        testIndex.setSchemaFile(input.getSchemaFile());
+        testIndex.updateSchema();
     }
 
     @Override

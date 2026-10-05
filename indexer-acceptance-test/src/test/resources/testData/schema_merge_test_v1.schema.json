@@ -1,0 +1,67 @@
+{
+  "schemaInfo": {
+    "schemaIdentity": {
+      "authority": "tenant1",
+      "source": "indexer<timestamp>",
+      "entityType": "revision-test--Integration",
+      "schemaVersionMajor": 1,
+      "schemaVersionMinor": 0,
+      "schemaVersionPatch": 0
+    },
+    "status": "DEVELOPMENT"
+  },
+  "schema": {
+    "properties": {
+      "id": {
+        "description": "The unique identifier of the document in the system.",
+        "title": "Entity ID",
+        "type": "string"
+      },
+      "data" : {
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "TestField1": {
+                "type": "string",
+                "title": "Test Field 1",
+                "description": "Original test field 1"
+              },
+              "TestField2": {
+                "type": "integer",
+                "title": "Test Field 2",
+                "description": "Original test field 2"
+              },
+              "Location": {
+                "type": "object",
+                "title": "Geographic Location",
+                "properties": {
+                  "lat": { "type": "number" },
+                  "lon": { "type": "number" }
+                },
+                "x-osdu-coordinate-reference-system": "GCS_WGS_1984"
+              },
+              "WellName": {
+                "type": "string",
+                "title": "Well Name"
+              },
+              "Status": {
+                "type": "string",
+                "title": "Status"
+              },
+              "CreatedDate": {
+                "type": "string",
+                "format": "date-time",
+                "title": "Created Date"
+              },
+              "Score": {
+                "type": "integer",
+                "title": "Score"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}
