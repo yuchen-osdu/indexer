@@ -2,7 +2,11 @@ variables:
   AZURE_SERVICE: indexer
   AZURE_BUILD_SUBDIR: provider/indexer-azure
   AZURE_TEST_SUBDIR: testing/indexer-test-azure
-  SERVICE_JAVA_VERSION: "17"
+  # Full Docker Hub tag after "maven:" — flip to ...-temurin-25 for Java 25 compile/test.
+  # Keep in sync with SERVICE_JAVA_VERSION (plugin-download jobs).
+  # Dependency scanning: SBOM early-mover (sbom-maven.yml); do not set DS_JAVA_VERSION: "25".
+  MAVEN_IMAGE_TAG: "3.9.16-eclipse-temurin-25"
+  SERVICE_JAVA_VERSION: "3.9.16-eclipse-temurin-25"
 
   CIMPL_OPENAPI_CONFIG_ROUTE: /api/indexer/v2/api-docs/swagger-config
   SCHEMATHESIS_OPENAPI_YAML_ROUTE: /api/indexer/v2/api-docs.yaml
@@ -23,6 +27,9 @@ include:
 
   - project: "osdu/platform/ci-cd-pipelines"
     file: "scanners/gitlab-ultimate.yml"
+
+  - project: "osdu/platform/ci-cd-pipelines"
+    file: "scanners/sbom-maven.yml"
 
   - project: "osdu/platform/ci-cd-pipelines"
     file: "reporting/reporting.yml"
@@ -47,15 +54,23 @@ include:
 
   - local: "devops/core-plus/pipeline/override-stages.yml"
 
+# Java 25 FOSSA image (divido/fossa-with-cache!19). Shared fossa-maven.yml still
+# defaults to v0.10 (JDK 17); override until ci-cd-pipelines bumps the default.
+fossa-analyze:
+  image: $CI_REGISTRY/divido/fossa-with-cache:v0.11
+
+fossa-check-notice:
+  image: $CI_REGISTRY/divido/fossa-with-cache:v0.11
+
 download_plugins:
-  image: maven:3.8.3-openjdk-17-slim
+  image: maven:${SERVICE_JAVA_VERSION}
   stage: build
   tags: ["osdu-small"]
   variables:
     OQM_PACKAGE_REGISRTY_URL: "https://community.opengroup.org/api/v4/projects/1450/packages/maven"
-    OQM_VERSION: "0.28.2"
+    OQM_VERSION: "1.0.0"
     APD_PACKAGE_REGISTRY_URL: "https://community.opengroup.org/api/v4/projects/1445/packages/maven"
-    APD_VERSION: "0.27.0-rc1"
+    APD_VERSION: "1.0.0"
 
   artifacts:
     paths:

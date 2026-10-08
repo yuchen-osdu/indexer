@@ -8,13 +8,15 @@
     <version>0.31.0-SNAPSHOT</version>
 
     <properties>
-        <maven.compiler.release>17</maven.compiler.release>
+        <java.version>25</java.version>
+        <maven.compiler.release>${java.version}</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <os-core-test.version>0.3.0</os-core-test.version>
+        <os-core-test.version>1.1.0</os-core-test.version>
         <junit.version>5.14.4</junit.version>
         <lombok.version>1.18.42</lombok.version>
         <jackson.annotations.version>2.21</jackson.annotations.version>
-        <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
+        <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
+        <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
         <repo.releases.id>community-maven-repo</repo.releases.id>
         <repo.releases.url>https://community.opengroup.org/api/v4/groups/17/-/packages/maven</repo.releases.url>
         <argLine>
@@ -95,8 +97,9 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.5.5</version>
+                <version>${maven-surefire-plugin.version}</version>
                 <configuration>
+                    <argLine>@{argLine}</argLine>
                     <systemPropertyVariables>
                         <expose_featureflag.enabled>true</expose_featureflag.enabled>
                         <ELASTIC_8_SSL_ENABLED>true</ELASTIC_8_SSL_ENABLED>
