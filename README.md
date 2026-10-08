@@ -2,6 +2,13 @@
 
 Official Documentation home at [https://osdu.pages.opengroup.org/platform/system/indexer-service/](https://osdu.pages.opengroup.org/platform/system/indexer-service/)
 
+## Prerequisites
+
+- [JDK 25](https://adoptium.net/)
+- [Maven 3.9.16+](https://maven.apache.org/download.cgi)
+
+Community / core-plus modules compile and run on Java 25. For core-plus local setup, see [indexer-core-plus/README.md](./indexer-core-plus/README.md).
+
 # Introduction 
 
 os-indexer-azure is a [Spring Boot](https://spring.io/projects/spring-boot) service that is responsible for indexing Records that enable the `os-search` service to execute OSDU R2 domain searches against Elasticsearch.

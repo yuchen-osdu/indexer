@@ -23,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.opengroup.osdu.util.JsonPathMatcher.findArrayInJson;
 import co.elastic.clients.elasticsearch._types.Result;
-import co.elastic.clients.elasticsearch._types.mapping.Property;
 import co.elastic.clients.elasticsearch._types.mapping.TypeMapping;
 import co.elastic.clients.elasticsearch.core.DeleteResponse;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
@@ -520,7 +519,7 @@ public class RecordSteps extends TestsBase {
     public void i_verify_physical_index_exists(String physicalIndexName) {
         String actualPhysicalIndex = generateActualName(physicalIndexName, timeStamp);
         awaitCondition(String.format("physical index '%s' to exist", actualPhysicalIndex),
-            () -> isPhysicalIndex(actualPhysicalIndex));
+            () -> elasticClient.physicalIndexExists(actualPhysicalIndex));
         log.info("Verified physical index exists: {}", actualPhysicalIndex);
     }
 
@@ -533,7 +532,7 @@ public class RecordSteps extends TestsBase {
     public void i_verify_physical_index_does_not_exist(String physicalIndexName) {
         String actualPhysicalIndex = generateActualName(physicalIndexName, timeStamp);
         awaitCondition(String.format("physical index '%s' to be deleted", actualPhysicalIndex),
-            () -> !isPhysicalIndex(actualPhysicalIndex));
+            () -> !elasticClient.physicalIndexExists(actualPhysicalIndex));
         log.info("Verified physical index does not exist: {}", actualPhysicalIndex);
     }
 
@@ -549,7 +548,7 @@ public class RecordSteps extends TestsBase {
     public void i_verify_mapping_merged_in_physical_index(String physicalIndexName) {
         String actualIndex = generateActualName(physicalIndexName, timeStamp);
 
-        assertTrue(isPhysicalIndex(actualIndex),
+        assertTrue(elasticClient.physicalIndexExists(actualIndex),
             "Physical index should still exist after merge: " + actualIndex);
 
         PollingResult<Long> result = pollingClient().pollForDocuments(actualIndex);
@@ -567,35 +566,9 @@ public class RecordSteps extends TestsBase {
         String[] fieldNames = newFields.split(",");
 
         awaitCondition(String.format("fields '%s' to be present in the mapping of '%s'", newFields, actualIndex),
-            () -> dataMappingFieldsExist(actualIndex, fieldNames));
+            () -> elasticClient.checkMappingFieldsExist(actualIndex, fieldNames));
 
         log.info("Verified fields are present in the mapping: {}", newFields);
-    }
-
-    // os-core-test's ElasticClient.physicalIndexExists uses indices.exists, which is also true for aliases.
-    private boolean isPhysicalIndex(String indexName) {
-        return elasticClient.isIndexExist(indexName) && !elasticClient.aliasExists(indexName);
-    }
-
-    // os-core-test's ElasticClient.checkMappingFieldsExist only inspects top-level properties,
-    // whereas record attributes are mapped under "data".
-    private boolean dataMappingFieldsExist(String indexName, String[] fieldNames) {
-        IndexMappingRecord mappingRecord = elasticClient.getMapping(indexName).get(indexName);
-        if (mappingRecord == null || mappingRecord.mappings() == null) {
-            return false;
-        }
-        Property data = mappingRecord.mappings().properties().get("data");
-        if (data == null || !data.isObject()) {
-            return false;
-        }
-        Map<String, Property> dataProperties = data.object().properties();
-        for (String fieldName : fieldNames) {
-            if (!dataProperties.containsKey(fieldName.trim())) {
-                log.info("Field '{}' not yet present in mapping of '{}'", fieldName.trim(), indexName);
-                return false;
-            }
-        }
-        return true;
     }
 
     public void i_create_physical_index_with_initial_mapping(String indexName) {
