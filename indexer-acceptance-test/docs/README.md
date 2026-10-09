@@ -85,6 +85,27 @@ Execute following command to build code and run all the integration tests:
  $ (cd indexer-acceptance-test && mvn clean verify)
  ```
 
+### Reindex coverage
+
+Run the focused acceptance suite with:
+
+```bash
+cd indexer-acceptance-test
+mvn test -Dtest=RunReindexTest
+```
+
+The acceptance and provider integration scenarios wait for all ingested records,
+remove documents only from Elasticsearch, and assert that reindex restores their
+IDs and the original document count. Storage records are retained. The record-ID
+integration scenario reindexes exactly the removed IDs.
+
+Force-clean scenarios also insert an Elasticsearch-only marker document and
+verify that it is removed. This distinguishes an index reset from ordinary
+record replay. Invalid-kind acceptance scenarios capture the typed client's
+expected HTTP 400 exception; unexpected client failures still fail the scenario.
+The endpoint returns a status without a task ID, so success steps do not require
+one.
+
 ## License
 
 Copyright © Google LLC

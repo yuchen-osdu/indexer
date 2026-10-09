@@ -275,4 +275,63 @@ public class Steps extends SchemaServiceRecordSteps {
     public void createPhysicalIndexWithInitialMapping(String indexName) throws Exception {
         super.i_create_physical_index_with_initial_mapping(indexName);
     }
+
+
+    // ============ REINDEX V1 STEP DEFINITIONS ============
+
+    @When("^I trigger reindex for the \"([^\"]*)\" with cursor \"([^\"]*)\"$")
+    public void iTriggerReindexForTheWithCursor(String kind, String cursor) throws Throwable {
+        super.i_trigger_reindex_for_kind_with_cursor(kind, cursor);
+    }
+
+    @When("^I prepare missing documents before reindex for \"([^\"]*)\"$")
+    public void iPrepareMissingDocumentsBeforeReindex(String index) throws Throwable {
+        super.i_prepare_missing_documents_before_reindex(index);
+    }
+
+    @When("^I trigger reindex for the \"([^\"]*)\" with force_clean enabled$")
+    public void iTriggerReindexForTheWithForceCleanEnabled(String kind) throws Throwable {
+        super.i_trigger_reindex_for_kind_with_force_clean(kind);
+    }
+
+    @When("^I trigger reindex for invalid \"([^\"]*)\" with cursor \"([^\"]*)\"$")
+    public void iTriggerReindexForInvalidWithCursor(String invalidKind, String cursor) throws Throwable {
+        super.i_trigger_reindex_for_invalid_kind(invalidKind, cursor);
+    }
+
+    @Then("^I should get successful reindex response with task ID$")
+    public void iShouldGetSuccessfulReindexResponseWithTaskID() throws Throwable {
+        super.i_should_get_successful_reindex_response();
+    }
+
+    @Then("^I should get successful reindex response$")
+    public void iShouldGetSuccessfulReindexResponse() throws Throwable {
+        super.i_should_get_successful_reindex_response();
+    }
+
+    @Then("^I should verify reindexed documents are present in the \"([^\"]*)\" in Elastic Search$")
+    public void iShouldVerifyReindexedDocumentsArePresentInTheInElasticSearch(String index) throws Throwable {
+        super.i_should_verify_reindexed_documents_in_index(index);
+    }
+
+    @Then("^I should verify the specific records are reindexed in the \"([^\"]*)\" in Elastic Search$")
+    public void iShouldVerifyTheSpecificRecordsAreReindexedInTheInElasticSearch(String index) throws Throwable {
+        super.i_should_verify_reindexed_documents_in_index(index);
+    }
+
+    @Then("^I should get error response with status code (\\d+)$")
+    public void iShouldGetErrorResponseWithStatusCode(int statusCode) throws Throwable {
+        super.i_should_get_error_response_with_status_code(statusCode);
+    }
+
+    @Then("^the error message should indicate invalid kind format$")
+    public void theErrorMessageShouldIndicateInvalidKindFormat() throws Throwable {
+        super.i_should_get_error_message_for_invalid_kind();
+    }
+
+    @When("I trigger reindex for dynamic record IDs")
+    public void iTriggerReindexForDynamicRecordIDs() throws Throwable {
+        super.i_trigger_reindex_for_dynamic_record_ids();
+    }
+
 }

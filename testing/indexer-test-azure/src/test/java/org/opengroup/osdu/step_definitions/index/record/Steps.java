@@ -188,9 +188,9 @@ public class Steps extends SchemaServiceRecordSteps {
         super.i_trigger_reindex_for_kind_with_cursor(kind, cursor);
     }
 
-    @When("^I capture document count before reindex for \"([^\"]*)\"$")
-    public void iCaptureDocumentCountBeforeReindex(String index) throws Throwable {
-        super.i_capture_document_count_before_reindex(index);
+    @When("^I prepare missing documents before reindex for \"([^\"]*)\"$")
+    public void iPrepareMissingDocumentsBeforeReindex(String index) throws Throwable {
+        super.i_prepare_missing_documents_before_reindex(index);
     }
 
     @When("^I trigger reindex for the \"([^\"]*)\" with force_clean enabled$")
