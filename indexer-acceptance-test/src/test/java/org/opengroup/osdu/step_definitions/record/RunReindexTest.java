@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2025, IBM
+ * Copyright 2017-2025, The Open Group
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.opengroup.osdu.step_definitions.index.record;
+package org.opengroup.osdu.step_definitions.record;
 
 import org.junit.platform.suite.api.ConfigurationParameter;
 import org.junit.platform.suite.api.IncludeEngines;
@@ -22,16 +22,25 @@ import org.junit.platform.suite.api.IncludeTags;
 import org.junit.platform.suite.api.SelectPackages;
 import org.junit.platform.suite.api.Suite;
 
+import org.opengroup.osdu.common.CucumberGlue;
+
+import static io.cucumber.junit.platform.engine.Constants.EXECUTION_MODE_FEATURE_PROPERTY_NAME;
 import static io.cucumber.junit.platform.engine.Constants.GLUE_PROPERTY_NAME;
 import static io.cucumber.junit.platform.engine.Constants.PARALLEL_EXECUTION_ENABLED_PROPERTY_NAME;
-import static io.cucumber.junit.platform.engine.Constants.EXECUTION_MODE_FEATURE_PROPERTY_NAME;
+import static io.cucumber.junit.platform.engine.Constants.PLUGIN_PROPERTY_NAME;
 
+// Parallel execution is intentionally disabled for this focused suite. Reindex rewrites whole
+// indexes for a kind, so running these scenarios concurrently with each other would race on
+// index state and document counts.
 @Suite
 @IncludeEngines("cucumber")
 @SelectPackages("features.indexrecord")
-@IncludeTags({"default", "keyword-lower", "as-ingested-coordinates", "bag-of-words", "alias", "schema-merge", "reindex"})
-@ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "org.opengroup.osdu.step_definitions.index.record")
-@ConfigurationParameter(key = PARALLEL_EXECUTION_ENABLED_PROPERTY_NAME, value = "true")
-@ConfigurationParameter(key = EXECUTION_MODE_FEATURE_PROPERTY_NAME, value = "concurrent")
-public class RunTest {
+@IncludeTags({"reindex"})
+@ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = CucumberGlue.INDEX_RECORD)
+@ConfigurationParameter(key = PARALLEL_EXECUTION_ENABLED_PROPERTY_NAME, value = "false")
+@ConfigurationParameter(key = EXECUTION_MODE_FEATURE_PROPERTY_NAME, value = "same_thread")
+@ConfigurationParameter(
+    key = PLUGIN_PROPERTY_NAME,
+    value = "pretty,junit:target/cucumber-reports/TEST-indexrecord-reindex.xml,io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm")
+public class RunReindexTest {
 }

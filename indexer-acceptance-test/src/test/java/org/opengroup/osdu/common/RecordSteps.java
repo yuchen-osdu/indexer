@@ -34,7 +34,11 @@ import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import io.cucumber.datatable.DataTable;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.lang.reflect.Type;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -52,12 +56,14 @@ import org.opengroup.osdu.core.common.http.CollaborationContextFactory;
 import org.opengroup.osdu.core.common.model.http.CollaborationContext;
 import org.opengroup.osdu.core.common.model.legal.Legal;
 import org.opengroup.osdu.core.common.model.storage.Record;
+import org.opengroup.osdu.core.test.client.ClientException;
 import org.opengroup.osdu.core.test.client.HttpResponse;
 import org.opengroup.osdu.core.test.client.model.indexer.RecordData;
 import org.opengroup.osdu.core.test.client.model.storage.CreateRecordsResponse;
 import org.opengroup.osdu.core.test.client.model.storage.RecordAcl;
 import org.opengroup.osdu.core.test.client.model.storage.RecordLegal;
 import org.opengroup.osdu.core.test.client.model.storage.StorageRecord;
+import org.opengroup.osdu.core.test.service.ServiceType;
 import org.opengroup.osdu.core.test.util.polling.PollingClient;
 import org.opengroup.osdu.core.test.util.polling.PollingResult;
 import org.opengroup.osdu.core.test.util.TestFileUtil;
@@ -121,6 +127,7 @@ public class RecordSteps extends TestsBase {
             HttpResponse<CreateRecordsResponse> httpResponse = storageClient.putRecords(storageRecords);
             log.info("Response body: {}\nResponse Status code: {}", httpResponse.body(), httpResponse.statusCode());
             assertEquals(201, httpResponse.statusCode());
+            lastIngestedRecordIds = httpResponse.body().recordIds();
         } catch (Exception ex) {
             throw new AssertionError(ex.getMessage(), ex);
         }
@@ -625,6 +632,104 @@ public class RecordSteps extends TestsBase {
         }
         fail(String.format("Timed out after %d attempts waiting for %s",
             PollingClient.DEFAULT_MAX_ATTEMPTS, description));
+    }
+
+
+    // ============ REINDEX V1 METHODS ============
+
+    private int lastReindexStatusCode;
+    private long documentCountBeforeReindex;
+    private String reindexIndex;
+    private String forceCleanMarkerId;
+
+    public void i_prepare_missing_documents_before_reindex(String index) {
+        assertNotNull(lastIngestedRecordIds, "Records must be ingested before preparing reindex");
+        assertTrue(lastIngestedRecordIds.length > 0, "No ingested record IDs available for reindex");
+        reindexIndex = generateActualName(index, timeStamp);
+        documentCountBeforeReindex = getRecordsInIndex(reindexIndex, lastIngestedRecordIds.length);
+        for (String id : lastIngestedRecordIds) {
+            assertEquals(Result.Deleted, elasticClient.deleteRecordsById(reindexIndex, id).result(),
+                "Expected an indexed document to be removed before reindex: " + id);
+        }
+        elasticClient.refreshIndex(reindexIndex);
+        getRecordsInIndex(reindexIndex, 0);
+        log.info("Removed {} Elasticsearch documents from '{}', retaining them in Storage",
+            documentCountBeforeReindex, reindexIndex);
+    }
+
+    public void i_trigger_reindex_for_kind_with_cursor(String kind, String cursor) {
+        triggerReindex(generateActualName(kind, timeStamp), cursor, Map.of());
+    }
+
+    public void i_trigger_reindex_for_kind_with_force_clean(String kind) {
+        String actualKind = generateActualName(kind, timeStamp);
+        assertNotNull(reindexIndex, "Missing documents must be prepared before force-clean reindex");
+        forceCleanMarkerId = actualKind.split(":")[0] + ":reindex-marker:" + UUID.randomUUID();
+        elasticClient.indexRecords(reindexIndex, actualKind, List.of(
+            new HashMap<>(Map.of("id", forceCleanMarkerId, "kind", actualKind))));
+        elasticClient.refreshIndex(reindexIndex);
+        getRecordsInIndex(reindexIndex, 1);
+        triggerReindex(actualKind, "", Map.of("force_clean", "true"));
+    }
+
+    public void i_trigger_reindex_for_invalid_kind(String invalidKind, String cursor) {
+        try {
+            triggerReindex(invalidKind, cursor, Map.of());
+        } catch (ClientException e) {
+            if (e.getStatusCode() != 400) {
+                throw e;
+            }
+            lastReindexStatusCode = e.getStatusCode();
+            log.info("Expected invalid-kind reindex response: {}", e.getMessage());
+        }
+    }
+
+    public void i_should_get_successful_reindex_response() {
+        assertTrue(lastReindexStatusCode == 200 || lastReindexStatusCode == 202,
+            "Expected a successful reindex response (200 or 202), but got: " + lastReindexStatusCode);
+    }
+
+    public void i_should_verify_reindexed_documents_in_index(String index) {
+        String actualIndex = generateActualName(index, timeStamp);
+        assertEquals(reindexIndex, actualIndex, "Verify the index prepared for reindex");
+        assertTrue(documentCountBeforeReindex > 0, "A non-empty baseline is required for reindex");
+        getRecordsInIndex(actualIndex, Math.toIntExact(documentCountBeforeReindex));
+        for (String id : lastIngestedRecordIds) {
+            assertEquals(1, elasticClient.fetchRecordsByFieldAndFieldValue(actualIndex, "id", id),
+                "Reindex must restore the removed document: " + id);
+        }
+        if (forceCleanMarkerId != null) {
+            assertEquals(0, elasticClient.fetchRecordsByFieldAndFieldValue(actualIndex, "id", forceCleanMarkerId),
+                "Force-clean must remove the Elasticsearch-only marker document");
+        }
+    }
+
+    public void i_should_get_reindex_error_response_with_status_code(int expectedStatusCode) {
+        assertEquals(expectedStatusCode, lastReindexStatusCode, "Unexpected reindex error status code");
+    }
+
+    private void triggerReindex(String kind, String cursor, Map<String, String> queryParams) {
+        Map<String, String> payload = new HashMap<>();
+        payload.put("kind", kind);
+        payload.put("cursor", cursor);
+        String body = new Gson().toJson(payload);
+        HttpResponse<?> response;
+        if (queryParams.isEmpty()) {
+            response = indexerClient.reindex(body);
+        } else {
+            // IndexerClient.reindex(body, Map) treats the map as headers, so query parameters go in the path.
+            String query = queryParams.entrySet().stream()
+                .map(e -> URLEncoder.encode(e.getKey(), StandardCharsets.UTF_8) + "="
+                    + URLEncoder.encode(e.getValue(), StandardCharsets.UTF_8))
+                .collect(Collectors.joining("&"));
+            try {
+                response = indexerClient.post(DEFAULT_USER, ServiceType.INDEXER_V2, "reindex?" + query, body);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
+        lastReindexStatusCode = response.statusCode();
+        log.info("Reindex of kind='{}' with params={} returned status={}", kind, queryParams, lastReindexStatusCode);
     }
 
 }
