@@ -30,3 +30,25 @@ Feature: Extended Properties Indexing
     When I ingest records with the "index-property-welllog_v1_extended" with "data.default.viewers@tenant1" for a given "test:indexer<timestamp>:welllog:1.0.0"
     Then I should be able to search 1 record with index "test-indexer<timestamp>-welllog-1.0.0" by extended data field "data.WellboreName" and value "Facility_123"
     And I should be able search 1 documents for the "test-indexer<timestamp>-welllog-1.0.0" by bounding box query with points (30, -96) and  (29, -95) on field "data.SpatialLocation"
+
+  @indexer-extended
+  Scenario: Test BinGrid extended area and extent properties
+    Given the schema is created with the following kind
+      | kind                                                                               | index                                                                             | schemaFile                                                |
+      | osdu:wks:reference-data--IndexPropertyPathConfiguration:1.1.1                       | osdu-wks-reference-data--indexpropertypathconfiguration-1.1.1                      | osdu_wks_IndexPropertyPathConfiguration_v1_extended        |
+      | test:indexer<timestamp>:bingrid:1.1.0                                               | test-indexer<timestamp>-bingrid-1.1.0                                             | index_property_bingrid_v1_extended                        |
+    When I ingest records with the "osdu_wks_IndexPropertyPathConfiguration_bingrid_v1_extended" with "data.default.viewers@tenant1" for a given "osdu:wks:reference-data--IndexPropertyPathConfiguration:1.1.1"
+    Then I should be able to search 1 record with index "osdu-wks-reference-data--indexpropertypathconfiguration-1.1.1" by extended data field "data.Code" and value "bingrid"
+    When I ingest records with the "index_property_bingrid_v1_extended" with "data.default.viewers@tenant1" for a given "test:indexer<timestamp>:bingrid:1.1.0"
+    Then I should be able to search 1 record with index "test-indexer<timestamp>-bingrid-1.1.0" by extended data field "data.Area" and value "4.496916513E7"
+
+  @indexer-extended
+  Scenario: Test LineGeometry extended length and extent properties
+    Given the schema is created with the following kind
+      | kind                                                                               | index                                                                             | schemaFile                                                |
+      | osdu:wks:reference-data--IndexPropertyPathConfiguration:1.1.1                       | osdu-wks-reference-data--indexpropertypathconfiguration-1.1.1                      | osdu_wks_IndexPropertyPathConfiguration_v1_extended        |
+      | test:indexer<timestamp>:linegeometry:1.1.0                                          | test-indexer<timestamp>-linegeometry-1.1.0                                        | index_property_linegeometry_v1_extended                   |
+    When I ingest records with the "osdu_wks_IndexPropertyPathConfiguration_linegeometry_v1_extended" with "data.default.viewers@tenant1" for a given "osdu:wks:reference-data--IndexPropertyPathConfiguration:1.1.1"
+    Then I should be able to search 1 record with index "osdu-wks-reference-data--indexpropertypathconfiguration-1.1.1" by extended data field "data.Code" and value "linegeometry"
+    When I ingest records with the "index_property_linegeometry_v1_extended" with "data.default.viewers@tenant1" for a given "test:indexer<timestamp>:linegeometry:1.1.0"
+    Then I should be able to search 1 record with index "test-indexer<timestamp>-linegeometry-1.1.0" by extended data field "data.Length" and value "12021.88"

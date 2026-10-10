@@ -1,30 +1,15 @@
 variables:
-  AWS_BUILD_SUBDIR: provider/indexer-aws/build-aws
-  AWS_TEST_SUBDIR: testing/indexer-test-aws
-  AWS_CHART_SUBDIR: devops/aws/chart
-  AWS_SERVICE: indexer
-  AWS_SERVICE_GATEWAY: osdu-gateway
-  AWS_ENVIRONMENT: dev
-  AWS_DEPLOY_TARGET: TF
-  AWS_EKS_DEPLOYMENT_NAME: os-indexer
-
-  GCP_BUILD_SUBDIR: provider/indexer-gcp
-  GCP_INT_TEST_SUBDIR: testing/indexer-test-gcp
-  GCP_APPLICATION_NAME: osdu-indexer
-  GCP_ENVIRONMENT: dev
-  GCP_PROJECT: opendes
-  GCP_TENANT_NAME: opendes
-  GCP_DEPLOY_ENV: p4d
-  GCP_DOMAIN: cloud.slb-ds.com
-  GCP_STORAGE_URL: https://osdu-indexer-dot-opendes.appspot.com/api/storage/v2/
-
   AZURE_SERVICE: indexer
   AZURE_BUILD_SUBDIR: provider/indexer-azure
   AZURE_TEST_SUBDIR: testing/indexer-test-azure
-  SERVICE_JAVA_VERSION: "17"
+  # Full Docker Hub tag after "maven:" — flip to ...-temurin-25 for Java 25 compile/test.
+  # Keep in sync with SERVICE_JAVA_VERSION (plugin-download jobs).
+  # Dependency scanning: SBOM early-mover (sbom-maven.yml); do not set DS_JAVA_VERSION: "25".
+  MAVEN_IMAGE_TAG: "3.9.16-eclipse-temurin-25"
+  SERVICE_JAVA_VERSION: "3.9.16-eclipse-temurin-25"
 
-  CIMPL_OPENAPI_SPEC_PATH: docs/api/community/v2/openapi.yaml
-  CIMPL_OPENAPI_YAML_ROUTE: /api/indexer/v2/api-docs.yaml
+  CIMPL_OPENAPI_CONFIG_ROUTE: /api/indexer/v2/api-docs/swagger-config
+  SCHEMATHESIS_OPENAPI_YAML_ROUTE: /api/indexer/v2/api-docs.yaml
 
   CORE_BUILD_SUBDIR: indexer-core
   CORE_COVERAGE_THRESHOLD: "80"
@@ -44,22 +29,16 @@ include:
     file: "scanners/gitlab-ultimate.yml"
 
   - project: "osdu/platform/ci-cd-pipelines"
+    file: "scanners/sbom-maven.yml"
+
+  - project: "osdu/platform/ci-cd-pipelines"
     file: "reporting/reporting.yml"
 
   - project: "osdu/platform/ci-cd-pipelines"
     file: "publishing/common-pages.yml"
 
   - project: "osdu/platform/ci-cd-pipelines"
-    file: "cloud-providers/aws-global.yml"
-
-  - project: "osdu/platform/ci-cd-pipelines"
-    file: "cloud-providers/aws-maven.yml"
-
-  - project: "osdu/platform/ci-cd-pipelines"
     file: "cloud-providers/azure.yml"
-
-  - project: "osdu/platform/ci-cd-pipelines"
-    file: "cloud-providers/gc-global.yml"
 
   - project: "osdu/platform/ci-cd-pipelines"
     file: "cloud-providers/cimpl-global.yml"
@@ -68,30 +47,30 @@ include:
     file: "build/cimpl-otel.yml"
 
   - project: "osdu/platform/ci-cd-pipelines"
-    file: "cloud-providers/aws-one-pipeline.yml"
-
-  - project: "osdu/platform/ci-cd-pipelines"
     file: "cloud-providers/azure-one-pipeline.yml"
-
-  - project: "osdu/platform/ci-cd-pipelines"
-    file: "cloud-providers/gc-one-pipeline.yml"
 
   - project: "osdu/platform/ci-cd-pipelines"
     file: "reporting/schemathesis.yml"
 
-  - local: "devops/gc/pipeline/override-stages.yml"
-  - local: "devops/aws/pipeline/override-stages.yml"
   - local: "devops/core-plus/pipeline/override-stages.yml"
 
+# Java 25 FOSSA image (divido/fossa-with-cache!19). Shared fossa-maven.yml still
+# defaults to v0.10 (JDK 17); override until ci-cd-pipelines bumps the default.
+fossa-analyze:
+  image: $CI_REGISTRY/divido/fossa-with-cache:v0.11
+
+fossa-check-notice:
+  image: $CI_REGISTRY/divido/fossa-with-cache:v0.11
+
 download_plugins:
-  image: maven:3.8.3-openjdk-17-slim
+  image: maven:${SERVICE_JAVA_VERSION}
   stage: build
   tags: ["osdu-small"]
   variables:
     OQM_PACKAGE_REGISRTY_URL: "https://community.opengroup.org/api/v4/projects/1450/packages/maven"
-    OQM_VERSION: "0.28.2"
+    OQM_VERSION: "1.0.0"
     APD_PACKAGE_REGISTRY_URL: "https://community.opengroup.org/api/v4/projects/1445/packages/maven"
-    APD_VERSION: "0.27.0-rc1"
+    APD_VERSION: "1.0.0"
 
   artifacts:
     paths:
@@ -105,11 +84,4 @@ download_plugins:
 
   only:
     variables:
-      - $CIMPL == '1'
-
-aws-test-java:
-  image: $CI_REGISTRY/osdu/platform/deployment-and-operations/base-containers-aws/aws-maven/aws-maven:v2.1
-  tags: ["aws-internal-test-ubuntu22.04"]
-
-schemathesis-tests:
-  extends: .schemathesis-tests-template
+      - $PROTECTED == '1'
