@@ -609,28 +609,46 @@ public class IndexerServiceImpl implements IndexerService {
         for (IndexSchema schema : schemas) {
             String index = this.elasticIndexNameResolver.getIndexNameFromKind(schema.getKind());
 
-            // check if index exist and sync meta attribute schema if required
-            if (this.indicesService.isIndexReady(restClient, index)) {
-                try {
-                    this.mappingService.syncMetaAttributeIndexMappingIfRequired(restClient, schema);
-                } catch (ElasticsearchMappingException e) {
-                    List<Record> schemaRecords = recordIndexerPayload.getRecords()
-                        .stream()
-                        .filter(schemaRecord -> Objects.equals(schemaRecord.getKind(), schema.getKind()))
-                        .toList();
-                    for (Record schemaRecord : schemaRecords) {
-                        this.jobStatus.addOrUpdateRecordStatus(schemaRecord.getId(), IndexingStatus.FAIL, e.getStatus(), String.format("Error reconciling index mapping with kind schema from schema-service: %s", e.getMessage()));
-                        schemaRecord.setData(Collections.emptyMap());
-                    }
+            if (isIndexCreationRequired(restClient, index, schema, recordIndexerPayload)) {
+                Map<String, Object> mapping = this.mappingService.getIndexMappingFromRecordSchema(schema);
+                if (!this.indicesService.createIndex(restClient, index, null, mapping)) {
+                    throw new AppException(HttpStatus.SC_INTERNAL_SERVER_ERROR, ELASTIC_ERROR, "Error creating index.", String.format("Failed to get confirmation from elastic server for index: %s", index));
                 }
-                continue;
             }
+        }
+    }
 
-            // create index
-            Map<String, Object> mapping = this.mappingService.getIndexMappingFromRecordSchema(schema);
-            if (!this.indicesService.createIndex(restClient, index, null, mapping)) {
-                throw new AppException(HttpStatus.SC_INTERNAL_SERVER_ERROR, ELASTIC_ERROR, "Error creating index.", String.format("Failed to get confirmation from elastic server for index: %s", index));
+    private boolean isIndexCreationRequired(ElasticsearchClient restClient, String index, IndexSchema schema, RecordIndexerPayload recordIndexerPayload) throws Exception {
+        if (!this.indicesService.isIndexReady(restClient, index)) {
+            return true;
+        }
+
+        try {
+            this.mappingService.syncMetaAttributeIndexMappingIfRequired(restClient, schema);
+            return false;
+        } catch (Exception e) {
+            if (isIndexNotFound(e)) {
+                // stale cache: the index was deleted after the entry was written; evict so it gets recreated
+                this.indicesService.invalidateCache(index);
+                jaxRsDpsLog.warning(String.format("index %s was deleted while cached as existing; recreating it", index));
+                return true;
             }
+            if (e instanceof ElasticsearchMappingException mappingException) {
+                failRecordsWithUnreconciledMapping(recordIndexerPayload, schema, mappingException);
+                return false;
+            }
+            throw e;
+        }
+    }
+
+    private void failRecordsWithUnreconciledMapping(RecordIndexerPayload recordIndexerPayload, IndexSchema schema, ElasticsearchMappingException mappingException) {
+        List<Record> schemaRecords = recordIndexerPayload.getRecords()
+            .stream()
+            .filter(schemaRecord -> Objects.equals(schemaRecord.getKind(), schema.getKind()))
+            .toList();
+        for (Record schemaRecord : schemaRecords) {
+            this.jobStatus.addOrUpdateRecordStatus(schemaRecord.getId(), IndexingStatus.FAIL, mappingException.getStatus(), String.format("Error reconciling index mapping with kind schema from schema-service: %s", mappingException.getMessage()));
+            schemaRecord.setData(Collections.emptyMap());
         }
     }
 
@@ -696,6 +714,7 @@ public class IndexerServiceImpl implements IndexerService {
 
         List<String> failureRecordIds = new LinkedList<>();
         List<String> retryUpsertRecordIds = new LinkedList<>();
+        Set<String> deletedIndices = new LinkedHashSet<>();
         int failedRequestStatus = 500;
         Exception failedRequestCause = null;
 
@@ -710,17 +729,26 @@ public class IndexerServiceImpl implements IndexerService {
             int failedResponses = 0;
             for (BulkResponseItem bulkItemResponse : bulkResponse.items()) {
                 if (bulkItemResponse.error() != null) {
+                    String recordId = bulkItemResponse.id();
+                    if (xcollaborationHolder.isFeatureEnabledAndHeaderExists()) {
+                        // bulk item ids carry the collaboration namespace; strip it so retry and status tracking match the original record ids
+                        recordId = xcollaborationHolder.removeXcollaborationValue(recordId);
+                    }
                     String failureMessage = String.format("elasticsearch bulk service status: %s | id: %s | message: %s",
                         bulkItemResponse.status(),
-                        bulkItemResponse.id(),
+                        recordId,
                         buildErrorReason(bulkItemResponse.error()));
                     bulkFailures.add(failureMessage);
-                    this.jobStatus.addOrUpdateRecordStatus(bulkItemResponse.id(), IndexingStatus.FAIL, bulkItemResponse.status(), buildErrorReason(bulkItemResponse.error()));
+                    this.jobStatus.addOrUpdateRecordStatus(recordId, IndexingStatus.FAIL, bulkItemResponse.status(), buildErrorReason(bulkItemResponse.error()));
+
+                    if (isIndexNotFound(bulkItemResponse)) {
+                        deletedIndices.add(bulkItemResponse.index());
+                    }
 
                     if (bulkItemResponse.status() == HttpStatus.SC_BAD_REQUEST && isParsingException(bulkItemResponse.error())) {
-                        retryUpsertRecordIds.add(bulkItemResponse.id());
+                        retryUpsertRecordIds.add(recordId);
                     } else if (canIndexerRetry(bulkItemResponse)) {
-                        failureRecordIds.add(bulkItemResponse.id());
+                        failureRecordIds.add(recordId);
 
                         if (failedRequestCause == null) {
                             failedRequestCause = new Exception(bulkItemResponse.error().reason());
@@ -747,6 +775,11 @@ public class IndexerServiceImpl implements IndexerService {
             }
             if (!bulkFailures.isEmpty()) {
                 this.jaxRsDpsLog.warning(bulkFailures);
+            }
+            if (!deletedIndices.isEmpty()) {
+                // evict so the re-enqueued upserts (canIndexerRetry) recreate these indices instead of failing the same way again
+                deletedIndices.forEach(this.indicesService::invalidateCache);
+                this.jaxRsDpsLog.warning(String.format("evicted stale index-exists cache entries for deleted indices: %s", deletedIndices));
             }
 
             jaxRsDpsLog.info(String.format("records in elasticsearch service bulk request: %s | successful: %s | failed: %s | time taken for bulk request: %d milliseconds",
@@ -816,9 +849,33 @@ public class IndexerServiceImpl implements IndexerService {
         return indexerPayload;
     }
 
+    private static boolean isIndexNotFound(Exception exception) {
+        if (exception instanceof ElasticsearchException elasticException) {
+            return elasticException.status() == HttpStatus.SC_NOT_FOUND;
+        }
+        if (exception instanceof ElasticsearchMappingException mappingException) {
+            return mappingException.getStatus() == HttpStatus.SC_NOT_FOUND;
+        }
+        if (exception instanceof AppException appException) {
+            return appException.getError().getCode() == HttpStatus.SC_NOT_FOUND;
+        }
+        return false;
+    }
+
+    private static boolean isIndexNotFound(BulkResponseItem bulkItemResponse) {
+        return bulkItemResponse.status() == HttpStatus.SC_NOT_FOUND
+            && bulkItemResponse.error() != null
+            && "index_not_found_exception".equals(bulkItemResponse.error().type());
+    }
+
     private boolean canIndexerRetry(BulkResponseItem bulkItemResponse) {
         if (RETRY_ELASTIC_EXCEPTION.contains(bulkItemResponse.status())) {
             return true;
+        }
+
+        if (isIndexNotFound(bulkItemResponse)) {
+            // deletes against a missing index need no retry; upserts must be re-enqueued so the redelivery recreates the evicted index
+            return bulkItemResponse.operationType() != co.elastic.clients.elasticsearch.core.bulk.OperationType.Delete;
         }
 
         return (bulkItemResponse.operationType() == co.elastic.clients.elasticsearch.core.bulk.OperationType.Create ||

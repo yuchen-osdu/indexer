@@ -36,7 +36,6 @@ build/
 target/*
 */target
 /mvn
-provider/indexer-gcp/bin/*
 
 # Environment configuration
 *.env
@@ -46,3 +45,4 @@ provider/indexer-gcp/bin/*
 
 # Local history plugin
 .history/*
+app.jar
