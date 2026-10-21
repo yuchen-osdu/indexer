@@ -166,7 +166,13 @@ public class StorageServiceImpl implements StorageService {
         request.setEntity(new StringEntity(body, StandardCharsets.UTF_8));
         // we do not need retry on storage based on not found record
         HttpResponse response = httpClientHandler.sendRequest(request, headers);
-        if (response.getResponseCode() > 299) {
+        int status = response.getResponseCode();
+        // Storage 4xx (invalid record id, and similar) is a client error. Wrapping it as 500
+        // makes schema-invalid ids look like a server failure.
+        if (status >= 400 && status < 500) {
+            throw new AppException(status, "Bad request", response.getBody());
+        }
+        if (status > 299) {
             throw new AppException(HttpStatus.SC_INTERNAL_SERVER_ERROR, "Internal Error", response.getBody());
         }
         try {

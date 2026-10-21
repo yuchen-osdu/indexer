@@ -69,8 +69,12 @@ public class PartitionSetupApi {
             @ApiResponse(responseCode = "503", description = "Service Unavailable", content = {@Content(schema = @Schema(implementation = AppError.class))})
     })
     @PreAuthorize("@authorizationFilter.hasPermission('" + Role.USER_OPS + "')")
-    @PutMapping(path = "/provision", consumes = "application/json")
-    public ResponseEntity<?> provisionPartition(@RequestHeader(DATA_PARTITION_ID) String dataPartitionId) throws IOException {
+    // No request body. consumes=application/json made Spring return 415 before auth,
+    // which Schemathesis reports as a missing Authorization header that was not rejected.
+    // ResponseEntity<Void>: a 200 with no body. ResponseEntity<?> made springdoc document
+    // application/json, which Schemathesis then rejects because the body is empty.
+    @PutMapping(path = "/provision")
+    public ResponseEntity<Void> provisionPartition(@RequestHeader(DATA_PARTITION_ID) String dataPartitionId) throws IOException {
         this.jaxRsDpsLog.info("applying cluster configuration for partition: " + dataPartitionId);
         this.clusterConfigurationService.updateClusterConfiguration();
         this.jaxRsDpsLog.info("creating default alias for all pre-exiting indices for partition: " + dataPartitionId);

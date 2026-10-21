@@ -204,6 +204,23 @@ public class StorageServiceImplTest {
     }
 
     @Test
+    public void should_propagateClientError_whenStorageRejectsRecordIds() throws URISyntaxException {
+        HttpResponse httpResponse = mock(HttpResponse.class);
+        when(httpResponse.getResponseCode()).thenReturn(400);
+        when(httpResponse.getBody()).thenReturn(
+                "{\"code\":400,\"reason\":\"Validation error.\",\"message\":\"Invalid record format: 'false'\"}");
+        when(configurationProperties.getStorageQueryRecordHost()).thenReturn("storageUrl");
+        when(this.httpClientHandler.sendRequest(any(), any())).thenReturn(httpResponse);
+
+        try {
+            this.sut.getStorageRecords(new ArrayList<>(ids));
+            fail("expected AppException");
+        } catch (AppException e) {
+            assertEquals(400, e.getError().getCode());
+        }
+    }
+
+    @Test
     public void should_returnStorageRecords_givenRecordIds_getValidStorageRecordsTest() throws URISyntaxException {
 
         String validDataFromStorage = "{\"records\":[{\"id\":\"tenant1:doc:1dbf528e0e0549cab7a08f29fbfc8465\", \"version\":1, \"kind\":\"tenant:test:test:1.0.0\"}," +
