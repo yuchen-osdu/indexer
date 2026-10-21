@@ -8,8 +8,11 @@ variables:
   MAVEN_IMAGE_TAG: "3.9.16-eclipse-temurin-25"
   SERVICE_JAVA_VERSION: "3.9.16-eclipse-temurin-25"
 
+  # Discover OpenAPI specs via springdoc swagger-config.
+  # Do not set CIMPL_OPENAPI_YAML_ROUTE or CIMPL_OPENAPI_SPEC_PATH — those bypass
+  # discovery and pin openapi-spec checks to a single route (ci-cd-pipelines#65).
+  # Schemathesis routes are set via .schemathesis-indexer-matrix below.
   CIMPL_OPENAPI_CONFIG_ROUTE: /api/indexer/v2/api-docs/swagger-config
-  SCHEMATHESIS_OPENAPI_YAML_ROUTE: /api/indexer/v2/api-docs.yaml
 
   CORE_BUILD_SUBDIR: indexer-core
   CORE_COVERAGE_THRESHOLD: "80"
@@ -85,3 +88,37 @@ download_plugins:
   only:
     variables:
       - $PROTECTED == '1'
+
+# Schemathesis jobs load schemathesis-tests/schemathesis.toml via
+# SCHEMATHESIS_CONFIG_FILE when present (see reporting/schemathesis.yml).
+.schemathesis-indexer-common:
+  variables:
+    # schemathesis-base latest image from master
+    SCHEMATHESIS_BASE_IMAGE: community.opengroup.org:5555/osdu/platform/system/sdks/schemathesis-base:latest
+
+.schemathesis-indexer-matrix:
+  parallel:
+    matrix:
+      - SCHEMATHESIS_OPENAPI_YAML_ROUTE:
+          - "/api/indexer/v2/api-docs.yaml"
+
+schemathesis-dev-tests:
+  extends:
+    - .cimpl-dev-variables
+    - .schemathesis-osdu-main-tests-template
+    - .schemathesis-indexer-common
+    - .schemathesis-indexer-matrix
+
+schemathesis-dev-backup-tests:
+  extends:
+    - .cimpl-dev-backup-variables
+    - .schemathesis-osdu-main-tests-template
+    - .schemathesis-indexer-common
+    - .schemathesis-indexer-matrix
+
+schemathesis-prod-tests:
+  extends:
+    - .cimpl-prod-variables
+    - .schemathesis-osdu-main-tests-template
+    - .schemathesis-indexer-common
+    - .schemathesis-indexer-matrix

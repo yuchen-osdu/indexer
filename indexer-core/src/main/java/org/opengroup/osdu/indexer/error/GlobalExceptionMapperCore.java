@@ -24,15 +24,28 @@ import org.opengroup.osdu.indexer.schema.converter.exeption.SchemaProcessingExce
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.lang.NonNull;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import org.opengroup.osdu.core.common.model.http.AppException;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Order(Ordered.HIGHEST_PRECEDENCE - 1)
 @ControllerAdvice
@@ -79,6 +92,119 @@ public class GlobalExceptionMapperCore extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleSchemaProcessingException(SchemaProcessingException e) {
         return this.getErrorResponse(
                 new AppException(HttpStatus.BAD_REQUEST.value(), "Error processing schema.", e.getMessage(), e));
+    }
+
+    /**
+     * Unsupported request {@code Content-Type} (HTTP 415). Without this override,
+     * {@link ResponseEntityExceptionHandler} returns RFC 7807 {@code application/problem+json}.
+     */
+    @Override
+    @NonNull
+    protected ResponseEntity<Object> handleHttpMediaTypeNotSupported(
+            @NonNull HttpMediaTypeNotSupportedException e,
+            @NonNull HttpHeaders headers,
+            @NonNull HttpStatusCode status,
+            @NonNull WebRequest request) {
+        return this.getErrorResponse(
+                new AppException(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value(), "Unsupported media type.",
+                        e.getMessage(), e));
+    }
+
+    /**
+     * Missing or unreadable request body. Without this override the default response is
+     * {@code application/problem+json}.
+     */
+    @Override
+    @NonNull
+    protected ResponseEntity<Object> handleHttpMessageNotReadable(
+            @NonNull HttpMessageNotReadableException e,
+            @NonNull HttpHeaders headers,
+            @NonNull HttpStatusCode status,
+            @NonNull WebRequest request) {
+        return this.getErrorResponse(
+                new AppException(HttpStatus.BAD_REQUEST.value(), "Request is not valid.",
+                        "Required request body is missing.", e));
+    }
+
+    /**
+     * Query-parameter conversion failure (for example {@code force_clean=null}). Without this
+     * override Spring returns RFC 7807 {@code application/problem+json}.
+     */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    protected ResponseEntity<Object> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException e) {
+        String errorMessage = String.format("Invalid value '%s' for parameter '%s'", e.getValue(), e.getName());
+        return this.getErrorResponse(
+                new AppException(HttpStatus.BAD_REQUEST.value(), "Validation error.", errorMessage, e));
+    }
+
+    /**
+     * Method-parameter validation ({@code @ValidKind} and similar). Default handling is
+     * {@code application/problem+json}.
+     */
+    @Override
+    @NonNull
+    protected ResponseEntity<Object> handleHandlerMethodValidationException(
+            @NonNull HandlerMethodValidationException e,
+            @NonNull HttpHeaders headers,
+            @NonNull HttpStatusCode status,
+            @NonNull WebRequest request) {
+        List<String> errors = new ArrayList<>();
+        e.getAllValidationResults().forEach(result ->
+                result.getResolvableErrors().forEach(error -> {
+                    String message = error.getDefaultMessage();
+                    if (StringUtils.isNotBlank(message)) {
+                        errors.add(message);
+                    }
+                }));
+        String errorMessage = errors.isEmpty() ? "Validation error." : String.join("; ", errors);
+        return this.getErrorResponse(
+                new AppException(HttpStatus.BAD_REQUEST.value(), "Validation error.", errorMessage, e));
+    }
+
+    /**
+     * Missing required {@code @RequestHeader} and other servlet binding failures
+     * (for example {@code data-partition-id} on {@code PUT /partitions/provision}).
+     * {@code MissingRequestHeaderException} is a {@link ServletRequestBindingException}.
+     * Without this override the response is {@code application/problem+json}.
+     */
+    @Override
+    @NonNull
+    protected ResponseEntity<Object> handleServletRequestBindingException(
+            @NonNull ServletRequestBindingException e,
+            @NonNull HttpHeaders headers,
+            @NonNull HttpStatusCode status,
+            @NonNull WebRequest request) {
+        return this.getErrorResponse(
+                new AppException(HttpStatus.BAD_REQUEST.value(), "Request is not valid.", e.getMessage(), e));
+    }
+
+    /**
+     * Missing required {@code @RequestParam} (for example {@code kind} on {@code DELETE /index}).
+     * Without this override the response is {@code application/problem+json}.
+     */
+    @Override
+    @NonNull
+    protected ResponseEntity<Object> handleMissingServletRequestParameter(
+            @NonNull MissingServletRequestParameterException e,
+            @NonNull HttpHeaders headers,
+            @NonNull HttpStatusCode status,
+            @NonNull WebRequest request) {
+        return this.getErrorResponse(
+                new AppException(HttpStatus.BAD_REQUEST.value(), "Request is not valid.", e.getMessage(), e));
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(
+            MethodArgumentNotValidException ex,
+            @NonNull HttpHeaders headers,
+            @NonNull HttpStatusCode status,
+            @NonNull WebRequest request) {
+        String errorMessage = ex.getBindingResult().getAllErrors().stream()
+                .map(error -> error.getDefaultMessage() == null ? "Validation error." : error.getDefaultMessage())
+                .findFirst()
+                .orElse("Validation error.");
+        return this.getErrorResponse(
+                new AppException(HttpStatus.BAD_REQUEST.value(), "Validation error.", errorMessage, ex));
     }
 
     @ExceptionHandler(Exception.class)

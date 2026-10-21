@@ -36,6 +36,7 @@ import org.springframework.context.annotation.Configuration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 @Configuration
 public class SwaggerConfiguration {
@@ -87,20 +88,30 @@ public class SwaggerConfiguration {
                                 .contact(new Contact().name(configurationProperties.getApiContactName()).email(configurationProperties.getApiContactEmail()));
         }
 
+        /**
+         * Operations that do not take a required {@code data-partition-id} header.
+         * {@code provisionPartition} declares the header on the method.
+         * Info and health probes are public and succeed without a partition.
+         */
+        private static final Set<String> OPERATIONS_WITHOUT_ADDED_PARTITION_HEADER = Set.of(
+                        "provisionPartition",
+                        "info",
+                        "livenessCheck",
+                        "readinessCheck");
+
         @Bean
         public OperationCustomizer operationCustomizer() {
                 return (operation, handlerMethod) -> {
+                        if (OPERATIONS_WITHOUT_ADDED_PARTITION_HEADER.contains(operation.getOperationId())) {
+                                return operation;
+                        }
                         Parameter dataPartitionId = new Parameter()
                                         .name(DpsHeaders.DATA_PARTITION_ID)
                                         .description("Tenant Id")
                                         .in("header")
                                         .required(true)
                                         .schema(new StringSchema());
-                        // PartitionSetupApi - provisionPartition endpoint has 'data-partition-id' header defined at method level.
-                                        if (!operation.getOperationId().equals("provisionPartition"))
-                                return operation.addParametersItem(dataPartitionId);
-                        else
-                                return operation;
+                        return operation.addParametersItem(dataPartitionId);
                 };
         }
 
