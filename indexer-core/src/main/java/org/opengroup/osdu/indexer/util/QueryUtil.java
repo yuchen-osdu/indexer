@@ -32,19 +32,19 @@ public class QueryUtil {
 
     public static Query createQueryForParentConfigs(String childKind) {
         String queryString =
-                String.format("%s:ParentToChildren AND %s:\"%s\"", RELATIONSHIP_DIRECTION_FIELD, RELATED_OBJECT_KIND_FIELD, childKind);
+                String.format("%s:ParentToChildren AND %s:\"%s\"", RELATIONSHIP_DIRECTION_FIELD, RELATED_OBJECT_KIND_FIELD, escapePhrase(childKind));
         return createQueryForRelatedConfig(queryString);
     }
 
     public static Query createQueryForChildrenConfigs(String parentKind) {
         String queryString =
-                String.format("%s:ChildToParent AND %s:\"%s\"", RELATIONSHIP_DIRECTION_FIELD, RELATED_OBJECT_KIND_FIELD, parentKind);
+                String.format("%s:ChildToParent AND %s:\"%s\"", RELATIONSHIP_DIRECTION_FIELD, RELATED_OBJECT_KIND_FIELD, escapePhrase(parentKind));
         return createQueryForRelatedConfig(queryString);
     }
 
     public static Query createQueryForConfigurations(String kind) {
-        Query singleQuery = createSimpleTextQuery(String.format("data.Code:\"%s\"", kind));
-        String nestedQueryString = String.format("%s:\"%s\"", RELATED_OBJECT_KIND_FIELD, kind);
+        Query singleQuery = createSimpleTextQuery(String.format("data.Code:\"%s\"", escapePhrase(kind)));
+        String nestedQueryString = String.format("%s:\"%s\"", RELATED_OBJECT_KIND_FIELD, escapePhrase(kind));
         Query nestedQuery = createQueryForRelatedConfig(nestedQueryString);
 
         BoolQuery.Builder boolQueryBuilder = QueryBuilders.bool();
@@ -60,6 +60,13 @@ public class QueryUtil {
         return queryBuilder.build();
     }
 
+    public static String escapePhrase(String text) {
+        if (text == null) {
+            return null;
+        }
+        return text.replace("\\", "\\\\").replace("\"", "\\\"");
+    }
+
     public static String createIdsFilter(List<String> ids) {
         StringBuilder idsBuilder = new StringBuilder();
         for (String id : ids) {
@@ -67,7 +74,7 @@ public class QueryUtil {
                 idsBuilder.append(" OR ");
             }
             idsBuilder.append("\"");
-            idsBuilder.append(PropertyUtil.removeIdPostfix(id));
+            idsBuilder.append(escapePhrase(PropertyUtil.removeIdPostfix(id)));
             idsBuilder.append("\"");
         }
         return idsBuilder.toString();
