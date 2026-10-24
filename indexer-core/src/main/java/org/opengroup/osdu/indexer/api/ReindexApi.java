@@ -73,6 +73,7 @@ public class ReindexApi {
             @ApiResponse(responseCode = "401", description = "Unauthorized",  content = {@Content(schema = @Schema(implementation = AppError.class))}),
             @ApiResponse(responseCode = "403", description = "User not authorized to perform the action",  content = {@Content(schema = @Schema(implementation = AppError.class))}),
             @ApiResponse(responseCode = "404", description = "Not Found",  content = {@Content(schema = @Schema(implementation = AppError.class))}),
+            @ApiResponse(responseCode = "415", description = "Unsupported Media Type", content = {@Content(schema = @Schema(implementation = AppError.class))}),
             @ApiResponse(responseCode = "500", description = "Internal Server Error",  content = {@Content(schema = @Schema(implementation = AppError.class))}),
             @ApiResponse(responseCode = "502", description = "Bad Gateway",  content = {@Content(schema = @Schema(implementation = AppError.class))}),
             @ApiResponse(responseCode = "503", description = "Service Unavailable",  content = {@Content(schema = @Schema(implementation = AppError.class))})
@@ -97,13 +98,14 @@ public class ReindexApi {
             @ApiResponse(responseCode = "401", description = "Unauthorized",  content = {@Content(schema = @Schema(implementation = AppError.class))}),
             @ApiResponse(responseCode = "403", description = "User not authorized to perform the action",  content = {@Content(schema = @Schema(implementation = AppError.class))}),
             @ApiResponse(responseCode = "404", description = "Not Found",  content = {@Content(schema = @Schema(implementation = AppError.class))}),
+            @ApiResponse(responseCode = "415", description = "Unsupported Media Type", content = {@Content(schema = @Schema(implementation = AppError.class))}),
             @ApiResponse(responseCode = "500", description = "Internal Server Error",  content = {@Content(schema = @Schema(implementation = AppError.class))}),
             @ApiResponse(responseCode = "502", description = "Bad Gateway",  content = {@Content(schema = @Schema(implementation = AppError.class))}),
             @ApiResponse(responseCode = "503", description = "Service Unavailable",  content = {@Content(schema = @Schema(implementation = AppError.class))})
     })
     @PreAuthorize("@authorizationFilter.hasPermission('" + SearchServiceRole.ADMIN + "')")
-    @PostMapping
-    public ResponseEntity<?> reindex(@NotNull @Valid @RequestBody RecordReindexRequest recordReindexRequest,
+    @PostMapping(consumes = "application/json")
+    public ResponseEntity<Void> reindex(@NotNull @Valid @RequestBody RecordReindexRequest recordReindexRequest,
                                      @Parameter(description = "Force Clean")
             @RequestParam(value = "force_clean", defaultValue = "false") boolean forceClean) throws IOException {
         this.reIndexService.reindexKind(recordReindexRequest, this.indexSchemaService.isStorageSchemaSyncRequired(recordReindexRequest.getKind(), forceClean), true);
@@ -125,7 +127,7 @@ public class ReindexApi {
     })
     @PreAuthorize("@authorizationFilter.hasPermission('" + Role.USER_OPS + "')")
     @PatchMapping
-    public ResponseEntity<String> fullReindex( @Parameter(description = "Force Clean")
+    public ResponseEntity<Void> fullReindex( @Parameter(description = "Force Clean")
             @RequestParam(value = "force_clean", defaultValue = "false") boolean forceClean) throws IOException {
         this.reIndexService.fullReindex(forceClean);
         return new ResponseEntity<>(org.springframework.http.HttpStatus.OK);

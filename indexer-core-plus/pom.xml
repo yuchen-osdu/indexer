@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.opengroup.osdu.indexer</groupId>
         <artifactId>indexer-service</artifactId>
-        <version>0.30.0-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>indexer-core-plus</artifactId>
@@ -17,12 +17,12 @@
         <dependency>
             <groupId>org.opengroup.osdu</groupId>
             <artifactId>core-plus-common-lib</artifactId>
-            <version>0.27.2</version>
+            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.opengroup.osdu.indexer</groupId>
             <artifactId>indexer-core</artifactId>
-            <version>0.30.0-SNAPSHOT</version>
+            <version>${revision}</version>
         </dependency>
         <!--
             os-core-common declares lettuce-core as provided. core-plus is packaged
@@ -61,7 +61,6 @@
         <dependency>
             <groupId>org.codehaus.plexus</groupId>
             <artifactId>plexus-utils</artifactId>
-            <version>4.0.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -79,11 +78,10 @@
             <artifactId>spring-webmvc</artifactId>
         </dependency>
 
-        <!--    Mappers    -->
         <dependency>
             <groupId>org.opengroup.osdu</groupId>
             <artifactId>os-oqm-core</artifactId>
-            <version>0.28.2</version>
+            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
