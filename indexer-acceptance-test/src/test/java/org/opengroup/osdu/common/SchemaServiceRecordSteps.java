@@ -19,6 +19,7 @@ package org.opengroup.osdu.common;
 import io.cucumber.datatable.DataTable;
 import lombok.extern.slf4j.Slf4j;
 import org.opengroup.osdu.core.test.client.ClientException;
+import org.opengroup.osdu.models.SharedConfigurationIndexValidator;
 import org.opengroup.osdu.models.TestIndex;
 import org.opengroup.osdu.models.TestIndexSetup;
 import org.opengroup.osdu.models.schema.PersistentSchemaTestIndex;
@@ -27,6 +28,7 @@ import java.util.List;
 
 @Slf4j
 public class SchemaServiceRecordSteps extends RecordSteps {
+    private static final String SHARED_CONFIGURATION_KIND = "osdu:wks:reference-data--IndexPropertyPathConfiguration:1.1.1";
     private static boolean runStatefulScenario = false;
 
     public SchemaServiceRecordSteps() {
@@ -52,6 +54,17 @@ public class SchemaServiceRecordSteps extends RecordSteps {
         testIndex.setKind(testIndex.getSchemaModel().getSchemaInfo().getSchemaIdentity().getId());
 
         super.getInputIndexMap().put(testIndex.getKind(), testIndex);
+
+        // Shared across runs and pipelines; deleting it removes configurations other runs rely on
+        if (SHARED_CONFIGURATION_KIND.equals(testIndex.getKind())) {
+            SharedConfigurationIndexValidator.ensureValid(
+                    testIndex.getKind(),
+                    testIndex.getIndex(),
+                    schemaClient,
+                    elasticClient,
+                    indexerClient);
+            return;
+        }
 
         // Delete any pre-existing index, then wait for the async schema event
         // (fired by setupSchema above) to be processed and potentially recreate
