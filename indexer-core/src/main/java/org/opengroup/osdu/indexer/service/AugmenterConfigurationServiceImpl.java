@@ -397,6 +397,7 @@ public class AugmenterConfigurationServiceImpl implements AugmenterConfiguration
                         // Same here to use cache to
                         // cache configuration used by method getConfiguration(String kind)
                         augmenterConfigurationCache.put(code, augmenterConfiguration);
+                        augmenterConfigurationEnabledCache.put(code, true);
                     }
                     else {
                         jaxRsDpsLog.warning(String.format("resolveKindsForSchemaUpdate: configuration with id %s is invalid", configurationId));
