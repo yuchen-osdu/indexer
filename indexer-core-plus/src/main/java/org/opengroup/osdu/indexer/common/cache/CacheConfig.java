@@ -26,10 +26,14 @@ import org.opengroup.osdu.core.common.partition.PartitionInfo;
 import org.opengroup.osdu.core.common.provider.interfaces.IElasticCredentialsCache;
 import org.opengroup.osdu.core.common.provider.interfaces.IIndexCache;
 import org.opengroup.osdu.core.cache.RedisCacheBuilder;
+import org.opengroup.osdu.indexer.cache.interfaces.IAugmenterConfigurationCache;
+import org.opengroup.osdu.indexer.cache.interfaces.IAugmenterConfigurationEnabledCache;
 import org.opengroup.osdu.indexer.common.di.CorePlusConfigurationProperties;
+import org.opengroup.osdu.indexer.model.Constants;
 import org.opengroup.osdu.indexer.provider.interfaces.ISchemaCache;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 @Configuration
 @RequiredArgsConstructor
@@ -91,6 +95,34 @@ public class CacheConfig {
                 String.class,
                 Boolean.class
         );
+    }
+
+    @Bean
+    @Primary
+    public IAugmenterConfigurationCache augmenterConfigurationRedisCache(CorePlusConfigurationProperties appServiceConfig) {
+        return new AugmenterConfigurationRedisCache(schemaCacheBuilder.buildRedisCache(
+                appServiceConfig.getRedisSearchHost(),
+                Integer.parseInt(appServiceConfig.getRedisSearchPort()),
+                appServiceConfig.getRedisSearchPassword(),
+                Constants.SPEC_CACHE_EXPIRATION,
+                appServiceConfig.getRedisSearchWithSsl(),
+                String.class,
+                String.class
+        ));
+    }
+
+    @Bean
+    @Primary
+    public IAugmenterConfigurationEnabledCache augmenterConfigurationEnabledRedisCache(CorePlusConfigurationProperties appServiceConfig) {
+        return new AugmenterConfigurationEnabledRedisCache(redisCacheBuilder.buildRedisCache(
+                appServiceConfig.getRedisSearchHost(),
+                Integer.parseInt(appServiceConfig.getRedisSearchPort()),
+                appServiceConfig.getRedisSearchPassword(),
+                Constants.SPEC_CACHE_EXPIRATION,
+                appServiceConfig.getRedisSearchWithSsl(),
+                String.class,
+                Boolean.class
+        ));
     }
 
     @Bean

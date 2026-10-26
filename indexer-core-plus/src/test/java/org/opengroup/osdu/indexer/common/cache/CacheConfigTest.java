@@ -44,7 +44,10 @@ import org.opengroup.osdu.core.common.model.search.ClusterSettings;
 import org.opengroup.osdu.core.common.partition.PartitionInfo;
 import org.opengroup.osdu.core.common.provider.interfaces.IElasticCredentialsCache;
 import org.opengroup.osdu.core.common.provider.interfaces.IIndexCache;
+import org.opengroup.osdu.indexer.cache.interfaces.IAugmenterConfigurationCache;
+import org.opengroup.osdu.indexer.cache.interfaces.IAugmenterConfigurationEnabledCache;
 import org.opengroup.osdu.indexer.common.di.CorePlusConfigurationProperties;
+import org.opengroup.osdu.indexer.model.Constants;
 import org.opengroup.osdu.indexer.provider.interfaces.ISchemaCache;
 
 @ExtendWith(MockitoExtension.class)
@@ -500,6 +503,54 @@ class CacheConfigTest {
                 anyBoolean(),
                 any(),
                 any()
+        );
+    }
+
+    @Test
+    void shouldCreateAugmenterConfigurationRedisCacheWithSpecExpiration() {
+        // Arrange
+        when(schemaCacheBuilder.buildRedisCache(
+                anyString(), anyInt(), anyString(), anyInt(), anyBoolean(),
+                any(), any()
+        )).thenReturn(mockSchemaCache);
+
+        // Act
+        IAugmenterConfigurationCache result = cacheConfig.augmenterConfigurationRedisCache(appProperties);
+
+        // Assert
+        assertInstanceOf(AugmenterConfigurationRedisCache.class, result);
+        verify(schemaCacheBuilder).buildRedisCache(
+                TEST_REDIS_HOST,
+                Integer.parseInt(TEST_REDIS_PORT),
+                TEST_REDIS_PASSWORD,
+                Constants.SPEC_CACHE_EXPIRATION,
+                TEST_WITH_SSL,
+                String.class,
+                String.class
+        );
+    }
+
+    @Test
+    void shouldCreateAugmenterConfigurationEnabledRedisCacheWithSpecExpiration() {
+        // Arrange
+        when(redisCacheBuilder.buildRedisCache(
+                anyString(), anyInt(), anyString(), anyInt(), anyBoolean(),
+                any(), any()
+        )).thenReturn(mockRedisCache);
+
+        // Act
+        IAugmenterConfigurationEnabledCache result = cacheConfig.augmenterConfigurationEnabledRedisCache(appProperties);
+
+        // Assert
+        assertInstanceOf(AugmenterConfigurationEnabledRedisCache.class, result);
+        verify(redisCacheBuilder).buildRedisCache(
+                TEST_REDIS_HOST,
+                Integer.parseInt(TEST_REDIS_PORT),
+                TEST_REDIS_PASSWORD,
+                Constants.SPEC_CACHE_EXPIRATION,
+                TEST_WITH_SSL,
+                String.class,
+                Boolean.class
         );
     }
 
