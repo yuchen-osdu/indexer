@@ -3,18 +3,15 @@ Feature: Extended Properties Indexing
   Each scenario is self-contained: it creates the config, verifies it is indexed, then
   ingests data and asserts augmented fields are present. This avoids cross-scenario
   timestamp mismatches (Cucumber creates a new step instance per scenario).
-  Data kinds are created only after the configuration is searchable.
 
   @indexer-extended
   Scenario: Test Wellbore extended string and spatial properties
     Given the schema is created with the following kind
       | kind                                                                               | index                                                                             | schemaFile                                                |
       | osdu:wks:reference-data--IndexPropertyPathConfiguration:1.1.1                       | osdu-wks-reference-data--indexpropertypathconfiguration-1.1.1                      | osdu_wks_IndexPropertyPathConfiguration_v1_extended        |
+      | test:indexer<timestamp>:wellbore:1.1.0                                              | test-indexer<timestamp>-wellbore-1.1.0                                             | index-property-wellbore_v1_extended                        |
     When I ingest records with the "osdu_wks_IndexPropertyPathConfiguration_wellbore_v1_extended" with "data.default.viewers@tenant1" for a given "osdu:wks:reference-data--IndexPropertyPathConfiguration:1.1.1"
     Then I should be able to search 1 record with index "osdu-wks-reference-data--indexpropertypathconfiguration-1.1.1" by extended data field "id" and value "tenant1:reference-data--IndexPropertyPathConfiguration:wellbore<timestamp>"
-    Given the schema is created with the following kind
-      | kind                                                                               | index                                                                             | schemaFile                                                |
-      | test:indexer<timestamp>:wellbore:1.1.0                                              | test-indexer<timestamp>-wellbore-1.1.0                                             | index-property-wellbore_v1_extended                        |
     When I ingest records with the "index-property-wellbore_v1_extended" with "data.default.viewers@tenant1" for a given "test:indexer<timestamp>:wellbore:1.1.0"
     Then I should be able to search 1 record with index "test-indexer<timestamp>-wellbore-1.1.0" by extended data field "data.WellUWI" and value "123454321"
     And I should be able search 1 documents for the "test-indexer<timestamp>-wellbore-1.1.0" by bounding box query with points (30, -96) and  (29, -95) on field "data.Location"
@@ -24,12 +21,10 @@ Feature: Extended Properties Indexing
     Given the schema is created with the following kind
       | kind                                                                               | index                                                                             | schemaFile                                                |
       | osdu:wks:reference-data--IndexPropertyPathConfiguration:1.1.1                       | osdu-wks-reference-data--indexpropertypathconfiguration-1.1.1                      | osdu_wks_IndexPropertyPathConfiguration_v1_extended        |
-    When I ingest records with the "osdu_wks_IndexPropertyPathConfiguration_welllog_v1_extended" with "data.default.viewers@tenant1" for a given "osdu:wks:reference-data--IndexPropertyPathConfiguration:1.1.1"
-    Then I should be able to search 1 record with index "osdu-wks-reference-data--indexpropertypathconfiguration-1.1.1" by extended data field "id" and value "tenant1:reference-data--IndexPropertyPathConfiguration:welllog<timestamp>"
-    Given the schema is created with the following kind
-      | kind                                                                               | index                                                                             | schemaFile                                                |
       | test:indexer<timestamp>:wellbore:1.1.0                                              | test-indexer<timestamp>-wellbore-1.1.0                                             | index-property-wellbore_v1_extended                        |
       | test:indexer<timestamp>:welllog:1.0.0                                               | test-indexer<timestamp>-welllog-1.0.0                                              | index-property-welllog_v1_extended                         |
+    When I ingest records with the "osdu_wks_IndexPropertyPathConfiguration_welllog_v1_extended" with "data.default.viewers@tenant1" for a given "osdu:wks:reference-data--IndexPropertyPathConfiguration:1.1.1"
+    Then I should be able to search 1 record with index "osdu-wks-reference-data--indexpropertypathconfiguration-1.1.1" by extended data field "id" and value "tenant1:reference-data--IndexPropertyPathConfiguration:welllog<timestamp>"
     When I ingest records with the "index-property-wellbore_v1_extended" with "data.default.viewers@tenant1" for a given "test:indexer<timestamp>:wellbore:1.1.0"
     Then I should get the 1 documents for the "test-indexer<timestamp>-wellbore-1.1.0" in the Elastic Search
     When I ingest records with the "index-property-welllog_v1_extended" with "data.default.viewers@tenant1" for a given "test:indexer<timestamp>:welllog:1.0.0"
@@ -41,11 +36,9 @@ Feature: Extended Properties Indexing
     Given the schema is created with the following kind
       | kind                                                                               | index                                                                             | schemaFile                                                |
       | osdu:wks:reference-data--IndexPropertyPathConfiguration:1.1.1                       | osdu-wks-reference-data--indexpropertypathconfiguration-1.1.1                      | osdu_wks_IndexPropertyPathConfiguration_v1_extended        |
+      | test:indexer<timestamp>:bingrid:1.1.0                                               | test-indexer<timestamp>-bingrid-1.1.0                                             | index_property_bingrid_v1_extended                        |
     When I ingest records with the "osdu_wks_IndexPropertyPathConfiguration_bingrid_v1_extended" with "data.default.viewers@tenant1" for a given "osdu:wks:reference-data--IndexPropertyPathConfiguration:1.1.1"
     Then I should be able to search 1 record with index "osdu-wks-reference-data--indexpropertypathconfiguration-1.1.1" by extended data field "id" and value "tenant1:reference-data--IndexPropertyPathConfiguration:bingrid<timestamp>"
-    Given the schema is created with the following kind
-      | kind                                                                               | index                                                                             | schemaFile                                                |
-      | test:indexer<timestamp>:bingrid:1.1.0                                               | test-indexer<timestamp>-bingrid-1.1.0                                             | index_property_bingrid_v1_extended                        |
     When I ingest records with the "index_property_bingrid_v1_extended" with "data.default.viewers@tenant1" for a given "test:indexer<timestamp>:bingrid:1.1.0"
     Then I should be able to search 1 record with index "test-indexer<timestamp>-bingrid-1.1.0" by extended data field "data.Area" and value "4.496916513E7"
 
@@ -54,10 +47,8 @@ Feature: Extended Properties Indexing
     Given the schema is created with the following kind
       | kind                                                                               | index                                                                             | schemaFile                                                |
       | osdu:wks:reference-data--IndexPropertyPathConfiguration:1.1.1                       | osdu-wks-reference-data--indexpropertypathconfiguration-1.1.1                      | osdu_wks_IndexPropertyPathConfiguration_v1_extended        |
+      | test:indexer<timestamp>:linegeometry:1.1.0                                          | test-indexer<timestamp>-linegeometry-1.1.0                                        | index_property_linegeometry_v1_extended                   |
     When I ingest records with the "osdu_wks_IndexPropertyPathConfiguration_linegeometry_v1_extended" with "data.default.viewers@tenant1" for a given "osdu:wks:reference-data--IndexPropertyPathConfiguration:1.1.1"
     Then I should be able to search 1 record with index "osdu-wks-reference-data--indexpropertypathconfiguration-1.1.1" by extended data field "id" and value "tenant1:reference-data--IndexPropertyPathConfiguration:linegeometry<timestamp>"
-    Given the schema is created with the following kind
-      | kind                                                                               | index                                                                             | schemaFile                                                |
-      | test:indexer<timestamp>:linegeometry:1.1.0                                          | test-indexer<timestamp>-linegeometry-1.1.0                                        | index_property_linegeometry_v1_extended                   |
     When I ingest records with the "index_property_linegeometry_v1_extended" with "data.default.viewers@tenant1" for a given "test:indexer<timestamp>:linegeometry:1.1.0"
     Then I should be able to search 1 record with index "test-indexer<timestamp>-linegeometry-1.1.0" by extended data field "data.Length" and value "12021.88"
