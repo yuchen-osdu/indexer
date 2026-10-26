@@ -554,4 +554,30 @@ class CacheConfigTest {
         );
     }
 
+    @Test
+    void shouldCreateAugmenterSpecAndDataRedisCachesWithTheirExpirations() {
+        // Arrange
+        when(schemaCacheBuilder.buildRedisCache(
+                anyString(), anyInt(), anyString(), anyInt(), anyBoolean(),
+                any(), any()
+        )).thenReturn(mockSchemaCache);
+
+        // Act & Assert
+        assertInstanceOf(ChildrenKindsRedisCache.class, cacheConfig.childrenKindsRedisCache(appProperties));
+        assertInstanceOf(ParentChildRelationshipSpecsRedisCache.class, cacheConfig.parentChildRelationshipSpecsRedisCache(appProperties));
+        assertInstanceOf(KindRedisCache.class, cacheConfig.kindRedisCache(appProperties));
+        assertInstanceOf(RelatedObjectRedisCache.class, cacheConfig.relatedObjectRedisCache(appProperties));
+        assertInstanceOf(RecordChangeInfoRedisCache.class, cacheConfig.recordChangeInfoRedisCache(appProperties));
+
+        verify(schemaCacheBuilder, times(3)).buildRedisCache(
+                TEST_REDIS_HOST, Integer.parseInt(TEST_REDIS_PORT), TEST_REDIS_PASSWORD,
+                Constants.SPEC_CACHE_EXPIRATION, TEST_WITH_SSL, String.class, String.class);
+        verify(schemaCacheBuilder).buildRedisCache(
+                TEST_REDIS_HOST, Integer.parseInt(TEST_REDIS_PORT), TEST_REDIS_PASSWORD,
+                Constants.DATA_CACHE_EXPIRATION, TEST_WITH_SSL, String.class, String.class);
+        verify(schemaCacheBuilder).buildRedisCache(
+                TEST_REDIS_HOST, Integer.parseInt(TEST_REDIS_PORT), TEST_REDIS_PASSWORD,
+                Constants.DATA_CHANGE_INFO_CACHE_EXPIRATION, TEST_WITH_SSL, String.class, String.class);
+    }
+
 }

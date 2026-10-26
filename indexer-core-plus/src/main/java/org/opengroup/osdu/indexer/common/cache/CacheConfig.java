@@ -28,6 +28,11 @@ import org.opengroup.osdu.core.common.provider.interfaces.IIndexCache;
 import org.opengroup.osdu.core.cache.RedisCacheBuilder;
 import org.opengroup.osdu.indexer.cache.interfaces.IAugmenterConfigurationCache;
 import org.opengroup.osdu.indexer.cache.interfaces.IAugmenterConfigurationEnabledCache;
+import org.opengroup.osdu.indexer.cache.interfaces.IChildrenKindsCache;
+import org.opengroup.osdu.indexer.cache.interfaces.IKindCache;
+import org.opengroup.osdu.indexer.cache.interfaces.IParentChildRelationshipSpecsCache;
+import org.opengroup.osdu.indexer.cache.interfaces.IRecordChangeInfoCache;
+import org.opengroup.osdu.indexer.cache.interfaces.IRelatedObjectCache;
 import org.opengroup.osdu.indexer.common.di.CorePlusConfigurationProperties;
 import org.opengroup.osdu.indexer.model.Constants;
 import org.opengroup.osdu.indexer.provider.interfaces.ISchemaCache;
@@ -100,15 +105,7 @@ public class CacheConfig {
     @Bean
     @Primary
     public IAugmenterConfigurationCache augmenterConfigurationRedisCache(CorePlusConfigurationProperties appServiceConfig) {
-        return new AugmenterConfigurationRedisCache(schemaCacheBuilder.buildRedisCache(
-                appServiceConfig.getRedisSearchHost(),
-                Integer.parseInt(appServiceConfig.getRedisSearchPort()),
-                appServiceConfig.getRedisSearchPassword(),
-                Constants.SPEC_CACHE_EXPIRATION,
-                appServiceConfig.getRedisSearchWithSsl(),
-                String.class,
-                String.class
-        ));
+        return new AugmenterConfigurationRedisCache(stringRedisCache(appServiceConfig, Constants.SPEC_CACHE_EXPIRATION));
     }
 
     @Bean
@@ -123,6 +120,48 @@ public class CacheConfig {
                 String.class,
                 Boolean.class
         ));
+    }
+
+    @Bean
+    @Primary
+    public IChildrenKindsCache childrenKindsRedisCache(CorePlusConfigurationProperties appServiceConfig) {
+        return new ChildrenKindsRedisCache(stringRedisCache(appServiceConfig, Constants.SPEC_CACHE_EXPIRATION));
+    }
+
+    @Bean
+    @Primary
+    public IParentChildRelationshipSpecsCache parentChildRelationshipSpecsRedisCache(CorePlusConfigurationProperties appServiceConfig) {
+        return new ParentChildRelationshipSpecsRedisCache(stringRedisCache(appServiceConfig, Constants.SPEC_CACHE_EXPIRATION));
+    }
+
+    @Bean
+    @Primary
+    public IKindCache kindRedisCache(CorePlusConfigurationProperties appServiceConfig) {
+        return new KindRedisCache(stringRedisCache(appServiceConfig, Constants.SPEC_CACHE_EXPIRATION));
+    }
+
+    @Bean
+    @Primary
+    public IRelatedObjectCache relatedObjectRedisCache(CorePlusConfigurationProperties appServiceConfig) {
+        return new RelatedObjectRedisCache(stringRedisCache(appServiceConfig, Constants.DATA_CACHE_EXPIRATION));
+    }
+
+    @Bean
+    @Primary
+    public IRecordChangeInfoCache recordChangeInfoRedisCache(CorePlusConfigurationProperties appServiceConfig) {
+        return new RecordChangeInfoRedisCache(stringRedisCache(appServiceConfig, Constants.DATA_CHANGE_INFO_CACHE_EXPIRATION));
+    }
+
+    private RedisCache<String, String> stringRedisCache(CorePlusConfigurationProperties appServiceConfig, int expiration) {
+        return schemaCacheBuilder.buildRedisCache(
+                appServiceConfig.getRedisSearchHost(),
+                Integer.parseInt(appServiceConfig.getRedisSearchPort()),
+                appServiceConfig.getRedisSearchPassword(),
+                expiration,
+                appServiceConfig.getRedisSearchWithSsl(),
+                String.class,
+                String.class
+        );
     }
 
     @Bean
