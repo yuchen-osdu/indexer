@@ -42,6 +42,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -79,6 +80,7 @@ public class RecordSteps extends TestsBase {
     private final String timeStamp = String.valueOf(System.currentTimeMillis() + new Random().nextInt(10000));
 
     private String[] lastIngestedRecordIds;
+    private final Map<String, List<String>> ingestedRecordIdsByKind = new LinkedHashMap<>();
     private final Map<String, String> resolvedCollaborationHeaders = new HashMap<>();
 
     public static final String DPS_HEADERS_COLLABORATION = "x-collaboration";
@@ -128,6 +130,8 @@ public class RecordSteps extends TestsBase {
             log.info("Response body: {}\nResponse Status code: {}", httpResponse.body(), httpResponse.statusCode());
             assertEquals(201, httpResponse.statusCode());
             lastIngestedRecordIds = httpResponse.body().recordIds();
+            ingestedRecordIdsByKind.computeIfAbsent(actualKind, k -> new ArrayList<>())
+                .addAll(Arrays.asList(lastIngestedRecordIds));
         } catch (Exception ex) {
             throw new AssertionError(ex.getMessage(), ex);
         }
@@ -227,9 +231,54 @@ public class RecordSteps extends TestsBase {
 
     public void iShouldBeAbleToSearchRecordByFieldAndFieldValue(String index, String fieldKey, String fieldValue, int expectedNumber) {
         final String idx = generateActualName(index, timeStamp);
-        assertQueryReturns(expectedNumber, idx,
-            String.format("field query %s=%s", fieldKey, fieldValue),
-            () -> { try { return elasticClient.fetchRecordsByFieldAndFieldValue(idx, fieldKey, fieldValue); } catch (Exception e) { return -1L; } });
+        final String value = generateActualName(fieldValue, timeStamp);
+        try {
+            assertQueryReturns(expectedNumber, idx,
+                String.format("field query %s=%s", fieldKey, value),
+                () -> { try { return elasticClient.fetchRecordsByFieldAndFieldValue(idx, fieldKey, value); } catch (Exception e) { return -1L; } });
+        } catch (AssertionError e) {
+            attachIndexDiagnostics(idx);
+            throw e;
+        }
+    }
+
+    private void attachIndexDiagnostics(String index) {
+        StringBuilder report = new StringBuilder();
+        report.append("Mapping of '").append(index).append("':\n");
+        try {
+            Map<String, IndexMappingRecord> mappings = elasticClient.getMapping(index);
+            mappings.forEach((physicalIndex, mapping) -> {
+                StringBuilder json = new StringBuilder();
+                JsonpUtils.toString(mapping.mappings(), json);
+                report.append(physicalIndex).append(": ").append(json).append("\n");
+            });
+        } catch (Exception e) {
+            report.append("unavailable: ").append(e.getMessage()).append("\n");
+        }
+
+        Gson gson = new Gson();
+        ingestedRecordIdsByKind.forEach((kind, ids) -> {
+            TestIndex testIndex = inputIndexMap.get(kind);
+            String kindIndex = testIndex != null ? testIndex.getIndex() : null;
+            report.append("\nDocuments of kind '").append(kind).append("' in '").append(kindIndex).append("':\n");
+            if (kindIndex == null) {
+                report.append("index unknown\n");
+                return;
+            }
+            for (String id : ids) {
+                try {
+                    List<Map<String, Object>> documents = elasticClient.fetchRecordsByAttribute(kindIndex, "id", id);
+                    report.append(id).append(": ").append(documents.isEmpty() ? "not indexed" : gson.toJson(documents)).append("\n");
+                } catch (Exception e) {
+                    report.append(id).append(": unavailable: ").append(e.getMessage()).append("\n");
+                }
+            }
+        });
+
+        log.warn("Index diagnostics:\n{}", report);
+        if (scenario != null) {
+            scenario.attach(report.toString().getBytes(StandardCharsets.UTF_8), "text/plain", "Index diagnostics");
+        }
     }
 
     public void i_should_get_the_documents_for_the_in_the_Elastic_Search_by_geoQuery(

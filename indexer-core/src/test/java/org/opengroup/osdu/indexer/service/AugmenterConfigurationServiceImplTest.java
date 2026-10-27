@@ -965,6 +965,7 @@ public class AugmenterConfigurationServiceImplTest {
             Assert.assertEquals(expectedRelatedKinds.get(i), relatedKinds.get(i));
         }
         verify(this.augmenterConfigurationCache,times(1)).put(anyString(), any());
+        verify(this.augmenterConfigurationEnabledCache,times(1)).put(eq("osdu:wks:master-data--Well:1."), eq(true));
     }
 
     @Test

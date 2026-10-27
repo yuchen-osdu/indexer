@@ -20,6 +20,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import jakarta.inject.Inject;
 
 import com.google.api.client.util.Strings;
@@ -32,6 +34,7 @@ import org.opengroup.osdu.core.common.model.http.HttpResponse;
 import org.opengroup.osdu.core.common.provider.interfaces.IRequestInfo;
 import org.opengroup.osdu.indexer.config.IndexerConfigurationProperties;
 import org.opengroup.osdu.indexer.logging.AuditLogger;
+import org.opengroup.osdu.indexer.model.SchemaInfo;
 import org.opengroup.osdu.indexer.model.SchemaInfoResponse;
 import org.opengroup.osdu.indexer.schema.converter.interfaces.SchemaToStorageFormat;
 import org.springframework.stereotype.Component;
@@ -42,7 +45,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class SchemaProviderImpl implements SchemaService {
     private final Gson gson = new Gson();
-    private final int MAX_NUMBER_OF_SCHEMA_INFOS = 1000;
+    // Schema service rejects a listing limit above 100
+    private final int SCHEMA_INFOS_PAGE_SIZE = 100;
 
     @Inject
     private JaxRsDpsLog log;
@@ -74,15 +78,39 @@ public class SchemaProviderImpl implements SchemaService {
     @Override
     public SchemaInfoResponse getSchemaInfos(String authority, String source, String entityType, String majorVersion, String minorVersion, String patchVersion, boolean latestVersion) throws URISyntaxException, UnsupportedEncodingException {
         String queryParams = buildQueryString(authority, source, entityType, majorVersion, minorVersion, patchVersion, latestVersion);
-        String url = String.format("%s?%s", configurationProperties.getSchemaHost(), queryParams);
-        FetchServiceHttpRequest request = FetchServiceHttpRequest.builder()
-                .httpMethod(HttpMethods.GET)
-                .headers(this.requestInfo.getHeadersMapWithDwdAuthZ())
-                .url(url)
-                .build();
+        List<SchemaInfo> schemaInfos = new ArrayList<>();
+        int totalCount = 0;
+        for (int offset = 0; ; offset += SCHEMA_INFOS_PAGE_SIZE) {
+            String url = String.format("%s?%s&offset=%d&limit=%d", configurationProperties.getSchemaHost(), queryParams, offset, SCHEMA_INFOS_PAGE_SIZE);
+            FetchServiceHttpRequest request = FetchServiceHttpRequest.builder()
+                    .httpMethod(HttpMethods.GET)
+                    .headers(this.requestInfo.getHeadersMapWithDwdAuthZ())
+                    .url(url)
+                    .build();
 
-        HttpResponse response = this.urlFetchService.sendRequest(request);
-        return gson.fromJson(response.getBody(), SchemaInfoResponse.class);
+            HttpResponse response = this.urlFetchService.sendRequest(request);
+            if (response.getResponseCode() != HttpStatus.SC_OK) {
+                log.error(String.format("Failed to list schemas from the Schema service | url: %s | response code: %d | response: %s",
+                        url, response.getResponseCode(), response.getBody()));
+                return null;
+            }
+
+            SchemaInfoResponse page = gson.fromJson(response.getBody(), SchemaInfoResponse.class);
+            if (page == null || page.getSchemaInfos() == null) {
+                break;
+            }
+            schemaInfos.addAll(page.getSchemaInfos());
+            totalCount = page.getTotalCount();
+            if (page.getSchemaInfos().size() < SCHEMA_INFOS_PAGE_SIZE || schemaInfos.size() >= totalCount) {
+                break;
+            }
+        }
+
+        SchemaInfoResponse schemaInfoResponse = new SchemaInfoResponse();
+        schemaInfoResponse.setSchemaInfos(schemaInfos);
+        schemaInfoResponse.setCount(schemaInfos.size());
+        schemaInfoResponse.setTotalCount(totalCount);
+        return schemaInfoResponse;
     }
 
     protected String getFromSchemaService(String kind) throws UnsupportedEncodingException, URISyntaxException {
@@ -129,7 +157,6 @@ public class SchemaProviderImpl implements SchemaService {
         addQueryParam(stringBuilder, "schemaVersionMinor", minorVersion);
         addQueryParam(stringBuilder, "schemaVersionPatch", patchVersion);
         addQueryParam(stringBuilder, "latestVersion", String.valueOf(latestVersion));
-        addQueryParam(stringBuilder, "limit", String.valueOf(MAX_NUMBER_OF_SCHEMA_INFOS));
         return stringBuilder.toString();
     }
 

@@ -1,0 +1,56 @@
+{
+  "AttributionPublication": null,
+  "InactiveIndicator": null,
+  "Description": "The index property list for master-data--Well:1., valid for all master-data--Well kinds for major version 1.",
+  "ResourceLifecycleStatus": null,
+  "ResourceCurationStatus": null,
+  "TechnicalAssuranceID": null,
+  "Code": "osdu:wks:master-data--Well:1.",
+  "Source": null,
+  "Name": "Well-IndexPropertyPathConfiguration",
+  "AttributionAuthority": "OSDU",
+  "ResourceHomeRegionID": null,
+  "VirtualProperties.DefaultName": "Well-IndexPropertyPathConfiguration",
+  "AttributionRevision": null,
+  "ResourceSecurityClassification": null,
+  "ID": null,
+  "ExistenceKind": null,
+  "Configurations": [{
+    "Policy": "ExtractAllMatches",
+    "UseCase": "As a user I want to find objects by a country name, with the understanding that an object may extend over country boundaries.",
+    "Paths": [{
+      "RelatedObjectsSpec.RelatedObjectID": "data.GeoContexts[].GeoPoliticalEntityID",
+      "RelatedObjectsSpec.RelatedConditionMatches": [
+        "^[\\w\\-\\.]+:reference-data\\-\\-GeoPoliticalEntityType:Country:$"
+      ],
+      "ValueExtraction.ValuePath": "data.GeoPoliticalEntityName",
+      "RelatedObjectsSpec.RelatedObjectKind": "osdu:wks:master-data--GeoPoliticalEntity:1.",
+      "RelatedObjectsSpec.RelatedConditionProperty": "data.GeoContexts[].GeoTypeID",
+      "RelatedObjectsSpec.RelationshipDirection": "ChildToParent",
+      "ValueExtraction.RelatedConditionProperty": null
+    }
+    ],
+    "Name": "CountryNames"
+  }, {
+    "Policy": "ExtractFirstMatch",
+    "UseCase": "As a user I want to discover and match Wells by their UWI. I am aware that this is not globally reliable, however, I am able to specify a prioritized AliasNameType list to look up value in the NameAliases array.",
+    "Paths": [{
+      "RelatedObjectsSpec.RelatedObjectID": null,
+      "ValueExtraction.ValuePath": "data.NameAliases[].AliasName",
+      "RelatedObjectsSpec.RelatedObjectKind": null,
+      "RelatedObjectsSpec.RelatedConditionProperty": null,
+      "RelatedObjectsSpec.RelationshipDirection": null,
+      "ValueExtraction.RelatedConditionMatches": [
+        "^[\\w\\-\\.]+:reference-data--AliasNameType:UniqueIdentifier:$",
+        "^[\\w\\-\\.]+:reference-data--AliasNameType:RegulatoryName:$",
+        "^[\\w\\-\\.]+:reference-data--AliasNameType:PreferredName:$",
+        "^[\\w\\-\\.]+:reference-data--AliasNameType:CommonName:$",
+        "^[\\w\\-\\.]+:reference-data--AliasNameType:ShortName:$"
+      ],
+      "ValueExtraction.RelatedConditionProperty": "data.NameAliases[].AliasNameTypeID"
+    }
+    ],
+    "Name": "WellUWI"
+  }
+  ]
+}
