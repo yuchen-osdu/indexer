@@ -290,12 +290,6 @@
                 <module>provider/indexer-azure</module>
             </modules>
         </profile>
-        <profile>
-            <id>ibm</id>
-            <modules>
-                <module>provider/indexer-ibm</module>
-            </modules>
-        </profile>
     </profiles>
 
     <build>
@@ -386,9 +380,6 @@
                                         <exclude>org.opengroup.osdu.indexer:indexer-core</exclude>
                                         <exclude>org.opengroup.osdu.indexer:indexer-core-plus</exclude>
                                         <exclude>org.opengroup.osdu.indexer:indexer-azure</exclude>
-                                        <exclude>org.opengroup.osdu.indexer:indexer-ibm</exclude>
-                                        <!-- CSP (IBM): transitive SNAPSHOT via os-core-lib-ibm; drop when IBM migrates. -->
-                                        <exclude>org.opengroup.osdu:os-core-common-spring6</exclude>
                                     </excludes>
                                 </requireReleaseDeps>
                             </rules>
