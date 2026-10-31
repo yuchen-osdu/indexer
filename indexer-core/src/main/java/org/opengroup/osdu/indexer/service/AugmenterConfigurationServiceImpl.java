@@ -397,6 +397,7 @@ public class AugmenterConfigurationServiceImpl implements AugmenterConfiguration
                         // Same here to use cache to
                         // cache configuration used by method getConfiguration(String kind)
                         augmenterConfigurationCache.put(code, augmenterConfiguration);
+                        augmenterConfigurationEnabledCache.put(code, true);
                     }
                     else {
                         jaxRsDpsLog.warning(String.format("resolveKindsForSchemaUpdate: configuration with id %s is invalid", configurationId));
@@ -479,7 +480,7 @@ public class AugmenterConfigurationServiceImpl implements AugmenterConfiguration
         RecordData recordData = relatedObjectCache.get(id);
         Map<String, Object> data = (recordData != null)? recordData.getData() : null;
         if (data == null) {
-            String queryString = String.format("id: \"%s\"", id);
+            String queryString = String.format("id: \"%s\"", QueryUtil.escapePhrase(id));
             Query query = QueryUtil.createSimpleTextQuery(queryString);
             SearchRecord searchRecord = searchFirstRecord(kind, query);
             if (searchRecord != null) {
@@ -1068,7 +1069,7 @@ public class AugmenterConfigurationServiceImpl implements AugmenterConfiguration
 
     /****************************** search methods that use search service to get the data **************************************/
     private AugmenterConfiguration searchConfiguration(String kind) {
-        String queryString = String.format("data.Code: \"%s\"", kind);
+        String queryString = String.format("data.Code: \"%s\"", QueryUtil.escapePhrase(kind));
         Query query = QueryUtil.createSimpleTextQuery(queryString);
         // If there is more than PropertyConfigurations, pick the one that was last modified.
         // Given the property "modifyTime" is not set for new created record, we use property "version"
@@ -1182,7 +1183,7 @@ public class AugmenterConfigurationServiceImpl implements AugmenterConfiguration
 
     private List<SearchRecord> searchChildrenRecords(String childrenObjectKind, String childrenObjectField, String parentId) {
         String kind = PropertyUtil.isConcreteKind(childrenObjectKind) ? childrenObjectKind : childrenObjectKind + "*";
-        String queryString = String.format("%s: \"%s\"", childrenObjectField, parentId);
+        String queryString = String.format("%s: \"%s\"", childrenObjectField, QueryUtil.escapePhrase(parentId));
         Query query = QueryUtil.createSimpleTextQuery(queryString);
         return this.search(kind, query, null, null, NO_LIMIT);
     }

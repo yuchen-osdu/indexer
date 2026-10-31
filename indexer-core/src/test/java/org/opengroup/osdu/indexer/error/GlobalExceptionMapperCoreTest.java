@@ -25,8 +25,18 @@ import org.opengroup.osdu.core.common.model.http.AppException;
 import org.opengroup.osdu.core.common.model.http.RequestStatus;
 import org.opengroup.osdu.indexer.schema.converter.exeption.SchemaProcessingException;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.core.MethodParameter;
+import org.springframework.web.bind.MissingRequestHeaderException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import jakarta.validation.ValidationException;
 
@@ -107,6 +117,54 @@ public class GlobalExceptionMapperCoreTest {
 
         ResponseEntity response = this.sut.handleIOException(ioException);
         assertEquals(HttpStatus.SC_SERVICE_UNAVAILABLE, response.getStatusCodeValue());
+    }
+
+    @Test
+    public void should_returnAppErrorJson_when_mediaTypeIsUnsupported() {
+        HttpMediaTypeNotSupportedException exception = new HttpMediaTypeNotSupportedException("Content-Type 'null' is not supported.");
+
+        ResponseEntity<Object> response = sut.handleHttpMediaTypeNotSupported(exception, new HttpHeaders(), org.springframework.http.HttpStatus.UNSUPPORTED_MEDIA_TYPE, null);
+        assertEquals(HttpStatus.SC_UNSUPPORTED_MEDIA_TYPE, response.getStatusCodeValue());
+        assertTrue(response.getBody().toString().contains("Unsupported media type."));
+    }
+
+    @Test
+    public void should_returnBadRequest_when_requestBodyIsMissing() {
+        HttpMessageNotReadableException exception = new HttpMessageNotReadableException("Failed to read request");
+
+        ResponseEntity<Object> response = sut.handleHttpMessageNotReadable(exception, new HttpHeaders(), org.springframework.http.HttpStatus.BAD_REQUEST, null);
+        assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatusCodeValue());
+        assertTrue(response.getBody().toString().contains("Request is not valid."));
+    }
+
+    @Test
+    public void should_returnBadRequest_when_queryParameterCannotBeConverted() {
+        MethodArgumentTypeMismatchException exception = new MethodArgumentTypeMismatchException("null", Boolean.class, "force_clean", null, new IllegalArgumentException("bad"));
+
+        ResponseEntity<Object> response = sut.handleMethodArgumentTypeMismatch(exception);
+        assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatusCodeValue());
+        assertTrue(response.getBody().toString().contains("force_clean"));
+    }
+
+    @Test
+    public void should_returnBadRequest_when_requiredHeaderIsMissing() {
+        MethodParameter parameter = mock(MethodParameter.class);
+        when(parameter.getNestedParameterType()).thenReturn((Class) String.class);
+        MissingRequestHeaderException exception = new MissingRequestHeaderException("data-partition-id", parameter);
+
+        ResponseEntity<Object> response = sut.handleServletRequestBindingException(
+                exception, new HttpHeaders(), org.springframework.http.HttpStatus.BAD_REQUEST, null);
+        assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatusCodeValue());
+        assertTrue(response.getBody().toString().contains("data-partition-id"));
+    }
+
+    @Test
+    public void should_returnBadRequest_when_requiredQueryParameterIsMissing() {
+        MissingServletRequestParameterException exception = new MissingServletRequestParameterException("kind", "String");
+
+        ResponseEntity<Object> response = sut.handleMissingServletRequestParameter(exception, new HttpHeaders(), org.springframework.http.HttpStatus.BAD_REQUEST, null);
+        assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatusCodeValue());
+        assertTrue(response.getBody().toString().contains("kind"));
     }
 
     @Test
