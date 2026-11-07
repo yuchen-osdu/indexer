@@ -49,9 +49,9 @@ In the current version, the mappers are equipped with several drivers to the sto
 
 1. Mandatory
 
-* JDK 8
-* Lombok 1.16 or later
-* Maven
+* [JDK 25](https://adoptium.net/)
+* [Maven 3.9.16+](https://maven.apache.org/download.cgi)
+* Lombok 1.18 or later
 
 2. For Google Cloud only
 
@@ -73,9 +73,9 @@ Check that maven is installed:
 
 ```bash
 $ mvn --version
-Apache Maven 3.6.0
+Apache Maven 3.9.16
 Maven home: /usr/share/maven
-Java version: 1.8.0_212, vendor: AdoptOpenJDK, runtime: /usr/lib/jvm/jdk8u212-b04/jre
+Java version: 25.0.1
 ...
 ```
 

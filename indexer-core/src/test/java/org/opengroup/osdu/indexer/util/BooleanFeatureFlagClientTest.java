@@ -15,6 +15,9 @@
 
 package org.opengroup.osdu.indexer.util;
 
+import org.junit.Rule;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,6 +41,9 @@ import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
 public class BooleanFeatureFlagClientTest {
+
+    @Rule
+    public MockitoRule mockitoRule = MockitoJUnit.rule();
     private static final String PROPERTY_NAME =  "any-feature-enabled";
 
     @InjectMocks

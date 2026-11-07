@@ -16,6 +16,9 @@
 package org.opengroup.osdu.indexer.service;
 
 
+import org.junit.Rule;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.times;
@@ -23,8 +26,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -82,6 +85,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 public class AugmenterConfigurationServiceImplTest {
+
+    @Rule
+    public MockitoRule mockitoRule = MockitoJUnit.rule();
     private final Gson gson = new Gson();
 
     @InjectMocks
@@ -347,7 +353,7 @@ public class AugmenterConfigurationServiceImplTest {
     }
 
     @Test
-    public void getExtendedSchemaItems_from_self_and_parent_object_kind() throws JsonProcessingException {
+    public void getExtendedSchemaItems_from_self_and_parent_object_kind() throws JacksonException {
         AugmenterConfiguration augmenterConfiguration = getConfiguration("well_configuration_record.json");
         Schema originalSchema = getSchema("well_storage_schema.json");
         Schema geoPoliticalEntitySchema = getSchema("geo_political_entity_storage_schema.json");
@@ -371,7 +377,7 @@ public class AugmenterConfigurationServiceImplTest {
     }
 
     @Test
-    public void getExtendedSchemaItems_from_multiple_object_kinds() throws JsonProcessingException {
+    public void getExtendedSchemaItems_from_multiple_object_kinds() throws JacksonException {
         AugmenterConfiguration augmenterConfiguration = getConfiguration("welllog_configuration_record.json");
         Schema originalSchema = getSchema("welllog_storage_schema.json");
         Map<String, Schema> relatedObjectKindSchemas = new HashMap<>();
@@ -965,6 +971,7 @@ public class AugmenterConfigurationServiceImplTest {
             Assert.assertEquals(expectedRelatedKinds.get(i), relatedKinds.get(i));
         }
         verify(this.augmenterConfigurationCache,times(1)).put(anyString(), any());
+        verify(this.augmenterConfigurationEnabledCache,times(1)).put(eq("osdu:wks:master-data--Well:1."), eq(true));
     }
 
     @Test
@@ -1014,7 +1021,7 @@ public class AugmenterConfigurationServiceImplTest {
         return gson.fromJson(jsonText, Schema.class);
     }
 
-    private AugmenterConfiguration getConfiguration(String file) throws JsonProcessingException {
+    private AugmenterConfiguration getConfiguration(String file) throws JacksonException {
         Map<String, Object> dataMap = getDataMap(file);
         ObjectMapper objectMapper = new ObjectMapper();
         String data = objectMapper.writeValueAsString(dataMap);

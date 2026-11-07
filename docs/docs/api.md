@@ -60,7 +60,7 @@ GET /api/indexer/v2/info HTTP/1.1
 ```json
 {
   "groupId": "org.opengroup.osdu",
-  "artifactId": "indexer-gc",
+  "artifactId": "indexer-service",
   "version": "0.10.0-SNAPSHOT",
   "buildTime": "2021-07-09T14:29:51.584Z",
   "branch": "feature/GONRG-2681_Build_info",

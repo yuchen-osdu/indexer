@@ -81,7 +81,7 @@ public class CleanupIndiciesApiTest {
 
   private void should_return200_indexerWorkerTest(String message) {
     ResponseEntity response = this.sut.cleanupIndices(createRecordChangedMessage(message));
-    Assert.assertEquals(HttpStatus.OK.value(), response.getStatusCodeValue());
+    Assert.assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
   }
 
   private void should_return400_indexerWorkerTest(String message, String errorMessage) {

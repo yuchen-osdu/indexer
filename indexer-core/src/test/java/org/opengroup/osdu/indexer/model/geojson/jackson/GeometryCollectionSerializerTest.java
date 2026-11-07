@@ -15,10 +15,10 @@
 
 package org.opengroup.osdu.indexer.model.geojson.jackson;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.jsontype.NamedType;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.jsontype.NamedType;
 import lombok.SneakyThrows;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -37,18 +37,19 @@ public class GeometryCollectionSerializerTest {
 
     @BeforeClass
     public static void setup() {
-        objectMapper = new ObjectMapper();
-        objectMapper.registerSubtypes(new NamedType(GeometryCollection.class, GeoJsonConstants.GEOMETRY_COLLECTION));
-        objectMapper.registerSubtypes(new NamedType(Polygon.class, GeoJsonConstants.POLYGON));
-        objectMapper.registerSubtypes(new NamedType(MultiPolygon.class, GeoJsonConstants.MULTI_POLYGON));
-        objectMapper.registerSubtypes(new NamedType(LineString.class, GeoJsonConstants.LINE_STRING));
-        objectMapper.registerSubtypes(new NamedType(MultiLineString.class, GeoJsonConstants.MULTI_LINE_STRING));
-        objectMapper.registerSubtypes(new NamedType(Point.class, GeoJsonConstants.POINT));
-        objectMapper.registerSubtypes(new NamedType(MultiPoint.class, GeoJsonConstants.MULTI_POINT));
+        objectMapper = JsonMapper.builder()
+                .registerSubtypes(new NamedType(GeometryCollection.class, GeoJsonConstants.GEOMETRY_COLLECTION))
+                .registerSubtypes(new NamedType(Polygon.class, GeoJsonConstants.POLYGON))
+                .registerSubtypes(new NamedType(MultiPolygon.class, GeoJsonConstants.MULTI_POLYGON))
+                .registerSubtypes(new NamedType(LineString.class, GeoJsonConstants.LINE_STRING))
+                .registerSubtypes(new NamedType(MultiLineString.class, GeoJsonConstants.MULTI_LINE_STRING))
+                .registerSubtypes(new NamedType(Point.class, GeoJsonConstants.POINT))
+                .registerSubtypes(new NamedType(MultiPoint.class, GeoJsonConstants.MULTI_POINT))
+                .build();
     }
 
     @Test
-    public void deserialize_polyline() throws JsonProcessingException {
+    public void deserialize_polyline() throws JacksonException {
         String shapeJson = getGeoShapeFromFile("geometrycollection_linestring.json");
         GeometryCollection geometryCollection = objectMapper.readValue(shapeJson, GeometryCollection.class);
         Assert.assertNotNull(geometryCollection);
@@ -58,7 +59,7 @@ public class GeometryCollectionSerializerTest {
     }
 
     @Test
-    public void deserialize_multipolyline() throws JsonProcessingException {
+    public void deserialize_multipolyline() throws JacksonException {
         String shapeJson = getGeoShapeFromFile("geometrycollection_multilinestring.json");
         GeometryCollection geometryCollection = objectMapper.readValue(shapeJson, GeometryCollection.class);
         Assert.assertNotNull(geometryCollection);
@@ -68,7 +69,7 @@ public class GeometryCollectionSerializerTest {
     }
 
     @Test
-    public void deserialize_polygon() throws JsonProcessingException {
+    public void deserialize_polygon() throws JacksonException {
         String shapeJson = getGeoShapeFromFile("geometrycollection_polygon.json");
         GeometryCollection geometryCollection = objectMapper.readValue(shapeJson, GeometryCollection.class);
         Assert.assertNotNull(geometryCollection);
@@ -78,7 +79,7 @@ public class GeometryCollectionSerializerTest {
     }
 
     @Test
-    public void deserialize_multipolygon() throws JsonProcessingException {
+    public void deserialize_multipolygon() throws JacksonException {
         String shapeJson = getGeoShapeFromFile("geometrycollection_multipolygon.json");
         GeometryCollection geometryCollection = objectMapper.readValue(shapeJson, GeometryCollection.class);
         Assert.assertNotNull(geometryCollection);
@@ -88,7 +89,7 @@ public class GeometryCollectionSerializerTest {
     }
 
     @Test
-    public void deserialize_point() throws JsonProcessingException {
+    public void deserialize_point() throws JacksonException {
         String shapeJson = getGeoShapeFromFile("geometrycollection_point.json");
         GeometryCollection geometryCollection = objectMapper.readValue(shapeJson, GeometryCollection.class);
         Assert.assertNotNull(geometryCollection);
@@ -98,7 +99,7 @@ public class GeometryCollectionSerializerTest {
     }
 
     @Test
-    public void deserialize_multipoint() throws JsonProcessingException {
+    public void deserialize_multipoint() throws JacksonException {
         String shapeJson = getGeoShapeFromFile("geometrycollection_multipoint.json");
         GeometryCollection geometryCollection = objectMapper.readValue(shapeJson, GeometryCollection.class);
         Assert.assertNotNull(geometryCollection);

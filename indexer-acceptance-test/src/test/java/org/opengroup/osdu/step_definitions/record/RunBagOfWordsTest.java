@@ -22,9 +22,12 @@ import org.junit.platform.suite.api.IncludeTags;
 import org.junit.platform.suite.api.SelectPackages;
 import org.junit.platform.suite.api.Suite;
 
+import org.opengroup.osdu.common.CucumberGlue;
+
 import static io.cucumber.junit.platform.engine.Constants.EXECUTION_MODE_FEATURE_PROPERTY_NAME;
 import static io.cucumber.junit.platform.engine.Constants.GLUE_PROPERTY_NAME;
 import static io.cucumber.junit.platform.engine.Constants.PARALLEL_EXECUTION_ENABLED_PROPERTY_NAME;
+import static io.cucumber.junit.platform.engine.Constants.PLUGIN_PROPERTY_NAME;
 
 // Parallel execution is intentionally disabled for this focused suite. These tests use
 // persistent kinds and records in a shared environment, and concurrent feature execution can
@@ -34,8 +37,11 @@ import static io.cucumber.junit.platform.engine.Constants.PARALLEL_EXECUTION_ENA
 @IncludeEngines("cucumber")
 @SelectPackages("features.indexrecord")
 @IncludeTags({"bag-of-words"})
-@ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "org.opengroup.osdu.step_definitions.record,org.opengroup.osdu.config")
+@ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = CucumberGlue.INDEX_RECORD)
 @ConfigurationParameter(key = PARALLEL_EXECUTION_ENABLED_PROPERTY_NAME, value = "false")
 @ConfigurationParameter(key = EXECUTION_MODE_FEATURE_PROPERTY_NAME, value = "same_thread")
+@ConfigurationParameter(
+    key = PLUGIN_PROPERTY_NAME,
+    value = "pretty,junit:target/cucumber-reports/TEST-indexrecord-bag-of-words.xml,io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm")
 public class RunBagOfWordsTest {
 }

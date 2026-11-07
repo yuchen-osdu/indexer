@@ -266,7 +266,7 @@ class RecordsChangedMessageReceiverTest {
     void shouldHandleNullJobStatusInResponse() throws Exception {
         // Arrange
         OqmMessage oqmMessage = createValidOqmMessage();
-        ResponseEntity<JobStatus> response = new ResponseEntity<>(null, HttpStatus.OK);
+        ResponseEntity<JobStatus> response = new ResponseEntity<>((JobStatus) null, HttpStatus.OK);
         when(recordIndexerApi.indexWorker(any(RecordChangedMessages.class))).thenReturn(response);
 
         // Act

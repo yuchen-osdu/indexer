@@ -9,5 +9,4 @@
 
 | Name | Description | Type | Default |Required |
 |------|-------------|------|---------|---------|
-**data.collaborationsEnabled** | Collaboration Context feature is enabled | boolean | true | no
 **data.pubsubSearchTopicV2** | PubSub topic name for V2 messages (collaboration context) | string | `records-changed-v2` |

@@ -18,8 +18,10 @@ package org.opengroup.osdu.indexer.service;
 import co.elastic.clients.elasticsearch._types.SortOptions;
 import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import org.springframework.util.CollectionUtils;
@@ -75,7 +77,11 @@ public class AugmenterConfigurationServiceImpl implements AugmenterConfiguration
     private static final int NO_LIMIT = -1;
 
     private final Gson gson = new Gson();
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    // Jackson 2 defaults keep the configuration-record parsing behaviour unchanged; in particular unknown
+    // properties in nested configurations must still be rejected (Jackson 3 ignores them by default).
+    private final ObjectMapper objectMapper = JsonMapper.builderWithJackson2Defaults()
+            .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+            .build();
 
     @Inject
     private IndexerConfigurationProperties configurationProperties;
@@ -397,11 +403,12 @@ public class AugmenterConfigurationServiceImpl implements AugmenterConfiguration
                         // Same here to use cache to
                         // cache configuration used by method getConfiguration(String kind)
                         augmenterConfigurationCache.put(code, augmenterConfiguration);
+                        augmenterConfigurationEnabledCache.put(code, true);
                     }
                     else {
                         jaxRsDpsLog.warning(String.format("resolveKindsForSchemaUpdate: configuration with id %s is invalid", configurationId));
                     }
-                } catch (JsonProcessingException e) {
+                } catch (JacksonException e) {
                     jaxRsDpsLog.error(String.format("resolveKindsForSchemaUpdate: failed to deserialize PropertyConfigurations object with id %s", configurationId), e);
                 }
             }
@@ -479,7 +486,7 @@ public class AugmenterConfigurationServiceImpl implements AugmenterConfiguration
         RecordData recordData = relatedObjectCache.get(id);
         Map<String, Object> data = (recordData != null)? recordData.getData() : null;
         if (data == null) {
-            String queryString = String.format("id: \"%s\"", id);
+            String queryString = String.format("id: \"%s\"", QueryUtil.escapePhrase(id));
             Query query = QueryUtil.createSimpleTextQuery(queryString);
             SearchRecord searchRecord = searchFirstRecord(kind, query);
             if (searchRecord != null) {
@@ -1068,7 +1075,7 @@ public class AugmenterConfigurationServiceImpl implements AugmenterConfiguration
 
     /****************************** search methods that use search service to get the data **************************************/
     private AugmenterConfiguration searchConfiguration(String kind) {
-        String queryString = String.format("data.Code: \"%s\"", kind);
+        String queryString = String.format("data.Code: \"%s\"", QueryUtil.escapePhrase(kind));
         Query query = QueryUtil.createSimpleTextQuery(queryString);
         // If there is more than PropertyConfigurations, pick the one that was last modified.
         // Given the property "modifyTime" is not set for new created record, we use property "version"
@@ -1110,7 +1117,7 @@ public class AugmenterConfigurationServiceImpl implements AugmenterConfiguration
                 String kind = PropertyUtil.getKindWithMajor(configurations.getCode());
                 augmenterConfigurationCache.put(kind, configurations);
                 augmenterConfigurations.add(configurations);
-            } catch (JsonProcessingException e) {
+            } catch (JacksonException e) {
                 jaxRsDpsLog.error("Augmenter(searchConfigurations): failed to deserialize PropertyConfigurations object", e);
             }
         }
@@ -1182,7 +1189,7 @@ public class AugmenterConfigurationServiceImpl implements AugmenterConfiguration
 
     private List<SearchRecord> searchChildrenRecords(String childrenObjectKind, String childrenObjectField, String parentId) {
         String kind = PropertyUtil.isConcreteKind(childrenObjectKind) ? childrenObjectKind : childrenObjectKind + "*";
-        String queryString = String.format("%s: \"%s\"", childrenObjectField, parentId);
+        String queryString = String.format("%s: \"%s\"", childrenObjectField, QueryUtil.escapePhrase(parentId));
         Query query = QueryUtil.createSimpleTextQuery(queryString);
         return this.search(kind, query, null, null, NO_LIMIT);
     }

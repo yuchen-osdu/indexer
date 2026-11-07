@@ -30,7 +30,6 @@ import org.opengroup.osdu.oqm.core.model.OqmMessageReceiver;
 import org.opengroup.osdu.oqm.core.model.OqmSubscriberThroughput;
 import org.opengroup.osdu.indexer.api.RecordIndexerApi;
 import org.opengroup.osdu.indexer.api.ReindexApi;
-import org.opengroup.osdu.core.common.feature.IFeatureFlag;
 import org.opengroup.osdu.indexer.indexing.config.MessagingConfigProperties;
 import org.opengroup.osdu.indexer.indexing.processing.RecordsChangedMessageReceiver;
 import org.opengroup.osdu.indexer.indexing.processing.ReindexMessageReceiver;
@@ -71,8 +70,6 @@ class TenantSubscriberConfigurationTest {
     @Mock
     private ReindexApi reindexApi;
 
-    @Mock
-    private IFeatureFlag featureFlag;
 
     @Captor
     private ArgumentCaptor<String> dataPartitionIdCaptor;
@@ -92,6 +89,7 @@ class TenantSubscriberConfigurationTest {
     private TenantSubscriberConfiguration configuration;
 
     private static final String RECORDS_CHANGED_TOPIC = "records-changed";
+    private static final String RECORDS_CHANGED_TOPIC_V2 = "records-changed-v2";
     private static final String SCHEMA_CHANGED_TOPIC = "schema-changed";
     private static final String REPROCESS_TOPIC = "reprocess";
     private static final String REINDEX_TOPIC = "reindex";
@@ -105,12 +103,12 @@ class TenantSubscriberConfigurationTest {
                 tokenProvider,
                 headers,
                 recordIndexerApi,
-                reindexApi,
-                featureFlag
+                reindexApi
         );
 
         // Setup default mock behavior
         when(properties.getRecordsChangedTopicName()).thenReturn(RECORDS_CHANGED_TOPIC);
+        when(properties.getRecordsChangedTopicNameV2()).thenReturn(RECORDS_CHANGED_TOPIC_V2);
         when(properties.getSchemaChangedTopicName()).thenReturn(SCHEMA_CHANGED_TOPIC);
         when(properties.getReprocessTopicName()).thenReturn(REPROCESS_TOPIC);
         when(properties.getReindexTopicName()).thenReturn(REINDEX_TOPIC);
@@ -126,7 +124,7 @@ class TenantSubscriberConfigurationTest {
         configuration.postConstruct();
 
         // Assert
-        verify(subscriberManager, times(4)).registerSubscriber(
+        verify(subscriberManager, times(5)).registerSubscriber(
                 any(String.class),
                 any(String.class),
                 any(String.class),
@@ -149,8 +147,8 @@ class TenantSubscriberConfigurationTest {
         configuration.postConstruct();
 
         // Assert
-        // Each tenant gets 4 subscribers (records-changed, schema-changed, reprocess, reindex)
-        verify(subscriberManager, times(12)).registerSubscriber(
+        // Each tenant gets 5 subscribers (records-changed, schema-changed, reprocess, reindex, records-changed-v2)
+        verify(subscriberManager, times(15)).registerSubscriber(
                 any(String.class),
                 any(String.class),
                 any(String.class),
@@ -173,6 +171,25 @@ class TenantSubscriberConfigurationTest {
                 eq("tenant1"),
                 eq(RECORDS_CHANGED_TOPIC),
                 eq("indexer-" + RECORDS_CHANGED_TOPIC),
+                any(RecordsChangedMessageReceiver.class),
+                eq(OqmSubscriberThroughput.MAX)
+        );
+    }
+
+    @Test
+    void postConstruct_shouldRegisterRecordsChangedV2SubscriberWithCorrectParameters() {
+        // Arrange
+        TenantInfo tenantInfo = createTenantInfo("tenant1");
+        when(tenantInfoFactory.listTenantInfo()).thenReturn(Collections.singletonList(tenantInfo));
+
+        // Act
+        configuration.postConstruct();
+
+        // Assert
+        verify(subscriberManager).registerSubscriber(
+                eq("tenant1"),
+                eq(RECORDS_CHANGED_TOPIC_V2),
+                eq("indexer-" + RECORDS_CHANGED_TOPIC_V2),
                 any(RecordsChangedMessageReceiver.class),
                 eq(OqmSubscriberThroughput.MAX)
         );
@@ -245,7 +262,7 @@ class TenantSubscriberConfigurationTest {
         configuration.postConstruct();
 
         // Assert
-        verify(subscriberManager, times(4)).registerSubscriber(
+        verify(subscriberManager, times(5)).registerSubscriber(
                 any(String.class),
                 any(String.class),
                 subscriptionNameCaptor.capture(),
@@ -260,7 +277,8 @@ class TenantSubscriberConfigurationTest {
                         "indexer-" + RECORDS_CHANGED_TOPIC,
                         "indexer-" + SCHEMA_CHANGED_TOPIC,
                         "indexer-" + REPROCESS_TOPIC,
-                        "indexer-" + REINDEX_TOPIC
+                        "indexer-" + REINDEX_TOPIC,
+                        "indexer-" + RECORDS_CHANGED_TOPIC_V2
                 );
     }
 
@@ -274,7 +292,7 @@ class TenantSubscriberConfigurationTest {
         configuration.postConstruct();
 
         // Assert
-        verify(subscriberManager, times(4)).registerSubscriber(
+        verify(subscriberManager, times(5)).registerSubscriber(
                 any(String.class),
                 any(String.class),
                 any(String.class),
@@ -284,7 +302,7 @@ class TenantSubscriberConfigurationTest {
 
         List<OqmMessageReceiver> receivers = receiverCaptor.getAllValues();
         assertThat(receivers)
-                .hasSize(4)
+                .hasSize(5)
                 .hasAtLeastOneElementOfType(RecordsChangedMessageReceiver.class)
                 .hasAtLeastOneElementOfType(SchemaChangedMessageReceiver.class)
                 .hasAtLeastOneElementOfType(ReprocessorMessageReceiver.class)
@@ -301,7 +319,7 @@ class TenantSubscriberConfigurationTest {
         configuration.postConstruct();
 
         // Assert
-        verify(subscriberManager, times(4)).registerSubscriber(
+        verify(subscriberManager, times(5)).registerSubscriber(
                 any(String.class),
                 topicNameCaptor.capture(),
                 any(String.class),
@@ -316,7 +334,7 @@ class TenantSubscriberConfigurationTest {
             String topic = topics.get(i);
             OqmSubscriberThroughput throughput = throughputs.get(i);
 
-            if (RECORDS_CHANGED_TOPIC.equals(topic) || REINDEX_TOPIC.equals(topic)) {
+            if (RECORDS_CHANGED_TOPIC.equals(topic) || RECORDS_CHANGED_TOPIC_V2.equals(topic) || REINDEX_TOPIC.equals(topic)) {
                 assertThat(throughput).isEqualTo(OqmSubscriberThroughput.MAX);
             }
         }
@@ -332,7 +350,7 @@ class TenantSubscriberConfigurationTest {
         configuration.postConstruct();
 
         // Assert
-        verify(subscriberManager, times(4)).registerSubscriber(
+        verify(subscriberManager, times(5)).registerSubscriber(
                 any(String.class),
                 topicNameCaptor.capture(),
                 any(String.class),
@@ -366,7 +384,7 @@ class TenantSubscriberConfigurationTest {
         configuration.postConstruct();
 
         // Assert
-        verify(subscriberManager, times(8)).registerSubscriber(
+        verify(subscriberManager, times(10)).registerSubscriber(
                 dataPartitionIdCaptor.capture(),
                 any(String.class),
                 any(String.class),
@@ -376,12 +394,12 @@ class TenantSubscriberConfigurationTest {
 
         List<String> dataPartitionIds = dataPartitionIdCaptor.getAllValues();
         assertThat(dataPartitionIds)
-                .hasSize(8)
+                .hasSize(10)
                 .contains("tenant1", "tenant2");
 
-        // Each tenant should have 4 registrations
-        assertThat(dataPartitionIds.stream().filter(id -> id.equals("tenant1")).count()).isEqualTo(4);
-        assertThat(dataPartitionIds.stream().filter(id -> id.equals("tenant2")).count()).isEqualTo(4);
+        // Each tenant should have 5 registrations
+        assertThat(dataPartitionIds.stream().filter(id -> id.equals("tenant1")).count()).isEqualTo(5);
+        assertThat(dataPartitionIds.stream().filter(id -> id.equals("tenant2")).count()).isEqualTo(5);
     }
 
     @Test
@@ -416,6 +434,7 @@ class TenantSubscriberConfigurationTest {
         verify(properties, atLeastOnce()).getSchemaChangedTopicName();
         verify(properties, atLeastOnce()).getReprocessTopicName();
         verify(properties, atLeastOnce()).getReindexTopicName();
+        verify(properties, atLeastOnce()).getRecordsChangedTopicNameV2();
     }
 
     @Test
@@ -425,11 +444,13 @@ class TenantSubscriberConfigurationTest {
         String customSchemaTopic = "custom-schema-topic";
         String customReprocessTopic = "custom-reprocess-topic";
         String customReindexTopic = "custom-reindex-topic";
+        String customRecordsTopicV2 = "custom-records-topic-v2";
 
         when(properties.getRecordsChangedTopicName()).thenReturn(customRecordsTopic);
         when(properties.getSchemaChangedTopicName()).thenReturn(customSchemaTopic);
         when(properties.getReprocessTopicName()).thenReturn(customReprocessTopic);
         when(properties.getReindexTopicName()).thenReturn(customReindexTopic);
+        when(properties.getRecordsChangedTopicNameV2()).thenReturn(customRecordsTopicV2);
 
         TenantInfo tenantInfo = createTenantInfo("tenant1");
         when(tenantInfoFactory.listTenantInfo()).thenReturn(Collections.singletonList(tenantInfo));
@@ -466,6 +487,13 @@ class TenantSubscriberConfigurationTest {
                 any(ReindexMessageReceiver.class),
                 any(OqmSubscriberThroughput.class)
         );
+        verify(subscriberManager).registerSubscriber(
+                eq("tenant1"),
+                eq(customRecordsTopicV2),
+                eq("indexer-" + customRecordsTopicV2),
+                any(RecordsChangedMessageReceiver.class),
+                any(OqmSubscriberThroughput.class)
+        );
     }
 
     @Test
@@ -481,7 +509,7 @@ class TenantSubscriberConfigurationTest {
         configuration.postConstruct();
 
         // Assert
-        verify(subscriberManager, times(8)).registerSubscriber(
+        verify(subscriberManager, times(10)).registerSubscriber(
                 any(String.class),
                 any(String.class),
                 any(String.class),
@@ -490,14 +518,14 @@ class TenantSubscriberConfigurationTest {
         );
 
         List<OqmMessageReceiver> receivers = receiverCaptor.getAllValues();
-        assertThat(receivers).hasSize(8);
+        assertThat(receivers).hasSize(10);
 
         // Verify we have new instances for each tenant (not reusing the same instance)
         long distinctRecordsChangedReceivers = receivers.stream()
                 .filter(RecordsChangedMessageReceiver.class::isInstance)
                 .distinct()
                 .count();
-        assertThat(distinctRecordsChangedReceivers).isEqualTo(2);
+        assertThat(distinctRecordsChangedReceivers).isEqualTo(4);
     }
 
     @Test
@@ -510,7 +538,7 @@ class TenantSubscriberConfigurationTest {
         configuration.postConstruct();
 
         // Assert
-        verify(subscriberManager, times(4)).registerSubscriber(
+        verify(subscriberManager, times(5)).registerSubscriber(
                 eq("tenant-with-dashes_and_underscores"),
                 any(String.class),
                 any(String.class),
@@ -520,7 +548,7 @@ class TenantSubscriberConfigurationTest {
     }
 
     @Test
-    void postConstruct_shouldRegisterAllFourSubscribersInCorrectOrder() {
+    void postConstruct_shouldRegisterAllFiveSubscribersInCorrectOrder() {
         // Arrange
         TenantInfo tenantInfo = createTenantInfo("tenant1");
         when(tenantInfoFactory.listTenantInfo()).thenReturn(Collections.singletonList(tenantInfo));
@@ -529,7 +557,7 @@ class TenantSubscriberConfigurationTest {
         configuration.postConstruct();
 
         // Assert
-        verify(subscriberManager, times(4)).registerSubscriber(
+        verify(subscriberManager, times(5)).registerSubscriber(
                 any(String.class),
                 topicNameCaptor.capture(),
                 any(String.class),
@@ -542,8 +570,9 @@ class TenantSubscriberConfigurationTest {
                 RECORDS_CHANGED_TOPIC,
                 SCHEMA_CHANGED_TOPIC,
                 REPROCESS_TOPIC,
-                REINDEX_TOPIC
-        );
+                REINDEX_TOPIC,
+                RECORDS_CHANGED_TOPIC_V2
+                );
     }
 
     // Helper method

@@ -27,4 +27,17 @@ public class SchemaRedisCache extends RedisAzureCache<String> implements ISchema
     public SchemaRedisCache(final RedisConfig redisConfig) {
         super(String.class, redisConfig.createConfiguration(redisConfig.getSchemaTtl()));
     }
+
+    /**
+     * Clears all schema cache entries using pattern-based deletion.
+     * This avoids flushing the entire Redis database and only removes keys managed by this cache.
+     *
+     * <p>The pattern {@code *-schemacache-*} matches keys with the format:
+     * {@code {prefix}{partitionId}-schemacache-{key}}, where prefix is added
+     * automatically by RedisAzureCache for database isolation on Azure Managed Redis.
+     */
+    @Override
+    public void clearAll() {
+        super.deleteByPattern("*-schemacache-*");
+    }
 }

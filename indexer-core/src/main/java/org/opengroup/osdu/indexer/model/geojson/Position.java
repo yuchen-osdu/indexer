@@ -16,8 +16,8 @@ package org.opengroup.osdu.indexer.model.geojson;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 import lombok.*;
 import org.opengroup.osdu.indexer.model.geojson.jackson.PositionDeserializer;
 import org.opengroup.osdu.indexer.model.geojson.jackson.PositionSerializer;

@@ -46,6 +46,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
@@ -665,22 +666,26 @@ public class RecordSteps extends TestsBase {
 
     // ============ REINDEX IMPLEMENTATION METHODS ============
 
-    private String reindexTaskId;
     private int lastResponseStatusCode;
     private String lastResponseBody;
     private long documentCountBeforeReindex = 0;
+    private String reindexIndex;
+    private List<String> removedRecordIds = List.of();
+    private String forceCleanMarkerId;
 
-    public void i_capture_document_count_before_reindex(String index) throws Throwable {
-        String actualIndex = generateActualName(index, timeStamp);
-        log.log(Level.INFO, "Capturing document count before reindex for index: " + actualIndex);
-        try {
-            // Wait for indexing to complete before capturing count
-            documentCountBeforeReindex = createIndex(actualIndex);
-            log.log(Level.INFO, "Document count before reindex: " + documentCountBeforeReindex);
-        } catch (Exception e) {
-            log.log(Level.WARNING, "Failed to capture document count before reindex: " + e.getMessage());
-            documentCountBeforeReindex = 0;
+    public void i_prepare_missing_documents_before_reindex(String index) throws Throwable {
+        assertTrue(!ingestedRecordIds.isEmpty(), "Records must be ingested before preparing reindex");
+        reindexIndex = generateActualName(index, timeStamp);
+        documentCountBeforeReindex = getRecordsInIndex(reindexIndex, ingestedRecordIds.size());
+        removedRecordIds = List.copyOf(ingestedRecordIds.subList(0, Math.min(3, ingestedRecordIds.size())));
+        for (String id : removedRecordIds) {
+            assertEquals(Result.Deleted, elasticUtils.deleteRecordsById(reindexIndex, id).result(),
+                "Expected an indexed document to be removed before reindex: " + id);
         }
+        elasticUtils.refreshIndex(reindexIndex);
+        getRecordsInIndex(reindexIndex, Math.toIntExact(documentCountBeforeReindex) - removedRecordIds.size());
+        log.info(String.format("Removed %d Elasticsearch documents from '%s', retaining them in Storage",
+            removedRecordIds.size(), reindexIndex));
     }
 
     public void i_trigger_reindex_for_kind_with_cursor(String kind, String cursor) throws Throwable {
@@ -705,17 +710,17 @@ public class RecordSteps extends TestsBase {
         log.log(Level.INFO, "Reindex response status: " + lastResponseStatusCode);
         log.log(Level.INFO, "Reindex response body: " + lastResponseBody);
 
-        // Store task ID if present in response
-        if (response.getStatus() == 200 && lastResponseBody != null && !lastResponseBody.trim().isEmpty()) {
-            reindexTaskId = lastResponseBody.trim();
-            log.log(Level.INFO, "Stored reindex task ID: " + reindexTaskId);
-        } else {
-            log.log(Level.WARNING, "No task ID received from reindex response. Status: " + lastResponseStatusCode + ", Body: " + lastResponseBody);
-        }
     }
 
     public void i_trigger_reindex_for_kind_with_force_clean(String kind) throws Throwable {
         String actualKind = generateActualName(kind, timeStamp);
+        assertNotNull(reindexIndex, "Missing documents must be prepared before force-clean reindex");
+        forceCleanMarkerId = actualKind.split(":")[0] + ":reindex-marker:" + UUID.randomUUID();
+        elasticUtils.indexRecords(reindexIndex, actualKind, List.of(
+            new HashMap<>(Map.of("id", forceCleanMarkerId, "kind", actualKind))));
+        elasticUtils.refreshIndex(reindexIndex);
+        getRecordsInIndex(reindexIndex,
+            Math.toIntExact(documentCountBeforeReindex) - removedRecordIds.size() + 1);
         String url = getIndexerBaseURL() + "reindex?force_clean=true";
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("kind", actualKind);
@@ -737,12 +742,6 @@ public class RecordSteps extends TestsBase {
             log.log(Level.INFO, "Force clean reindex response status: " + lastResponseStatusCode);
             log.log(Level.INFO, "Force clean reindex response body: " + lastResponseBody);
 
-            if (response.getStatus() == 200 && lastResponseBody != null && !lastResponseBody.trim().isEmpty()) {
-                reindexTaskId = lastResponseBody.trim();
-                log.log(Level.INFO, "Stored force clean reindex task ID: " + reindexTaskId);
-            } else {
-                log.log(Level.WARNING, "No task ID received from force clean reindex response. Status: " + lastResponseStatusCode + ", Body: " + lastResponseBody);
-            }
         } catch (Exception ex) {
             log.log(Level.SEVERE, "Error during force clean reindex: " + ex.getMessage(), ex);
             throw new AssertionError(ex.getMessage());
@@ -750,14 +749,8 @@ public class RecordSteps extends TestsBase {
     }
 
     public void i_trigger_reindex_for_dynamic_record_ids() throws Throwable {
-        if (ingestedRecordIds.isEmpty()) {
-            throw new AssertionError("No record IDs available for reindex. Please ensure records were ingested first.");
-        }
-
-        // Use the first few record IDs for testing (limit to 2-3 to keep test manageable)
-        int maxRecords = Math.min(3, ingestedRecordIds.size());
-        List<String> recordIdsForReindex = ingestedRecordIds.subList(0, maxRecords);
-        String recordIdsString = String.join(",", recordIdsForReindex);
+        assertTrue(!removedRecordIds.isEmpty(), "Missing documents must be prepared before record-ID reindex");
+        String recordIdsString = String.join(",", removedRecordIds);
 
         log.log(Level.INFO, "Using dynamic record IDs for reindex: " + recordIdsString);
 
@@ -786,13 +779,6 @@ public class RecordSteps extends TestsBase {
             log.log(Level.INFO, "Reindex records response status: " + lastResponseStatusCode);
             log.log(Level.INFO, "Reindex records response body: " + lastResponseBody);
 
-            // The API returns 202 (Accepted) for successful reindex requests
-            if (response.getStatus() == 202) {
-                reindexTaskId = "reindex-records-task-" + System.currentTimeMillis();
-                log.log(Level.INFO, "Stored reindex records task ID: " + reindexTaskId);
-            } else {
-                log.log(Level.WARNING, "Unexpected response status for reindex records: " + lastResponseStatusCode);
-            }
         } catch (Exception ex) {
             log.log(Level.SEVERE, "Error during record IDs reindex: " + ex.getMessage(), ex);
             throw new AssertionError(ex.getMessage());
@@ -825,58 +811,18 @@ public class RecordSteps extends TestsBase {
 
     public void i_should_verify_reindexed_documents_in_index(String index) throws Throwable {
         String actualIndex = generateActualName(index, timeStamp);
-        log.log(Level.INFO, "Verifying reindexed documents in index: " + actualIndex);
-
-        // Wait longer for reindexing to complete (reindex operations can take time)
-        log.log(Level.INFO, "Waiting for reindex operation to complete...");
-        TimeUnit.SECONDS.sleep(10);
-
-        // Get document count after reindex with retry logic
-        long documentCountAfterReindex = 0;
-        int maxRetries = 5;
-        for (int retry = 0; retry < maxRetries; retry++) {
-            try {
-                documentCountAfterReindex = elasticUtils.fetchRecords(actualIndex);
-                log.log(Level.INFO, "Document count after reindex (attempt " + (retry + 1) + "): " + documentCountAfterReindex);
-                if (documentCountAfterReindex > 0) {
-                    break; // Found documents, exit retry loop
-                }
-                if (retry < maxRetries - 1) {
-                    log.log(Level.INFO, "No documents found, waiting 40 seconds before retry...");
-                    TimeUnit.SECONDS.sleep(40);
-                }
-            } catch (Exception e) {
-                log.log(Level.SEVERE, "Failed to fetch documents from index " + actualIndex + " (attempt " + (retry + 1) + "): " + e.getMessage());
-                if (retry == maxRetries - 1) {
-                    throw new AssertionError("Failed to fetch documents from index after " + maxRetries + " attempts: " + e.getMessage());
-                }
-                TimeUnit.SECONDS.sleep(2);
-            }
+        assertEquals(reindexIndex, actualIndex, "Verify the index prepared for reindex");
+        assertTrue(documentCountBeforeReindex > 0, "A non-empty baseline is required for reindex");
+        getRecordsInIndex(actualIndex, Math.toIntExact(documentCountBeforeReindex));
+        for (String id : removedRecordIds) {
+            assertEquals(1, elasticUtils.fetchRecordsByFieldAndFieldValue(actualIndex, "id", id),
+                "Reindex must restore the removed document: " + id);
         }
-        log.log(Level.INFO, "Final document count after reindex: " + documentCountAfterReindex);
-        log.log(Level.INFO, "Document count before reindex: " + documentCountBeforeReindex);
-
-        // Verify documents exist in the index
-        if (documentCountAfterReindex == 0) {
-            log.log(Level.SEVERE, "No documents found in index " + actualIndex + " after reindex");
-            throw new AssertionError("No documents found in index after reindex. Index: " + actualIndex +
-                                   ", Expected: " + documentCountBeforeReindex + ", Actual: " + documentCountAfterReindex);
+        if (forceCleanMarkerId != null) {
+            assertEquals(0, elasticUtils.fetchRecordsByFieldAndFieldValue(actualIndex, "id", forceCleanMarkerId),
+                "Force-clean must remove the Elasticsearch-only marker document");
         }
-
-        // If we captured count before reindex, verify they match
-        if (documentCountBeforeReindex > 0) {
-            if (documentCountAfterReindex != documentCountBeforeReindex) {
-                log.log(Level.WARNING, "Document count mismatch after reindex. Before: " + documentCountBeforeReindex +
-                                     ", After: " + documentCountAfterReindex);
-            }
-            assertEquals(documentCountBeforeReindex, documentCountAfterReindex,
-                        "Document count should match before and after reindex");
-        } else {
-            // Just verify documents exist
-            assertTrue(documentCountAfterReindex > 0, "Expected documents in index after reindex. Index: " + actualIndex +
-                      ", Document count: " + documentCountAfterReindex);
-        }
-        log.log(Level.INFO, "Successfully verified " + documentCountAfterReindex + " documents in index " + actualIndex);
+        log.info(String.format("Reindex restored the removed documents in '%s'", actualIndex));
     }
 
     public void i_should_get_error_response_with_status_code(int expectedStatusCode) throws Throwable {

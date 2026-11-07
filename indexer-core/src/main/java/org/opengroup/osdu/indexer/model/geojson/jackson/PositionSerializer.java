@@ -14,17 +14,16 @@
 
 package org.opengroup.osdu.indexer.model.geojson.jackson;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.SerializationContext;
 import org.opengroup.osdu.indexer.model.geojson.Position;
 
-import java.io.IOException;
 
-public class PositionSerializer extends JsonSerializer<Position> {
+public class PositionSerializer extends ValueSerializer<Position> {
 
     @Override
-    public void serialize(Position value, JsonGenerator jsonGenerator, SerializerProvider provider) throws IOException {
+    public void serialize(Position value, JsonGenerator jsonGenerator, SerializationContext provider) {
         jsonGenerator.writeStartArray();
         jsonGenerator.writeNumber(value.getLongitude());
         jsonGenerator.writeNumber(value.getLatitude());

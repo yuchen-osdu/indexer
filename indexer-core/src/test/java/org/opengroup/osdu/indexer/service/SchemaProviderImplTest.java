@@ -14,8 +14,11 @@
 
 package org.opengroup.osdu.indexer.service;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.Rule;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 import org.apache.http.HttpStatus;
 import org.junit.Assert;
 import org.junit.Test;
@@ -30,7 +33,9 @@ import org.opengroup.osdu.indexer.config.IndexerConfigurationProperties;
 import org.opengroup.osdu.indexer.logging.AuditLogger;
 import org.opengroup.osdu.indexer.model.SchemaInfoResponse;
 import org.opengroup.osdu.indexer.schema.converter.SchemaToStorageFormatImpl;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.json.JsonMapper;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.UnsupportedEncodingException;
@@ -45,7 +50,10 @@ import static org.mockito.Mockito.*;
 @RunWith(SpringRunner.class)
 public class SchemaProviderImplTest {
 
-    private ObjectMapper objectMapper = Jackson2ObjectMapperBuilder.json().build();
+    @Rule
+    public MockitoRule mockitoRule = MockitoJUnit.rule();
+
+    private ObjectMapper objectMapper = JsonMapper.builder().findAndAddModules().disable(MapperFeature.DEFAULT_VIEW_INCLUSION).disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
     private JaxRsDpsLog jaxRsDpsLog = Mockito.mock(JaxRsDpsLog.class);
 
     @Spy
@@ -65,6 +73,9 @@ public class SchemaProviderImplTest {
 
     @Mock
     private AuditLogger auditLogger;
+
+    @Mock
+    private JaxRsDpsLog log;
 
     @InjectMocks
     private SchemaProviderImpl sut;
@@ -169,6 +180,55 @@ public class SchemaProviderImplTest {
         assertEquals(1, schemaInfoResponse.getCount());
         assertEquals(1, schemaInfoResponse.getSchemaInfos().size());
         assertEquals("osdu:wks:master-data--Wellbore:1.3.0", schemaInfoResponse.getSchemaInfos().get(0).getSchemaIdentity().getId());
+        verify(this.urlFetchService, times(1)).sendRequest(any());
+    }
+
+    @Test
+    public void getSchemaInfos_pagesThroughAllResults() throws URISyntaxException, UnsupportedEncodingException {
+        String schemaHost = "http://localhost/api/schema-service/v1/schema";
+        ArgumentCaptor<FetchServiceHttpRequest> argumentCaptor = ArgumentCaptor.forClass(FetchServiceHttpRequest.class);
+        when(this.configurationProperties.getSchemaHost()).thenReturn(schemaHost);
+        when(this.urlFetchService.sendRequest(any())).thenReturn(createSchemaInfoPage(0, 100, 120), createSchemaInfoPage(100, 20, 120));
+
+        SchemaInfoResponse schemaInfoResponse = sut.getSchemaInfos("osdu", "wks", "master-data--Wellbore", "1", null, null, false);
+
+        verify(this.urlFetchService, times(2)).sendRequest(argumentCaptor.capture());
+        String baseUrl = "http://localhost/api/schema-service/v1/schema?authority=osdu&source=wks&entityType=master-data--Wellbore&schemaVersionMajor=1&latestVersion=false";
+        assertEquals(baseUrl + "&offset=0&limit=100", argumentCaptor.getAllValues().get(0).getUrl());
+        assertEquals(baseUrl + "&offset=100&limit=100", argumentCaptor.getAllValues().get(1).getUrl());
+        assertEquals(120, schemaInfoResponse.getCount());
+        assertEquals(120, schemaInfoResponse.getTotalCount());
+        assertEquals(120, schemaInfoResponse.getSchemaInfos().size());
+        assertEquals("osdu:wks:master-data--Wellbore:1.119.0", schemaInfoResponse.getSchemaInfos().get(119).getSchemaIdentity().getId());
+    }
+
+    @Test
+    public void getSchemaInfos_stopsAtTotalCount_givenFullLastPage() throws URISyntaxException, UnsupportedEncodingException {
+        when(this.urlFetchService.sendRequest(any())).thenReturn(createSchemaInfoPage(0, 100, 200), createSchemaInfoPage(100, 100, 200));
+
+        SchemaInfoResponse schemaInfoResponse = sut.getSchemaInfos("osdu", "wks", "master-data--Wellbore", "1", null, null, false);
+
+        verify(this.urlFetchService, times(2)).sendRequest(any());
+        assertEquals(200, schemaInfoResponse.getSchemaInfos().size());
+        assertEquals(200, schemaInfoResponse.getTotalCount());
+    }
+
+    @Test
+    public void getSchemaInfos_returnsNullAndLogsError_givenErrorResponse() throws URISyntaxException, UnsupportedEncodingException {
+        String errorBody = "{\"code\":400,\"reason\":\"Bad Request\",\"message\":\"limit must be less than or equal to 100\"}";
+        HttpResponse httpResponse = new HttpResponse();
+        httpResponse.setResponseCode(HttpStatus.SC_BAD_REQUEST);
+        httpResponse.setBody(errorBody);
+        when(this.urlFetchService.sendRequest(any())).thenReturn(httpResponse);
+        ArgumentCaptor<String> logCaptor = ArgumentCaptor.forClass(String.class);
+
+        SchemaInfoResponse schemaInfoResponse = sut.getSchemaInfos("osdu", "wks", "master-data--Wellbore", "1", null, null, false);
+
+        assertNull(schemaInfoResponse);
+        verify(this.urlFetchService, times(1)).sendRequest(any());
+        verify(this.log).error(logCaptor.capture());
+        assertTrue(logCaptor.getValue().contains("response code: 400"));
+        assertTrue(logCaptor.getValue().contains(errorBody));
     }
 
     @Test
@@ -183,7 +243,7 @@ public class SchemaProviderImplTest {
         verify(this.urlFetchService).sendRequest(argumentCaptor.capture());
         FetchServiceHttpRequest request = argumentCaptor.getValue();
         String url = request.getUrl();
-        String expectedUrl = "http://localhost/api/schema-service/v1/schema?authority=osdu&source=wks&entityType=master-data--Wellbore&schemaVersionMajor=1&latestVersion=true&limit=1000";
+        String expectedUrl = "http://localhost/api/schema-service/v1/schema?authority=osdu&source=wks&entityType=master-data--Wellbore&schemaVersionMajor=1&latestVersion=true&offset=0&limit=100";
         assertEquals(expectedUrl, url);
     }
 
@@ -199,7 +259,7 @@ public class SchemaProviderImplTest {
         verify(this.urlFetchService).sendRequest(argumentCaptor.capture());
         FetchServiceHttpRequest request = argumentCaptor.getValue();
         String url = request.getUrl();
-        String expectedUrl = "http://localhost/api/schema-service/v1/schema?authority=osdu&source=wks&entityType=master-data--Wellbore&schemaVersionMajor=1&schemaVersionMinor=2&latestVersion=false&limit=1000";
+        String expectedUrl = "http://localhost/api/schema-service/v1/schema?authority=osdu&source=wks&entityType=master-data--Wellbore&schemaVersionMajor=1&schemaVersionMinor=2&latestVersion=false&offset=0&limit=100";
         assertEquals(expectedUrl, url);
     }
 
@@ -226,7 +286,25 @@ public class SchemaProviderImplTest {
                 "    \"totalCount\": 1\n" +
                 "}";
         HttpResponse httpResponse = new HttpResponse();
+        httpResponse.setResponseCode(HttpStatus.SC_OK);
         httpResponse.setBody(schemaInfos);
+        return httpResponse;
+    }
+
+    private HttpResponse createSchemaInfoPage(int firstMinorVersion, int size, int totalCount) {
+        StringBuilder schemaInfos = new StringBuilder();
+        for (int minorVersion = firstMinorVersion; minorVersion < firstMinorVersion + size; minorVersion++) {
+            if (schemaInfos.length() > 0) {
+                schemaInfos.append(",");
+            }
+            schemaInfos.append(String.format("{\"schemaIdentity\": {\"authority\": \"osdu\", \"source\": \"wks\", " +
+                    "\"entityType\": \"master-data--Wellbore\", \"schemaVersionMajor\": 1, \"schemaVersionMinor\": %d, " +
+                    "\"schemaVersionPatch\": 0, \"id\": \"osdu:wks:master-data--Wellbore:1.%d.0\"}}", minorVersion, minorVersion));
+        }
+        HttpResponse httpResponse = new HttpResponse();
+        httpResponse.setResponseCode(HttpStatus.SC_OK);
+        httpResponse.setBody(String.format("{\"schemaInfos\": [%s], \"offset\": %d, \"count\": %d, \"totalCount\": %d}",
+                schemaInfos, firstMinorVersion, size, totalCount));
         return httpResponse;
     }
 

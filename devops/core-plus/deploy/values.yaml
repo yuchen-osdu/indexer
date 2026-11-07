@@ -17,9 +17,8 @@ data:
   schemaHost: "http://schema"
   securityHttpsCertificateTrust: "true"
   storageHost: "http://storage"
-  collaborationsEnabled: true
   # Otel
-  javaToolOptions: ""
+  javaToolOptions: "-XX:ActiveProcessorCount=8"
   otelExporterEndpoint: ""
   otelExporterProtocol: ""
   # PubSub topic configuration

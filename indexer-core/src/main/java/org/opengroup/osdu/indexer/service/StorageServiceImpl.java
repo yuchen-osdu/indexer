@@ -14,8 +14,8 @@
 
 package org.opengroup.osdu.indexer.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import com.google.api.client.http.HttpMethods;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -143,7 +143,7 @@ public class StorageServiceImpl implements StorageService {
         String body = this.gson.toJson(RecordIds.builder().records(ids).build());
 
         DpsHeaders headers = this.requestInfo.getHeaders();
-        if (xCollaborationHolder.isFeatureEnabledAndHeaderExists()) {
+        if (xCollaborationHolder.isXcollaborationHeaderExists()) {
             headers.put(DpsHeaders.COLLABORATION, xCollaborationHolder.getXCollaborationHeader());
         }
         headers.put(FRAME_OF_REFERENCE, SLB_FRAME_OF_REFERENCE_VALUE);
@@ -154,7 +154,7 @@ public class StorageServiceImpl implements StorageService {
                 .headers(headers)
                 .body(body).build();
         HttpResponse response = this.urlFetchService.sendRequest(request);
-        log.debug("Is isFeatureEnabledAndHeaderExists: {}", xCollaborationHolder.isFeatureEnabledAndHeaderExists());
+        log.debug("Is isXcollaborationHeaderExists: {}", xCollaborationHolder.isXcollaborationHeaderExists());
         return this.validateStorageResponse(response, ids, recordChangedMap, validRecordKindPatchMap);
     }
 
@@ -166,7 +166,13 @@ public class StorageServiceImpl implements StorageService {
         request.setEntity(new StringEntity(body, StandardCharsets.UTF_8));
         // we do not need retry on storage based on not found record
         HttpResponse response = httpClientHandler.sendRequest(request, headers);
-        if (response.getResponseCode() > 299) {
+        int status = response.getResponseCode();
+        // Storage 4xx (invalid record id, and similar) is a client error. Wrapping it as 500
+        // makes schema-invalid ids look like a server failure.
+        if (status >= 400 && status < 500) {
+            throw new AppException(status, "Bad request", response.getBody());
+        }
+        if (status > 299) {
             throw new AppException(HttpStatus.SC_INTERNAL_SERVER_ERROR, "Internal Error", response.getBody());
         }
         try {
@@ -175,7 +181,7 @@ public class StorageServiceImpl implements StorageService {
             notFoundRecordIds.removeAll(records.getRecords().stream().map(Records.Entity::getId).collect(Collectors.toList()));
             records.setNotFound(notFoundRecordIds);
             return records;
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new AppException(RequestStatus.INVALID_RECORD, "Invalid request", "Successful Storage service response with wrong json", e);
         }
     }
@@ -195,7 +201,7 @@ public class StorageServiceImpl implements StorageService {
         Records records = null;
         try {
             records = this.objectMapper.readValue(bulkStorageData, Records.class);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new AppException(RequestStatus.INVALID_RECORD, "Invalid request", "Successful Storage service response with wrong json", e);
         }
 

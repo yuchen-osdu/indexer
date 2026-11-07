@@ -14,26 +14,25 @@
 
 package org.opengroup.osdu.indexer.model.geojson.jackson;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.DatabindException;
 import org.opengroup.osdu.indexer.model.geojson.Position;
 
-import java.io.IOException;
 
-public class PositionDeserializer extends JsonDeserializer<Position> {
+public class PositionDeserializer extends ValueDeserializer<Position> {
 
     @Override
-    public Position deserialize(JsonParser jsonParser, DeserializationContext context) throws IOException {
+    public Position deserialize(JsonParser jsonParser, DeserializationContext context) {
         if (jsonParser.isExpectedStartArrayToken()) {
             return deserializeArray(jsonParser, context);
         }
-        throw JsonMappingException.from(context, "Cannot deserialize instance of " + Position.class.getName());
+        throw DatabindException.from(context, "Cannot deserialize instance of " + Position.class.getName());
     }
 
-    protected Position deserializeArray(JsonParser jsonParser, DeserializationContext context) throws IOException {
+    protected Position deserializeArray(JsonParser jsonParser, DeserializationContext context) {
         Position node = new Position();
         node.setLongitude(extractDouble(jsonParser, context, false));
         node.setLatitude(extractDouble(jsonParser, context, false));
@@ -41,26 +40,26 @@ public class PositionDeserializer extends JsonDeserializer<Position> {
         return node;
     }
 
-    private double extractDouble(JsonParser jsonParser, DeserializationContext context, boolean optional) throws IOException {
+    private double extractDouble(JsonParser jsonParser, DeserializationContext context, boolean optional) {
         JsonToken token = jsonParser.nextToken();
         if (token == null) {
             if (optional)
                 return Double.NaN;
             else
-                throw JsonMappingException.from(context, "Unexpected end-of-input when binding data into Position");
+                throw DatabindException.from(context, "Unexpected end-of-input when binding data into Position");
         } else {
             switch (token) {
                 case END_ARRAY:
                     if (optional)
                         return Double.NaN;
                     else
-                        throw JsonMappingException.from(context, "Unexpected end-of-input when binding data into Position");
+                        throw DatabindException.from(context, "Unexpected end-of-input when binding data into Position");
                 case VALUE_NUMBER_FLOAT:
                     return jsonParser.getDoubleValue();
                 case VALUE_NUMBER_INT:
                     return jsonParser.getLongValue();
                 default:
-                    throw JsonMappingException.from(context, "Unexpected token (" + token.name() + ") when binding data into Position");
+                    throw DatabindException.from(context, "Unexpected token (" + token.name() + ") when binding data into Position");
             }
         }
     }

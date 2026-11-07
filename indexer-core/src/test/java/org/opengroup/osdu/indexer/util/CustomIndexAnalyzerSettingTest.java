@@ -15,6 +15,9 @@
 
 package org.opengroup.osdu.indexer.util;
 
+import org.junit.Rule;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,6 +31,9 @@ import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
 public class CustomIndexAnalyzerSettingTest {
+
+    @Rule
+    public MockitoRule mockitoRule = MockitoJUnit.rule();
     @Mock
     private BooleanFeatureFlagClient booleanFeatureFlagClient;
 

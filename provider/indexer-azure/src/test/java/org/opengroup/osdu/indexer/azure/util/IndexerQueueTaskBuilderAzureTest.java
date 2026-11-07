@@ -33,7 +33,7 @@ import org.opengroup.osdu.core.common.model.indexer.RecordQueryResponse;
 import org.opengroup.osdu.indexer.azure.di.PublisherConfig;
 import org.opengroup.osdu.indexer.config.IndexerConfigurationProperties;
 import org.opengroup.osdu.indexer.service.StorageService;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.net.URISyntaxException;
@@ -89,7 +89,7 @@ public class IndexerQueueTaskBuilderAzureTest {
 
     @InjectMocks
     IndexerQueueTaskBuilderAzure sut;
-    @MockBean
+    @MockitoBean
     private Clock fixedClock;
     @Before
     public void setup() {
