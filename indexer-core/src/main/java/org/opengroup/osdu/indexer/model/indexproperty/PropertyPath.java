@@ -16,7 +16,7 @@
 package org.opengroup.osdu.indexer.model.indexproperty;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonDeserialize;
 import lombok.Data;
 import lombok.ToString;
 import org.opengroup.osdu.indexer.model.indexproperty.jackson.PropertyPathDeserializer;

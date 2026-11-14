@@ -15,6 +15,9 @@
 
 package org.opengroup.osdu.indexer.util.geo.decimator;
 
+import org.junit.Rule;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.junit.Assert;
@@ -31,6 +34,9 @@ import java.util.List;
 
 @RunWith(SpringRunner.class)
 public class DouglasPeuckerReducerTest {
+
+    @Rule
+    public MockitoRule mockitoRule = MockitoJUnit.rule();
     Gson gson = new Gson();
 
     @InjectMocks

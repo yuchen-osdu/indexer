@@ -36,4 +36,6 @@ public interface IndicesService {
     List<IndexInfo> getIndexInfo(ElasticsearchClient client, String indexPattern) throws IOException;
 
     boolean isIndexReady(ElasticsearchClient client, String index) throws IOException;
+
+    void invalidateCache(String index);
 }

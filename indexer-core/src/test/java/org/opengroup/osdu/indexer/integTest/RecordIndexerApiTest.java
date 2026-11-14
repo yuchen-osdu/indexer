@@ -20,7 +20,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
-import static org.opengroup.osdu.indexer.config.IndexerConfigurationProperties.COLLABORATIONS_FEATURE_NAME;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -35,16 +34,16 @@ import co.elastic.clients.elasticsearch.indices.GetMappingResponse;
 import co.elastic.clients.elasticsearch.indices.PutMappingRequest;
 import co.elastic.clients.elasticsearch.indices.PutMappingResponse;
 import co.elastic.clients.transport.endpoints.BooleanResponse;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.opengroup.osdu.core.common.http.IUrlFetchService;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.core.common.model.indexer.IndexProgress;
@@ -72,10 +71,10 @@ import org.opengroup.osdu.indexer.service.SchemaEventsProcessor;
 import org.opengroup.osdu.indexer.util.ElasticClientHandler;
 import org.opengroup.osdu.indexer.util.FeatureFlagStateConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -103,63 +102,59 @@ public class RecordIndexerApiTest {
   @Autowired
   private MockMvc mockMvc;
 
-  @MockBean
+  @MockitoBean
   private IndexerConfigurationProperties configurationProperties;
-  @MockBean
+  @MockitoBean
   private IRequestInfo iRequestInfo;
-  @MockBean
+  @MockitoBean
   private ReindexService reIndexService;
-  @MockBean
+  @MockitoBean
   private SchemaEventsProcessor eventsProcessingService;
-  @MockBean
+  @MockitoBean
   private ISchemaCache iSchemaCache;
-  @MockBean
+  @MockitoBean
   private SchemaCache schemaCache;
-  @MockBean
+  @MockitoBean
   private IIndexCache iIndexCache;
-  @MockBean
+  @MockitoBean
   private IElasticRepository IElasticRepository;
-  @MockBean
+  @MockitoBean
   private IElasticCredentialsCache IElasticCredentialsCache;
-  @MockBean
+  @MockitoBean
   private IServiceAccountJwtClient IServiceAccountJwtClient;
-  @MockBean
+  @MockitoBean
   private IPublisher IPublisher;
-  @MockBean
+  @MockitoBean
   private DpsHeaders dpsHeaders;
-  @MockBean
+  @MockitoBean
   private IUrlFetchService iUrlFetchService;
-  @MockBean
+  @MockitoBean
   private ElasticClientHandler elasticClientHandler;
-  @MockBean
+  @MockitoBean
   private IndicesService indicesService;
-  @MockBean
+  @MockitoBean
   private ElasticsearchClient restHighLevelClient;
-  @MockBean
+  @MockitoBean
   private ElasticsearchIndicesClient indicesClient;
-  @MockBean
+  @MockitoBean
   private ElasticsearchClusterClient clusterClient;
-  @SpyBean
+  @MockitoSpyBean
   private IndexerMappingServiceImpl indexerMappingServiceImpl;
-  @MockBean
+  @MockitoBean
   private BulkResponseItem bulkItemResponse;
-  @MockBean
+  @MockitoBean
   private JobStatus jobStatus;
-  @MockBean
+  @MockitoBean
   private IPartitionFactory iPartitionFactory;
-  @MockBean
+  @MockitoBean
   private IPartitionProvider iPartitionProvider;
-  @MockBean
+  @MockitoBean
   private FeatureFlagStateConfiguration stateConfiguration;
 
   @ParameterizedTest
-  @CsvSource({"true,true", "true,false", "false,false", "false, true"})
-  public void givenXcollaborationHeaderAndFeatureEnabledTest(String isFeatureEnabled,
-                                                             String shouldIncludeXattributeIntoHeader)
+  @ValueSource(booleans = {true, false})
+  public void givenXcollaborationHeader_shouldProcessRequest(boolean shouldIncludeXattributeIntoHeader)
       throws Exception {
-
-    // set env to enable feature
-    System.setProperty(COLLABORATIONS_FEATURE_NAME, isFeatureEnabled);
 
     // constants
     String schemaAsJsonFile = "src/test/java/org/opengroup/osdu/indexer/integTest/fixtures/schema.json";
@@ -185,7 +180,7 @@ public class RecordIndexerApiTest {
     attributes.put("data-partition-id", "test");
     String nameSpaceAsUUID = UUID.randomUUID().toString();
     String xCollaborationValue = "id=" + nameSpaceAsUUID + ",application=app-name-in-x-collab-header";
-    if (Boolean.parseBoolean(shouldIncludeXattributeIntoHeader)) {
+    if (shouldIncludeXattributeIntoHeader) {
       attributes.put(DpsHeaders.COLLABORATION, xCollaborationValue);
     }
 
@@ -266,7 +261,7 @@ public class RecordIndexerApiTest {
     try {
       JsonNode jsonNode = objectMapper.readValue(Paths.get(relativePathToFile).toFile(), JsonNode.class);
       jsonString = objectMapper.writeValueAsString(jsonNode);
-    } catch (IOException e) {
+    } catch (JacksonException e) {
       e.printStackTrace();
     }
     return jsonString;

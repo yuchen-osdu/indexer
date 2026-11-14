@@ -15,6 +15,9 @@
 
 package org.opengroup.osdu.indexer.cache.partitionsafe;
 
+import org.junit.Rule;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,6 +34,9 @@ import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
 public class FeatureFlagCacheTest {
+
+    @Rule
+    public MockitoRule mockitoRule = MockitoJUnit.rule();
     private static final String VALID_KEY = "Tenant1-indexer-decimation-enabled";
     private static final String INVALID_KEY = "Tenant2-indexer-decimation-enabled";
 

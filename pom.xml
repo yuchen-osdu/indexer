@@ -5,33 +5,49 @@
     <groupId>org.opengroup.osdu.indexer</groupId>
     <artifactId>indexer-service</artifactId>
     <packaging>pom</packaging>
-    <version>0.30.0-SNAPSHOT</version>
+    <version>${revision}</version>
     <description>Indexer Service</description>
 
     <properties>
-        <java.version>17</java.version>
+        <revision>0.31.0-SNAPSHOT</revision>
+        <java.version>25</java.version>
         <maven.compiler.release>${java.version}</maven.compiler.release>
-        <os-core-common.version>7.1.0</os-core-common.version>
-        <hibernate-validator.version>8.0.0.Final</hibernate-validator.version>
+        <os-core-common.version>10.0.0</os-core-common.version>
         <commons-codec.version>1.20.0</commons-codec.version>
         <woodstox-core.version>6.4.0</woodstox-core.version>
-        <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
+        <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
         <json-smart.version>2.6.0</json-smart.version>
-        <openapi.version>2.8.16</openapi.version>
-        <swagger-core.version>2.2.45</swagger-core.version>
-        <spring-boot.version>3.5.14</spring-boot.version>
-        <spring-framework.version>6.2.18</spring-framework.version>
-        <spring-security.version>6.5.10</spring-security.version>
+        <openapi.version>3.0.3</openapi.version>
+        <swagger-core.version>2.2.47</swagger-core.version>
+        <spring-boot.version>4.0.9</spring-boot.version>
+        <spring-framework.version>7.0.10</spring-framework.version>
+        <spring-security.version>7.0.7</spring-security.version>
+        <guava.version>33.7.2-jre</guava.version>
+        <!-- Spring Boot 4.0.9 still manages logback 1.5.x; CVE-2026-104721 (SiftingAppender) needs 1.6.5 -->
+        <logback.version>1.6.5</logback.version>
         <lombok.version>1.18.42</lombok.version>
-        <!-- os-core-common 7.0.0 declares lettuce-core as provided; CVE-2025-58057 requires >= 7.5.2.RELEASE -->
+        <mockito.version>5.23.0</mockito.version>
+        <!-- Empty placeholder so Surefire can late-replace @{argLine} (e.g. Jacoco); without it the literal @{argLine} is passed to the JVM and tests fail to start. -->
+        <argLine></argLine>
+        <!-- os-core-common declares lettuce-core as provided; CVE-2025-58057 requires >= 7.5.2.RELEASE -->
         <lettuce.version>7.5.2.RELEASE</lettuce.version>
-        <!-- lettuce-core 7.x requires Netty 4.2+; Spring Boot 3.5.14 provides 4.1.x -->
-        <netty.version>4.2.14.Final</netty.version>
+        <!-- lettuce-core 7.x requires Netty 4.2+ -->
+        <netty.version>4.2.19.Final</netty.version>
+        <!-- Patched Tomcat 11 line. Explicit dependencyManagement entries are required because this POM
+             imports spring-boot-dependencies as a BOM (no spring-boot-starter-parent). -->
+        <tomcat.version>11.0.27</tomcat.version>
+        <!-- Jackson 3 is Spring Boot 4's (and os-core-common's) JSON library; Jackson 2 stays for the
+             Elasticsearch client and other third-party libraries. Both BOMs are imported ahead of
+             spring-boot-dependencies so the patched releases win. -->
+        <jackson2.version>2.21.8</jackson2.version>
+        <jackson3.version>3.1.8</jackson3.version>
+        <!-- CVE-2025-67030: plexus-utils Directory Traversal; need >= 4.0.3 -->
+        <plexus-utils.version>4.0.3</plexus-utils.version>
         <elasticsearch.version>8.15.2</elasticsearch.version>
         <spring-plugin.version>3.0.0</spring-plugin.version>
-        <jacoco.version>0.8.13</jacoco.version>
+        <jacoco.version>0.8.14</jacoco.version>
         <git-commit-id-maven-plugin.version>8.0.2</git-commit-id-maven-plugin.version>
-        <maven-surefire-plugin.version>3.3.1</maven-surefire-plugin.version>
+        <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
     </properties>
 
     <licenses>
@@ -45,10 +61,12 @@
     <dependencyManagement>
         <dependencies>
             <!--
-                netty-bom must be imported BEFORE spring-boot-dependencies: Maven gives
-                precedence to the first BOM declared, so this is how we override Spring
-                Boot 3.5.x's transitive Netty 4.1.x with the 4.2.x line that lettuce-core
-                7.5.2 requires (CVE-2025-58057 et al).
+                BOMs listed in import-order precedence (Maven's "first declared wins"):
+                netty-bom first so it overrides Spring Boot's Netty 4.1.x with the 4.2.x line
+                lettuce-core 7.5.2 requires (CVE-2025-58057 et al),
+                the Jackson 2 and Jackson 3 BOMs next so they override Spring Boot's defaults with the
+                patched releases (Jackson 2: CVE-2026-89407 / CVE-2026-89425 / CVE-2026-68497 /
+                CVE-2026-91776 / CVE-2026-91777), then spring-boot-dependencies as the parent BOM.
             -->
             <dependency>
                 <groupId>io.netty</groupId>
@@ -57,7 +75,20 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <!-- Spring Boot — ships jackson-bom 2.21.2 natively from 3.5.13+ -->
+            <dependency>
+                <groupId>com.fasterxml.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>${jackson2.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>tools.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>${jackson3.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
@@ -84,6 +115,16 @@
                 <groupId>org.opengroup.osdu</groupId>
                 <artifactId>os-core-common</artifactId>
                 <version>${os-core-common.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>${mockito.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-junit-jupiter</artifactId>
+                <version>${mockito.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-codec</groupId>
@@ -124,6 +165,53 @@
                 <groupId>org.locationtech.spatial4j</groupId>
                 <artifactId>spatial4j</artifactId>
                 <version>0.7</version>
+            </dependency>
+            <!-- Guava CVE-2026-102554 and logback CVE-2026-104721 (Boot 4.0.9 still manages logback 1.5.x) -->
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-core</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+            <!-- Override Spring Boot's Tomcat embed line with the patched 11.0.x release -->
+            <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-core</artifactId>
+                <version>${tomcat.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-el</artifactId>
+                <version>${tomcat.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-websocket</artifactId>
+                <version>${tomcat.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-jasper</artifactId>
+                <version>${tomcat.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tomcat</groupId>
+                <artifactId>tomcat-annotations-api</artifactId>
+                <version>${tomcat.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-utils</artifactId>
+                <version>${plexus-utils.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.lettuce</groupId>
@@ -226,30 +314,6 @@
                 <module>indexer-core-plus</module>
             </modules>
         </profile>
-        <profile>
-            <id>aws</id>
-            <modules>
-                <module>provider/indexer-aws</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>azure</id>
-            <modules>
-                <module>provider/indexer-azure</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>gc</id>
-            <modules>
-                <module>provider/indexer-gc</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>ibm</id>
-            <modules>
-                <module>provider/indexer-ibm</module>
-            </modules>
-        </profile>
     </profiles>
 
     <build>
@@ -300,7 +364,7 @@
                     <dependency>
                         <groupId>org.opengroup.osdu</groupId>
                         <artifactId>osdu-enforcer-rules</artifactId>
-                        <version>1.0.1</version>
+                        <version>2.0.3</version>
                     </dependency>
                 </dependencies>
                 <executions>
@@ -316,14 +380,32 @@
                                     <version>[3.6.3,)</version>
                                 </requireMavenVersion>
                                 <requireJavaVersion>
-                                    <version>[17,)</version>
+                                    <version>[25,)</version>
                                 </requireJavaVersion>
                                 <banDuplicatePomDependencyVersions/>
+                                <reactorModuleConvergence/>
                                 <requireSameVersions>
                                     <plugins>
                                         <plugin>org.apache.maven.plugins:maven-compiler-plugin</plugin>
                                     </plugins>
                                 </requireSameVersions>
+                                <requireSameVersions>
+                                    <plugins>
+                                        <plugin>org.apache.maven.plugins:maven-surefire-plugin</plugin>
+                                        <plugin>org.apache.maven.plugins:maven-failsafe-plugin</plugin>
+                                        <plugin>org.apache.maven.plugins:maven-surefire-report-plugin</plugin>
+                                    </plugins>
+                                </requireSameVersions>
+                                <requireReleaseDeps>
+                                    <message>No Snapshots Allowed!</message>
+                                    <excludes>
+                                        <!-- Reactor / parent (version is ${revision} until release). -->
+                                        <exclude>org.opengroup.osdu.indexer:indexer-service</exclude>
+                                        <exclude>org.opengroup.osdu.indexer:indexer-core</exclude>
+                                        <exclude>org.opengroup.osdu.indexer:indexer-core-plus</exclude>
+
+                                    </excludes>
+                                </requireReleaseDeps>
                             </rules>
                         </configuration>
                     </execution>
@@ -378,6 +460,31 @@
                     <goal>report</goal>
                     </goals>
                 </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>1.8.0</version>
+                <configuration>
+                    <updatePomFile>true</updatePomFile>
+                    <flattenMode>resolveCiFriendliesOnly</flattenMode>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>flatten</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>flatten.clean</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
                 </executions>
             </plugin>
         </plugins>

@@ -116,7 +116,7 @@ public class RecordIndexerApiTest {
 
     private void should_return200_indexerWorkerTest(String message) throws Exception {
         ResponseEntity response = this.sut.indexWorker(createRecordChangedMessage(message));
-        assertEquals(HttpStatus.OK.value(), response.getStatusCodeValue());
+        assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
     }
 
     private void should_return400_indexerWorkerTest(String message, String errorMessage) {
@@ -137,7 +137,7 @@ public class RecordIndexerApiTest {
 
     private void should_return200_schemaWorkerTest(String message) throws Exception {
         ResponseEntity response = this.sut.schemaWorker(createSchemaChangedMessage(message));
-        assertEquals(HttpStatus.OK.value(), response.getStatusCodeValue());
+        assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
     }
 
     private void should_return400_schemaWorkerTest(String message, String errorMessage) {

@@ -15,23 +15,22 @@
 
 package org.opengroup.osdu.indexer.model.geojson.jackson;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.jsontype.TypeSerializer;
 import org.opengroup.osdu.indexer.model.GeoJsonObject;
 import org.opengroup.osdu.indexer.model.geojson.GeometryCollection;
 import org.opengroup.osdu.indexer.model.geojson.IGeoJson;
 
-import java.io.IOException;
 
-public class GeometryCollectionSerializer extends JsonSerializer<GeometryCollection> {
+public class GeometryCollectionSerializer extends ValueSerializer<GeometryCollection> {
     @Override
-    public void serialize(GeometryCollection value, JsonGenerator jsonGenerator, SerializerProvider provider) throws IOException {
+    public void serialize(GeometryCollection value, JsonGenerator jsonGenerator, SerializationContext provider) {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField(GeoJsonConstants.TYPE, GeoJsonConstants.GEOMETRY_COLLECTION);
+        jsonGenerator.writeStringProperty(GeoJsonConstants.TYPE, GeoJsonConstants.GEOMETRY_COLLECTION);
 
-        jsonGenerator.writeArrayFieldStart(GeoJsonConstants.GEOMETRIES);
+        jsonGenerator.writeArrayPropertyStart(GeoJsonConstants.GEOMETRIES);
         for (GeoJsonObject shape : value.getGeometries()) {
             serializeGeoShape(shape, jsonGenerator);
         }
@@ -40,17 +39,16 @@ public class GeometryCollectionSerializer extends JsonSerializer<GeometryCollect
     }
 
     @Override
-    public void serializeWithType(GeometryCollection value, JsonGenerator jsonGenerator, SerializerProvider provider, TypeSerializer typeSerializer)
-        throws IOException {
+    public void serializeWithType(GeometryCollection value, JsonGenerator jsonGenerator, SerializationContext provider, TypeSerializer typeSerializer) {
 
         serialize(value, jsonGenerator, provider);
     }
 
-    private void serializeGeoShape(GeoJsonObject geoJsonObject, JsonGenerator jsonGenerator) throws IOException {
+    private void serializeGeoShape(GeoJsonObject geoJsonObject, JsonGenerator jsonGenerator) {
         if(geoJsonObject instanceof IGeoJson) {
             jsonGenerator.writeStartObject();
-            jsonGenerator.writeStringField(GeoJsonConstants.TYPE, ((IGeoJson)geoJsonObject).getType());
-            jsonGenerator.writeObjectField(GeoJsonConstants.COORDINATES, ((IGeoJson)geoJsonObject).getCoordinates());
+            jsonGenerator.writeStringProperty(GeoJsonConstants.TYPE, ((IGeoJson)geoJsonObject).getType());
+            jsonGenerator.writePOJOProperty(GeoJsonConstants.COORDINATES, ((IGeoJson)geoJsonObject).getCoordinates());
             jsonGenerator.writeEndObject();
         }
     }

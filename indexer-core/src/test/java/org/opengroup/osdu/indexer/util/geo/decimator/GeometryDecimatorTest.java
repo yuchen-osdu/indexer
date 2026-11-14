@@ -15,9 +15,13 @@
 
 package org.opengroup.osdu.indexer.util.geo.decimator;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.jsontype.NamedType;
+import org.junit.Rule;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.jsontype.NamedType;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import lombok.SneakyThrows;
@@ -47,6 +51,9 @@ import static org.mockito.Mockito.doAnswer;
 
 @RunWith(SpringRunner.class)
 public class GeometryDecimatorTest {
+
+    @Rule
+    public MockitoRule mockitoRule = MockitoJUnit.rule();
     private final Gson gson = new Gson();
     private ObjectMapper deserializerMapper;
 
@@ -79,55 +86,55 @@ public class GeometryDecimatorTest {
     }
 
     @Test
-    public void should_decimate_polyline() throws JsonProcessingException {
+    public void should_decimate_polyline() throws JacksonException {
         GeometryCollection geometryCollection = getGeometryCollection("geometrycollection_linestring.json");
         boolean decimated = decimator.decimate(geometryCollection);
         assertTrue(decimated);
     }
 
     @Test
-    public void should_decimate_multipolyline() throws JsonProcessingException {
+    public void should_decimate_multipolyline() throws JacksonException {
         GeometryCollection geometryCollection = getGeometryCollection("geometrycollection_multilinestring.json");
         boolean decimated = decimator.decimate(geometryCollection);
         assertTrue(decimated);
     }
 
     @Test
-    public void should_decimate_polygon() throws JsonProcessingException {
+    public void should_decimate_polygon() throws JacksonException {
         GeometryCollection geometryCollection = getGeometryCollection("geometrycollection_polygon.json");
         boolean decimated = decimator.decimate(geometryCollection);
         assertTrue(decimated);
     }
 
     @Test
-    public void should_decimate_multipolygon() throws JsonProcessingException {
+    public void should_decimate_multipolygon() throws JacksonException {
         GeometryCollection geometryCollection = getGeometryCollection("geometrycollection_multipolygon.json");
         boolean decimated = decimator.decimate(geometryCollection);
         assertTrue(decimated);
     }
 
     @Test
-    public void should_not_decimate_point() throws JsonProcessingException {
+    public void should_not_decimate_point() throws JacksonException {
         GeometryCollection geometryCollection = getGeometryCollection("geometrycollection_point.json");
         boolean decimated = decimator.decimate(geometryCollection);
         assertFalse(decimated);
     }
 
     @Test
-    public void should_not_decimate_multipoint() throws JsonProcessingException {
+    public void should_not_decimate_multipoint() throws JacksonException {
         GeometryCollection geometryCollection = getGeometryCollection("geometrycollection_multipoint.json");
         boolean decimated = decimator.decimate(geometryCollection);
         assertFalse(decimated);
     }
 
     @Test
-    public void should_not_decimate_small_geometry() throws JsonProcessingException {
+    public void should_not_decimate_small_geometry() throws JacksonException {
         GeometryCollection geometryCollection = getGeometryCollection("geometrycollection_small_multilinestring.json");
         boolean decimated = decimator.decimate(geometryCollection);
         assertFalse(decimated);
     }
 
-    private GeometryCollection getGeometryCollection(String file) throws JsonProcessingException  {
+    private GeometryCollection getGeometryCollection(String file) throws JacksonException  {
         String shapeJson = getGeoShapeFromFile(file);
         Type type = new TypeToken<Map<String, Object>>() {}.getType();
         Map<String, Object> shapeObj = gson.fromJson(shapeJson, type);
@@ -150,14 +157,14 @@ public class GeometryDecimatorTest {
 
     @NotNull
     private static ObjectMapper createDeserializerMapper() {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerSubtypes(new NamedType(GeometryCollection.class, "geometrycollection"));
-        mapper.registerSubtypes(new NamedType(Polygon.class, "polygon"));
-        mapper.registerSubtypes(new NamedType(MultiPolygon.class, "multipolygon"));
-        mapper.registerSubtypes(new NamedType(LineString.class, "linestring"));
-        mapper.registerSubtypes(new NamedType(MultiLineString.class, "multilinestring"));
-        mapper.registerSubtypes(new NamedType(Point.class, "point"));
-        mapper.registerSubtypes(new NamedType(MultiPoint.class, "multipoint"));
-        return mapper;
+        return JsonMapper.builder()
+                .registerSubtypes(new NamedType(GeometryCollection.class, "geometrycollection"))
+                .registerSubtypes(new NamedType(Polygon.class, "polygon"))
+                .registerSubtypes(new NamedType(MultiPolygon.class, "multipolygon"))
+                .registerSubtypes(new NamedType(LineString.class, "linestring"))
+                .registerSubtypes(new NamedType(MultiLineString.class, "multilinestring"))
+                .registerSubtypes(new NamedType(Point.class, "point"))
+                .registerSubtypes(new NamedType(MultiPoint.class, "multipoint"))
+                .build();
     }
 }

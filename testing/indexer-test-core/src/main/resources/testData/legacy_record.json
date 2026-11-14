@@ -1,0 +1,26 @@
+[
+  {
+    "id": "tenant1:<kindSubType>:legacyTest1<timestamp>",
+    "tags": {
+      "legacytest": "true"
+    },
+    "data": {
+      "Field": "Legacy Test Field",
+      "Location": {
+        "lat": 29.987654,
+        "lon": -96.123456
+      },
+      "Basin": "Legacy Basin",
+      "County": "Legacy County",
+      "State": "TX",
+      "Country": "USA",
+      "WellStatus": "Legacy",
+      "OriginalOperator": "Legacy Operator",
+      "WellName": "Legacy Test Well",
+      "WellType": "Legacy Type",
+      "LegacyAttribute": "Testing backward compatibility",
+      "Score": 50,
+      "Established": "2023-06-01T08:00:00Z"
+    }
+  }
+]

@@ -14,8 +14,10 @@
 
 package org.opengroup.osdu.indexer.schema.converter;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -31,7 +33,6 @@ import org.opengroup.osdu.indexer.util.BooleanFeatureFlagClient;
 import static org.opengroup.osdu.indexer.config.IndexerConfigurationProperties.MAP_BOOL2STRING_FEATURE_NAME;
 
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.ReflectionUtils;
 
@@ -56,7 +57,7 @@ public class SchemaToStorageFormatImplTest {
 
     private static final String KIND = "KIND_VAL";
 
-    private ObjectMapper objectMapper = Jackson2ObjectMapperBuilder.json().build();
+    private ObjectMapper objectMapper = JsonMapper.builder().build();
 
     private JaxRsDpsLog jaxRsDpsLog = Mockito.mock(JaxRsDpsLog.class);
 
@@ -240,8 +241,8 @@ public class SchemaToStorageFormatImplTest {
                 = new TypeReference<Map<String, Object>>() {
         };
         try {
-            return objectMapper.readValue(this.getClass().getResource(s), typeRef);
-        } catch (IOException | IllegalArgumentException e) {
+            return objectMapper.readValue(this.getClass().getResourceAsStream(s), typeRef);
+        } catch (JacksonException | IllegalArgumentException _) {
             fail("Failed to load schema from file:" + s);
         }
 

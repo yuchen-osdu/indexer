@@ -164,7 +164,7 @@ public class ReindexServiceImpl implements ReindexService {
         String xCollabValue = headers.getHeaders().get(DpsHeaders.COLLABORATION);
         if (xCollabValue != null) {
             xCollaborationHolder.setxCollaborationHeader(xCollabValue);
-            if (xCollaborationHolder.isFeatureEnabledAndHeaderExists()) {
+            if (xCollaborationHolder.isXcollaborationHeaderExists()) {
                 attributes.put(XcollaborationHolder.X_COLLABORATION,
                     xCollaborationHolder.getCollaborationContext().orElseThrow().getId());
             }

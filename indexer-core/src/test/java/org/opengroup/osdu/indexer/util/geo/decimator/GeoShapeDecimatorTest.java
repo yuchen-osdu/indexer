@@ -15,7 +15,10 @@
 
 package org.opengroup.osdu.indexer.util.geo.decimator;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import org.junit.Rule;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
+import tools.jackson.core.JacksonException;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import lombok.SneakyThrows;
@@ -42,6 +45,9 @@ import static org.mockito.Mockito.doAnswer;
 
 @RunWith(SpringRunner.class)
 public class GeoShapeDecimatorTest {
+
+    @Rule
+    public MockitoRule mockitoRule = MockitoJUnit.rule();
     private final Gson gson = new Gson();
 
     @InjectMocks
@@ -72,42 +78,42 @@ public class GeoShapeDecimatorTest {
     }
 
     @Test
-    public void should_decimate_polyline() throws JsonProcessingException {
+    public void should_decimate_polyline() throws JacksonException {
         Map<String, Object> shapeObj = getShapeObj("geometrycollection_linestring.json");
         DecimatedResult result = sut.decimateShapeObj(shapeObj);
         assertTrue(result.isDecimated);
     }
 
     @Test
-    public void should_decimate_multipolyline() throws JsonProcessingException {
+    public void should_decimate_multipolyline() throws JacksonException {
         Map<String, Object> shapeObj = getShapeObj("geometrycollection_multilinestring.json");
         DecimatedResult result = sut.decimateShapeObj(shapeObj);
         assertTrue(result.isDecimated);
     }
 
     @Test
-    public void should_decimate_polygon() throws JsonProcessingException {
+    public void should_decimate_polygon() throws JacksonException {
         Map<String, Object> shapeObj = getShapeObj("geometrycollection_polygon.json");
         DecimatedResult result = sut.decimateShapeObj(shapeObj);
         assertTrue(result.isDecimated);
     }
 
     @Test
-    public void should_decimate_multipolygon() throws JsonProcessingException {
+    public void should_decimate_multipolygon() throws JacksonException {
         Map<String, Object> shapeObj = getShapeObj("geometrycollection_multipolygon.json");
         DecimatedResult result = sut.decimateShapeObj(shapeObj);
         assertTrue(result.isDecimated);
     }
 
     @Test
-    public void should_not_decimate_point() throws JsonProcessingException {
+    public void should_not_decimate_point() throws JacksonException {
         Map<String, Object> shapeObj = getShapeObj("geometrycollection_point.json");
         DecimatedResult result = sut.decimateShapeObj(shapeObj);
         assertFalse(result.isDecimated);
     }
 
     @Test
-    public void should_not_decimate_multipoint() throws JsonProcessingException {
+    public void should_not_decimate_multipoint() throws JacksonException {
         Map<String, Object> shapeObj = getShapeObj("geometrycollection_multipoint.json");
         DecimatedResult result = sut.decimateShapeObj(shapeObj);
         assertFalse(result.isDecimated);

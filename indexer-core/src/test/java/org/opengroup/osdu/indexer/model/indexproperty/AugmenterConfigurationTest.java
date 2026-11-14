@@ -15,8 +15,8 @@
 
 package org.opengroup.osdu.indexer.model.indexproperty;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.junit.Assert;
 import org.junit.Before;
@@ -35,7 +35,7 @@ public class AugmenterConfigurationTest {
     private AugmenterConfiguration augmenterConfiguration;
 
     @Before
-    public void setup() throws JsonProcessingException {
+    public void setup() throws JacksonException {
         String jsonText = getJsonFromFile("well_configuration_record.json");
         ObjectMapper objectMapper = new ObjectMapper();
         augmenterConfiguration = objectMapper.readValue(jsonText, AugmenterConfiguration.class);

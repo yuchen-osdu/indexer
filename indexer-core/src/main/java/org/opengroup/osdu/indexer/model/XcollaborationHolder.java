@@ -16,11 +16,8 @@
 
 package org.opengroup.osdu.indexer.model;
 
-import static org.opengroup.osdu.indexer.config.IndexerConfigurationProperties.COLLABORATIONS_FEATURE_NAME;
-
 import java.util.Optional;
 import lombok.Data;
-import org.opengroup.osdu.core.common.feature.IFeatureFlag;
 import org.opengroup.osdu.core.common.http.CollaborationContextFactory;
 import org.opengroup.osdu.core.common.model.http.CollaborationContext;
 import org.opengroup.osdu.core.common.model.search.RecordMetaAttribute;
@@ -93,60 +90,43 @@ public class XcollaborationHolder {
   public static final String X_COLLABORATION = RecordMetaAttribute.COLLABORATION_ID.getValue();
   private Optional<CollaborationContext> collaborationContext = Optional.<CollaborationContext>empty();
 
-    @Autowired
-    private IFeatureFlag featureFlagChecker;
+  @Autowired
+  CollaborationContextFactory collaborationContextFactory;
 
-    @Autowired
-    CollaborationContextFactory collaborationContextFactory;
+  // need to have header's value as is to be able to execute a http's requests at least to a Storage service
+  private String xCollaborationHeader;
 
-    // need to have header's value as is to be able to execute a http's requests at least to a Storage service
-    private String xCollaborationHeader;
+  public void setxCollaborationHeader(String xCollaborationHeader) {
+    this.xCollaborationHeader = xCollaborationHeader;
+    collaborationContext = collaborationContextFactory.create(xCollaborationHeader);
+  }
 
-    public void setxCollaborationHeader(String xCollaborationHeader) {
-        this.xCollaborationHeader = xCollaborationHeader;
-        collaborationContext = collaborationContextFactory.create(xCollaborationHeader);
+  /**
+   * Example of x-collab request is
+   *   "attributes": {
+   *         "account-id": "osdu",
+   *         "x-collaboration": "id={{collab-id}},application={{app-id}}"
+   *     }
+   * */
+  public boolean isXcollaborationHeaderExists() {
+    return collaborationContext.isPresent();
+  }
+
+  /**
+   * Remove from string
+   * 'osdu:master-data--CollaborationProject:xxx:a99cef48-2ed6-4beb-8a43-002373431f21' any header
+   * value if it exists.
+   */
+  public String removeXcollaborationValue(String input) {
+    if (input == null) {
+      return input;
     }
 
-    /**
-     * Example of x-collab request is
-     *   "attributes": {
-     *         "account-id": "osdu",
-     *         "x-collaboration": "id={{collab-id}},application={{app-id}}"
-     *     }
-     * */
-    public boolean isXcollaborationHeaderExists() {
-        return collaborationContext.isPresent();
+    String result = input.replaceAll(collaborationContext.orElseThrow().getId(), "");
+    if (result.endsWith(
+        ":")) { // id should not be ended with semicolon
+      result = result.substring(0, result.length() - 1);
     }
-
-    /**
-     * Feature could be disabled on app level.
-     */
-    public boolean isFeatureEnabled() {
-        return featureFlagChecker.isFeatureEnabled(COLLABORATIONS_FEATURE_NAME);
-    }
-
-    /**
-     * With respect to both conditions: if feature is enabled and x-collaboration header exists.
-     */
-    public boolean isFeatureEnabledAndHeaderExists() {
-        return isFeatureEnabled() && isXcollaborationHeaderExists();
-    }
-
-    /**
-     * Remove from string
-     * 'osdu:master-data--CollaborationProject:xxx:a99cef48-2ed6-4beb-8a43-002373431f21' any header
-     * value if it exists.
-     */
-    public String removeXcollaborationValue(String input) {
-        if (input == null) {
-            return input;
-        }
-
-        String result = input.replaceAll(collaborationContext.orElseThrow().getId(), "");
-        if (result.endsWith(
-            ":")) { // id should not be ended with semicolon
-            result = result.substring(0, result.length() - 1);
-        }
-        return result;
-    }
+    return result;
+  }
 }

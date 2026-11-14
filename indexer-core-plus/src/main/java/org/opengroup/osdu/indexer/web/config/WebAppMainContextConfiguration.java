@@ -26,6 +26,7 @@ import org.opengroup.osdu.core.common.http.DpsHeaderFactory;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.indexer.IndexerApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -37,7 +38,7 @@ import org.springframework.web.context.annotation.RequestScope;
 
 @Slf4j
 @Configuration
-@EnableAutoConfiguration
+@EnableAutoConfiguration(exclude = UserDetailsServiceAutoConfiguration.class)
 @PropertySource("classpath:application.properties")
 @RequiredArgsConstructor
 @ComponentScan(

@@ -14,6 +14,9 @@
 
 package org.opengroup.osdu.indexer.api;
 
+import org.junit.Rule;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,6 +45,9 @@ import static org.mockito.Mockito.*;
 
 @RunWith(SpringRunner.class)
 public class ReindexApiTest {
+
+    @Rule
+    public MockitoRule mockitoRule = MockitoJUnit.rule();
 
     private RecordReindexRequest recordReindexRequest;
     private List<String> recordIds;

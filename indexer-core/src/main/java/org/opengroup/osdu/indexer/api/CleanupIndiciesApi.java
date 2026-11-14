@@ -40,7 +40,6 @@ import org.opengroup.osdu.indexer.service.IndexerService;
 import org.opengroup.osdu.indexer.service.IndicesServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -130,9 +129,9 @@ public class CleanupIndiciesApi {
           @ApiResponse(responseCode = "502", description = "Bad Gateway",  content = {@Content(schema = @Schema(implementation = AppError.class))}),
           @ApiResponse(responseCode = "503", description = "Service Unavailable",  content = {@Content(schema = @Schema(implementation = AppError.class))})
   })
-  @DeleteMapping(value = "/index", produces = MediaType.APPLICATION_JSON_VALUE)
+  @DeleteMapping(value = "/index")
   @PreAuthorize("@authorizationFilter.hasPermission('" + ENTITLEMENT_GROUP + "')")
-  public ResponseEntity deleteIndex(@Parameter(description = "Kind", example = "tenant1:public:well:1.0.2")
+  public ResponseEntity<Void> deleteIndex(@Parameter(description = "Kind", example = "tenant1:public:well:1.0.2")
                                       @RequestParam("kind") @NotBlank @ValidKind String kind) {
     String index = elasticIndexNameResolver.getIndexNameFromKind(kind);
     try {
@@ -140,7 +139,7 @@ public class CleanupIndiciesApi {
       if (responseStatus) {
         this.auditLogger.indexDeleteSuccess(singletonList(index));
       }
-      return new ResponseEntity(HttpStatus.OK);
+      return new ResponseEntity<>(HttpStatus.OK);
     } catch (AppException e) {
       throw e;
     } catch (Exception e) {

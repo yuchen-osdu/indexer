@@ -14,6 +14,9 @@
 
 package org.opengroup.osdu.indexer.logging;
 
+import org.junit.Rule;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import com.google.common.collect.Lists;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.Before;
@@ -36,6 +39,9 @@ import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
 public class AuditLoggerTest {
+
+    @Rule
+    public MockitoRule mockitoRule = MockitoJUnit.rule();
 
     @Mock
     private JaxRsDpsLog logger;
