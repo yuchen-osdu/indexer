@@ -1,0 +1,22 @@
+[
+  {
+    "id": "tenant1:<kindSubType>:schemaMergeTestV2<timestamp>",
+    "tags": {
+      "schematest": "v2"
+    },
+    "data": {
+      "TestField1": "Original value maintained",
+      "TestField2": 99,
+      "Location": {
+        "lat": 30.2672,
+        "lon": -97.7431
+      },
+      "WellName": "Schema Test Well 2",
+      "Status": "Completed",
+      "CreatedDate": "2024-10-15T12:00:00Z",
+      "Score": 95,
+      "NewTestField3": "This is a new field added in v2",
+      "NewTestField4": 200
+    }
+  }
+]

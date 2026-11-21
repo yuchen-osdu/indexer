@@ -15,27 +15,24 @@
 
 package org.opengroup.osdu.indexer.model.geojson.jackson;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.ObjectCodec;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.JsonNode;
 import org.opengroup.osdu.indexer.model.geojson.Point;
 import org.opengroup.osdu.indexer.model.geojson.Position;
-import java.io.IOException;
 
-public class PointDeserializer extends JsonDeserializer<Point> {
+public class PointDeserializer extends ValueDeserializer<Point> {
     @Override
-    public Point deserialize(JsonParser jsonParser, DeserializationContext ctxt) throws IOException {
-        ObjectCodec codec = jsonParser.getCodec();
-        JsonNode coordinatesNode = codec.readTree(jsonParser);
+    public Point deserialize(JsonParser jsonParser, DeserializationContext ctxt) {
+        JsonNode coordinatesNode = ctxt.readTree(jsonParser);
         JsonNode positionNode = coordinatesNode.get(GeoJsonConstants.COORDINATES);
         if(positionNode == null) {
-            throw new JsonParseException(jsonParser, "Missing coordinates field in the point");
+            throw new StreamReadException(jsonParser, "Missing coordinates field in the point");
         }
 
-        Position position = codec.treeToValue(positionNode, Position.class);
+        Position position = ctxt.readTreeAsValue(positionNode, Position.class);
         if(position.hasAltitude())
             return  new Point(position.getLongitude(), position.getLatitude(), position.getAltitude());
         else

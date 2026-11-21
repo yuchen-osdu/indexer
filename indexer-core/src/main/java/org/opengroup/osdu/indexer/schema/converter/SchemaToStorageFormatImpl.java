@@ -14,8 +14,8 @@
 
 package org.opengroup.osdu.indexer.schema.converter;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
 import org.opengroup.osdu.core.common.search.Preconditions;
@@ -73,7 +73,7 @@ public class SchemaToStorageFormatImpl implements SchemaToStorageFormat {
     private SchemaRoot parserJsonString(final String schemaServiceFormat) {
         try {
             return objectMapper.readValue(schemaServiceFormat, SchemaRoot.class);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new SchemaProcessingException("Failed to parse the schema");
         }
     }
@@ -81,7 +81,7 @@ public class SchemaToStorageFormatImpl implements SchemaToStorageFormat {
     private String saveJsonToString(final Map<String, Object> schemaServiceFormat) {
         try {
             return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(schemaServiceFormat);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new SchemaProcessingException("Failed to save the JSON file");
         }
     }

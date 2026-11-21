@@ -1,0 +1,30 @@
+[
+  {
+    "id": "tenant1:<kindSubType>:testIngest40<timestamp>",
+    "data": {
+      "Field": "OSDU OFFICE - 2",
+      "Location": {
+        "lat":32.406402588,
+        "lon":-86.565592762,
+        "drillable": true
+      },
+      "Basin": "Houston",
+      "Score" : 10,
+      "IsActive": true
+    }
+  },
+  {
+    "id": "tenant1:<kindSubType>:testIngest41<timestamp>",
+    "data": {
+      "Field": "Horizon",
+      "Location": {
+        "lat": 90,
+        "lon":180,
+        "drillable": false
+      },
+      "Basin": "Houston",
+      "Score" : 10,
+      "IsActive": false
+    }
+  }
+]

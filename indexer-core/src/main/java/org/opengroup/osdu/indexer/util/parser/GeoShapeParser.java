@@ -14,10 +14,11 @@
 
 package org.opengroup.osdu.indexer.util.parser;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.exc.InvalidTypeIdException;
+import tools.jackson.databind.json.JsonMapper;
 import java.util.Map;
 import org.opengroup.osdu.core.common.search.Preconditions;
 import org.opengroup.osdu.indexer.model.geojson.FeatureCollection;
@@ -28,7 +29,7 @@ import org.springframework.web.context.annotation.RequestScope;
 @RequestScope
 public class GeoShapeParser {
 
-    private ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = JsonMapper.builderWithJackson2Defaults().build();
 
     public Map<String, Object> parseGeoJson(Map<String, Object> objectMap) {
 
@@ -41,7 +42,11 @@ public class GeoShapeParser {
             });
         } catch (InvalidTypeIdException e) {
             throw new IllegalArgumentException("must be a valid FeatureCollection");
-        } catch (JsonProcessingException e){
+        } catch (JacksonException e){
+            // Jackson 3 wraps validation errors thrown by the GeoJSON setters; report the validation message as Jackson 2 did
+            if (e.getCause() instanceof IllegalArgumentException cause) {
+                throw new IllegalArgumentException(cause.getMessage());
+            }
             throw new IllegalArgumentException(e.getOriginalMessage());
         }
     }

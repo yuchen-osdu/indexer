@@ -1,0 +1,19 @@
+[
+  {
+    "id": "tenant1:<kindSubType>:aliasTest2<timestamp>",
+    "data": {
+      "Field": "Alias Test Field 2",
+      "Basin": "Test Basin 2",
+      "County": "Test County 2",
+      "State": "TX",
+      "Country": "USA",
+      "WellStatus": "Completed",
+      "OriginalOperator": "Test Operator 2",
+      "WellName": "Alias Test Well 2",
+      "WellType": "Test Type 2",
+      "TestAttribute": "Second alias test record",
+      "Score": 95,
+      "Established": "2024-02-20T14:45:00Z"
+    }
+  }
+]

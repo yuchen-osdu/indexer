@@ -6,7 +6,6 @@ metadata:
   name: {{ .Values.conf.configmap | quote }}
   namespace: {{ .Release.Namespace | quote }}
 data:
-  COLLABORATIONS_ENABLED: {{ .Values.data.collaborationsEnabled | quote }}
   ENTITLEMENTS_HOST: {{ .Values.data.entitlementsHost | quote }}
   LOG_LEVEL: {{ .Values.data.logLevel | quote }}
   PARTITION_HOST: {{ .Values.data.partitionHost | quote }}

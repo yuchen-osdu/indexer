@@ -16,8 +16,11 @@
 
 package org.opengroup.osdu.indexer.util.geo.extractor;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.Rule;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -36,6 +39,9 @@ import java.util.*;
 
 @RunWith(SpringRunner.class)
 public class PointExtractorTest {
+
+    @Rule
+    public MockitoRule mockitoRule = MockitoJUnit.rule();
     private static ObjectMapper objectMapper;
 
     @InjectMocks
@@ -50,7 +56,7 @@ public class PointExtractorTest {
     }
 
     @Test
-    public void extractFirstPointFromPointTest() throws JsonProcessingException {
+    public void extractFirstPointFromPointTest() throws JacksonException {
         String shapeJson = getGeoShapeFromFile("valid_point.json");
         Map<String, Object> geometryCollection = objectMapper.readValue(shapeJson, Map.class);
         
@@ -62,7 +68,7 @@ public class PointExtractorTest {
     }
 
     @Test
-    public void extractFirstPointFromLineStringTest() throws JsonProcessingException {
+    public void extractFirstPointFromLineStringTest() throws JacksonException {
         String shapeJson = getGeoShapeFromFile("valid_line_string.json");
         Map<String, Object> geometryCollection = objectMapper.readValue(shapeJson, Map.class);
         
@@ -74,7 +80,7 @@ public class PointExtractorTest {
     }
 
     @Test
-    public void extractFirstPointFromPolygonTest() throws JsonProcessingException {
+    public void extractFirstPointFromPolygonTest() throws JacksonException {
         String shapeJson = getGeoShapeFromFile("valid_polygon.json");
         Map<String, Object> geometryCollection = objectMapper.readValue(shapeJson, Map.class);
         
@@ -86,7 +92,7 @@ public class PointExtractorTest {
     }
 
     @Test
-    public void extractFirstPointFromMultiPointTest() throws JsonProcessingException {
+    public void extractFirstPointFromMultiPointTest() throws JacksonException {
         String shapeJson = getGeoShapeFromFile("valid_multi_point.json");
         Map<String, Object> geometryCollection = objectMapper.readValue(shapeJson, Map.class);
         
@@ -98,7 +104,7 @@ public class PointExtractorTest {
     }
 
     @Test
-    public void extractFirstPointFromMultiLineTest() throws JsonProcessingException {
+    public void extractFirstPointFromMultiLineTest() throws JacksonException {
         String shapeJson = getGeoShapeFromFile("valid_milti_line_string_with_z_coordinate.json");
         Map<String, Object> geometryCollection = objectMapper.readValue(shapeJson, Map.class);
         
@@ -111,7 +117,7 @@ public class PointExtractorTest {
     }
 
     @Test
-    public void extractFirstPointFromMultiPolygonTest() throws JsonProcessingException {
+    public void extractFirstPointFromMultiPolygonTest() throws JacksonException {
         String shapeJson = getGeoShapeFromFile("valid_multi_polygon.json");
         Map<String, Object> geometryCollection = objectMapper.readValue(shapeJson, Map.class);
         
@@ -123,7 +129,7 @@ public class PointExtractorTest {
     }
 
     @Test
-    public void extractFirstPointFromGeometryCollectionTest() throws JsonProcessingException {
+    public void extractFirstPointFromGeometryCollectionTest() throws JacksonException {
         String shapeJson = getGeoShapeFromFile("valid_geometry_collection.json");
         Map<String, Object> geometryCollection = objectMapper.readValue(shapeJson, Map.class);
         
@@ -135,7 +141,7 @@ public class PointExtractorTest {
     }
 
     @Test
-    public void extractFirstPointFromInvalidShapeTest() throws JsonProcessingException {
+    public void extractFirstPointFromInvalidShapeTest() throws JacksonException {
         String shapeJson = getGeoShapeFromFile("invalid_shape.json");
         Map<String, Object> geometryCollection = objectMapper.readValue(shapeJson, Map.class);
         
@@ -145,7 +151,7 @@ public class PointExtractorTest {
     }
 
     @Test
-    public void extractFirstPointFromPolygonMalformedLatitudeTest() throws JsonProcessingException {
+    public void extractFirstPointFromPolygonMalformedLatitudeTest() throws JacksonException {
         String shapeJson = getGeoShapeFromFile("invalid_polygon_malformed_latitude.json");
         Map<String, Object> geometryCollection = objectMapper.readValue(shapeJson, Map.class);
         
@@ -155,7 +161,7 @@ public class PointExtractorTest {
     }
 
     @Test
-    public void extractFirstPointFromPointMissingLatitudeTest() throws JsonProcessingException {
+    public void extractFirstPointFromPointMissingLatitudeTest() throws JacksonException {
         String shapeJson = getGeoShapeFromFile("invalid_point_missing_latitude.json");
         Map<String, Object> geometryCollection = objectMapper.readValue(shapeJson, Map.class);
         
@@ -165,7 +171,7 @@ public class PointExtractorTest {
     }
 
     @Test
-    public void extractFirstPointFromInvalidFeatureCollectionTest() throws JsonProcessingException {
+    public void extractFirstPointFromInvalidFeatureCollectionTest() throws JacksonException {
         String shapeJson = getGeoShapeFromFile("invalid_feature_collection.json");
         Map<String, Object> geometryCollection = objectMapper.readValue(shapeJson, Map.class);
         

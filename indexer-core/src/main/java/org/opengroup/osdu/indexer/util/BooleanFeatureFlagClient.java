@@ -37,6 +37,8 @@ public class BooleanFeatureFlagClient {
     @Autowired
     private JaxRsDpsLog logger;
 
+    // Each core-plus application context exposes its own primary DpsHeaders bean.
+    @SuppressWarnings("java:S9352")
     @Autowired
     private DpsHeaders headers;
 

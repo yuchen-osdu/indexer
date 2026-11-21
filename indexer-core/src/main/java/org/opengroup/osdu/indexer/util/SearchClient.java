@@ -125,7 +125,6 @@ public class SearchClient {
                 .allowNoIndices(true)
                 .expandWildcards(ExpandWildcard.Open, ExpandWildcard.Closed)
                 .ignoreUnavailable(true)
-                .ignoreThrottled(true)
                 .ccsMinimizeRoundtrips(true)
                 .build();
 

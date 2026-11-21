@@ -101,7 +101,6 @@ class CorePlusSecurityConfigTest {
         when(httpSecurity.csrf(any())).thenReturn(httpSecurity);
         when(httpSecurity.sessionManagement(any())).thenReturn(httpSecurity);
         when(httpSecurity.authorizeHttpRequests(any())).thenReturn(httpSecurity);
-        when(httpSecurity.httpBasic(any())).thenReturn(httpSecurity);
         when(httpSecurity.build()).thenReturn(defaultSecurityFilterChain);
 
         // Act
@@ -116,8 +115,8 @@ class CorePlusSecurityConfigTest {
         verify(httpSecurity).csrf(any());
         verify(httpSecurity).sessionManagement(any());
         verify(httpSecurity).authorizeHttpRequests(any());
-        verify(httpSecurity).httpBasic(any());
         verify(httpSecurity).build();
+        verify(httpSecurity, never()).httpBasic(any());
     }
 
     @Test
@@ -131,14 +130,12 @@ class CorePlusSecurityConfigTest {
         when(httpSecurity.csrf(any())).thenReturn(httpSecurity);
         when(httpSecurity.sessionManagement(any())).thenReturn(httpSecurity);
         when(httpSecurity.authorizeHttpRequests(any())).thenReturn(httpSecurity);
-        when(httpSecurity.httpBasic(any())).thenReturn(httpSecurity);
         when(httpSecurity.build()).thenReturn(defaultSecurityFilterChain);
 
         when(httpSecurity2.cors(any())).thenReturn(httpSecurity2);
         when(httpSecurity2.csrf(any())).thenReturn(httpSecurity2);
         when(httpSecurity2.sessionManagement(any())).thenReturn(httpSecurity2);
         when(httpSecurity2.authorizeHttpRequests(any())).thenReturn(httpSecurity2);
-        when(httpSecurity2.httpBasic(any())).thenReturn(httpSecurity2);
         when(httpSecurity2.build()).thenReturn(filterChain2);
 
         // Act

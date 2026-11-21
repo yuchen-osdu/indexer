@@ -15,8 +15,8 @@
 
 package org.opengroup.osdu.indexer.model.indexproperty.jackson;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.junit.Assert;
 import org.junit.Test;
@@ -33,7 +33,7 @@ import java.io.InputStreamReader;
 @RunWith(SpringRunner.class)
 public class PropertyPathDeserializerTest {
     @Test
-    public void deserialize_configurations_test() throws JsonProcessingException {
+    public void deserialize_configurations_test() throws JacksonException {
         String jsonText = getJsonFromFile("well_configuration_record.json");
         ObjectMapper objectMapper = new ObjectMapper();
         AugmenterConfiguration augmenterConfiguration = objectMapper.readValue(jsonText, AugmenterConfiguration.class);

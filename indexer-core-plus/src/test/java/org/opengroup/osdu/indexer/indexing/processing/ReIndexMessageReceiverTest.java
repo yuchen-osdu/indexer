@@ -77,7 +77,7 @@ class ReindexMessageReceiverTest {
         when(dpsHeaders.getCorrelationId()).thenReturn(CORRELATION_ID);
         OqmMessage oqmMessage = createTestOqmMessage();
 
-        when(recordIndexerApi.indexWorker(any(RecordChangedMessages.class)))
+        when(recordIndexerApi.processRecordChangedMessages(any(RecordChangedMessages.class)))
                 .thenReturn(ResponseEntity.ok(jobStatus));
 
         // Act
@@ -85,7 +85,7 @@ class ReindexMessageReceiverTest {
 
         // Assert
         ArgumentCaptor<RecordChangedMessages> captor = ArgumentCaptor.forClass(RecordChangedMessages.class);
-        verify(recordIndexerApi, times(1)).indexWorker(captor.capture());
+        verify(recordIndexerApi, times(1)).processRecordChangedMessages(captor.capture());
 
         RecordChangedMessages capturedMessage = captor.getValue();
         assertThat(capturedMessage.getMessageId()).isEqualTo(CORRELATION_ID);
@@ -100,7 +100,7 @@ class ReindexMessageReceiverTest {
         when(dpsHeaders.getCorrelationId()).thenReturn(CORRELATION_ID);
         OqmMessage oqmMessage = createTestOqmMessage();
 
-        when(recordIndexerApi.indexWorker(any(RecordChangedMessages.class)))
+        when(recordIndexerApi.processRecordChangedMessages(any(RecordChangedMessages.class)))
                 .thenReturn(ResponseEntity.ok(jobStatus));
 
         // Act
@@ -108,7 +108,7 @@ class ReindexMessageReceiverTest {
 
         // Assert
         ArgumentCaptor<RecordChangedMessages> captor = ArgumentCaptor.forClass(RecordChangedMessages.class);
-        verify(recordIndexerApi).indexWorker(captor.capture());
+        verify(recordIndexerApi).processRecordChangedMessages(captor.capture());
         assertThat(captor.getValue().getMessageId()).isEqualTo(CORRELATION_ID);
     }
 
@@ -123,7 +123,7 @@ class ReindexMessageReceiverTest {
 
         OqmMessage oqmMessage = createOqmMessageWithData(testData, new HashMap<>());
 
-        when(recordIndexerApi.indexWorker(any(RecordChangedMessages.class)))
+        when(recordIndexerApi.processRecordChangedMessages(any(RecordChangedMessages.class)))
                 .thenReturn(ResponseEntity.ok(jobStatus));
 
         // Act
@@ -131,7 +131,7 @@ class ReindexMessageReceiverTest {
 
         // Assert
         ArgumentCaptor<RecordChangedMessages> captor = ArgumentCaptor.forClass(RecordChangedMessages.class);
-        verify(recordIndexerApi).indexWorker(captor.capture());
+        verify(recordIndexerApi).processRecordChangedMessages(captor.capture());
 
         String expectedDataJson = gson.toJson(testData);
         assertThat(captor.getValue().getData()).isEqualTo(expectedDataJson);
@@ -148,7 +148,7 @@ class ReindexMessageReceiverTest {
 
         OqmMessage oqmMessage = createOqmMessageWithData(new HashMap<>(), testAttributes);
 
-        when(recordIndexerApi.indexWorker(any(RecordChangedMessages.class)))
+        when(recordIndexerApi.processRecordChangedMessages(any(RecordChangedMessages.class)))
                 .thenReturn(ResponseEntity.ok(jobStatus));
 
         // Act
@@ -156,7 +156,7 @@ class ReindexMessageReceiverTest {
 
         // Assert
         ArgumentCaptor<RecordChangedMessages> captor = ArgumentCaptor.forClass(RecordChangedMessages.class);
-        verify(recordIndexerApi).indexWorker(captor.capture());
+        verify(recordIndexerApi).processRecordChangedMessages(captor.capture());
         assertThat(captor.getValue().getAttributes()).isEqualTo(testAttributes);
     }
 
@@ -166,7 +166,7 @@ class ReindexMessageReceiverTest {
         when(dpsHeaders.getCorrelationId()).thenReturn(CORRELATION_ID);
         OqmMessage oqmMessage = createTestOqmMessage();
 
-        when(recordIndexerApi.indexWorker(any(RecordChangedMessages.class)))
+        when(recordIndexerApi.processRecordChangedMessages(any(RecordChangedMessages.class)))
                 .thenReturn(ResponseEntity.ok(jobStatus));
 
         LocalDateTime beforeCall = LocalDateTime.now();
@@ -178,7 +178,7 @@ class ReindexMessageReceiverTest {
 
         // Assert
         ArgumentCaptor<RecordChangedMessages> captor = ArgumentCaptor.forClass(RecordChangedMessages.class);
-        verify(recordIndexerApi).indexWorker(captor.capture());
+        verify(recordIndexerApi).processRecordChangedMessages(captor.capture());
 
         String publishTime = captor.getValue().getPublishTime();
         assertThat(publishTime).isNotNull().isNotEmpty();
@@ -195,7 +195,7 @@ class ReindexMessageReceiverTest {
         when(dpsHeaders.getCorrelationId()).thenReturn(CORRELATION_ID);
         OqmMessage oqmMessage = createOqmMessageWithData(null, new HashMap<>());
 
-        when(recordIndexerApi.indexWorker(any(RecordChangedMessages.class)))
+        when(recordIndexerApi.processRecordChangedMessages(any(RecordChangedMessages.class)))
                 .thenReturn(ResponseEntity.ok(jobStatus));
 
         // Act
@@ -203,7 +203,7 @@ class ReindexMessageReceiverTest {
 
         // Assert
         ArgumentCaptor<RecordChangedMessages> captor = ArgumentCaptor.forClass(RecordChangedMessages.class);
-        verify(recordIndexerApi).indexWorker(captor.capture());
+        verify(recordIndexerApi).processRecordChangedMessages(captor.capture());
         assertThat(captor.getValue().getData()).isNull();
     }
 
@@ -213,7 +213,7 @@ class ReindexMessageReceiverTest {
         when(dpsHeaders.getCorrelationId()).thenReturn(CORRELATION_ID);
         OqmMessage oqmMessage = createOqmMessageWithData(new HashMap<>(), null);
 
-        when(recordIndexerApi.indexWorker(any(RecordChangedMessages.class)))
+        when(recordIndexerApi.processRecordChangedMessages(any(RecordChangedMessages.class)))
                 .thenReturn(ResponseEntity.ok(jobStatus));
 
         // Act
@@ -221,7 +221,7 @@ class ReindexMessageReceiverTest {
 
         // Assert
         ArgumentCaptor<RecordChangedMessages> captor = ArgumentCaptor.forClass(RecordChangedMessages.class);
-        verify(recordIndexerApi).indexWorker(captor.capture());
+        verify(recordIndexerApi).processRecordChangedMessages(captor.capture());
         assertThat(captor.getValue().getAttributes()).isNull();
     }
 
@@ -231,7 +231,7 @@ class ReindexMessageReceiverTest {
         when(dpsHeaders.getCorrelationId()).thenReturn(CORRELATION_ID);
         OqmMessage oqmMessage = createTestOqmMessage();
 
-        when(recordIndexerApi.indexWorker(any(RecordChangedMessages.class)))
+        when(recordIndexerApi.processRecordChangedMessages(any(RecordChangedMessages.class)))
                 .thenThrow(new RuntimeException("API call failed"));
 
         // Act & Assert
@@ -239,7 +239,7 @@ class ReindexMessageReceiverTest {
                 .isInstanceOf(RuntimeException.class)
                 .hasMessage("API call failed");
 
-        verify(recordIndexerApi, times(1)).indexWorker(any(RecordChangedMessages.class));
+        verify(recordIndexerApi, times(1)).processRecordChangedMessages(any(RecordChangedMessages.class));
     }
 
     @Test
@@ -248,7 +248,7 @@ class ReindexMessageReceiverTest {
         when(dpsHeaders.getCorrelationId()).thenReturn(CORRELATION_ID);
         OqmMessage oqmMessage = createTestOqmMessage();
 
-        when(recordIndexerApi.indexWorker(any(RecordChangedMessages.class)))
+        when(recordIndexerApi.processRecordChangedMessages(any(RecordChangedMessages.class)))
                 .thenThrow(new IOException("Network error"));
 
         // Act & Assert
@@ -256,7 +256,7 @@ class ReindexMessageReceiverTest {
                 .isInstanceOf(IOException.class)
                 .hasMessage("Network error");
 
-        verify(recordIndexerApi, times(1)).indexWorker(any(RecordChangedMessages.class));
+        verify(recordIndexerApi, times(1)).processRecordChangedMessages(any(RecordChangedMessages.class));
     }
 
     @Test
@@ -265,14 +265,14 @@ class ReindexMessageReceiverTest {
         when(dpsHeaders.getCorrelationId()).thenReturn(CORRELATION_ID);
         OqmMessage oqmMessage = createTestOqmMessage();
 
-        when(recordIndexerApi.indexWorker(any(RecordChangedMessages.class)))
+        when(recordIndexerApi.processRecordChangedMessages(any(RecordChangedMessages.class)))
                 .thenReturn(ResponseEntity.status(HttpStatus.ACCEPTED).body(jobStatus));
 
         // Act
         reindexMessageReceiver.sendMessage(oqmMessage);
 
         // Assert
-        verify(recordIndexerApi, times(1)).indexWorker(any(RecordChangedMessages.class));
+        verify(recordIndexerApi, times(1)).processRecordChangedMessages(any(RecordChangedMessages.class));
     }
 
     @Test
@@ -283,14 +283,14 @@ class ReindexMessageReceiverTest {
         when(oqmMessage.getData()).thenReturn(null);
         when(oqmMessage.getAttributes()).thenReturn(null);
 
-        when(recordIndexerApi.indexWorker(any(RecordChangedMessages.class)))
+        when(recordIndexerApi.processRecordChangedMessages(any(RecordChangedMessages.class)))
                 .thenReturn(ResponseEntity.ok(jobStatus));
 
         // Act
         reindexMessageReceiver.sendMessage(oqmMessage);
 
         // Assert
-        verify(recordIndexerApi, times(1)).indexWorker(any(RecordChangedMessages.class));
+        verify(recordIndexerApi, times(1)).processRecordChangedMessages(any(RecordChangedMessages.class));
     }
 
     @Test
@@ -310,7 +310,7 @@ class ReindexMessageReceiverTest {
 
         OqmMessage oqmMessage = createOqmMessageWithData(complexData, new HashMap<>());
 
-        when(recordIndexerApi.indexWorker(any(RecordChangedMessages.class)))
+        when(recordIndexerApi.processRecordChangedMessages(any(RecordChangedMessages.class)))
                 .thenReturn(ResponseEntity.ok(jobStatus));
 
         // Act
@@ -318,7 +318,7 @@ class ReindexMessageReceiverTest {
 
         // Assert
         ArgumentCaptor<RecordChangedMessages> captor = ArgumentCaptor.forClass(RecordChangedMessages.class);
-        verify(recordIndexerApi).indexWorker(captor.capture());
+        verify(recordIndexerApi).processRecordChangedMessages(captor.capture());
 
         String expectedDataJson = gson.toJson(complexData);
         assertThat(captor.getValue().getData()).isEqualTo(expectedDataJson);
@@ -337,7 +337,7 @@ class ReindexMessageReceiverTest {
 
         OqmMessage oqmMessage = createOqmMessageWithData(new HashMap<>(), attributes);
 
-        when(recordIndexerApi.indexWorker(any(RecordChangedMessages.class)))
+        when(recordIndexerApi.processRecordChangedMessages(any(RecordChangedMessages.class)))
                 .thenReturn(ResponseEntity.ok(jobStatus));
 
         // Act
@@ -345,7 +345,7 @@ class ReindexMessageReceiverTest {
 
         // Assert
         ArgumentCaptor<RecordChangedMessages> captor = ArgumentCaptor.forClass(RecordChangedMessages.class);
-        verify(recordIndexerApi).indexWorker(captor.capture());
+        verify(recordIndexerApi).processRecordChangedMessages(captor.capture());
         assertThat(captor.getValue().getAttributes()).containsAllEntriesOf(attributes);
     }
 
@@ -355,14 +355,14 @@ class ReindexMessageReceiverTest {
         when(dpsHeaders.getCorrelationId()).thenReturn(CORRELATION_ID);
         OqmMessage oqmMessage = createTestOqmMessage();
 
-        when(recordIndexerApi.indexWorker(any(RecordChangedMessages.class)))
+        when(recordIndexerApi.processRecordChangedMessages(any(RecordChangedMessages.class)))
                 .thenReturn(ResponseEntity.status(HttpStatus.CREATED).body(jobStatus));
 
         // Act
         reindexMessageReceiver.sendMessage(oqmMessage);
 
         // Assert
-        verify(recordIndexerApi, times(1)).indexWorker(any(RecordChangedMessages.class));
+        verify(recordIndexerApi, times(1)).processRecordChangedMessages(any(RecordChangedMessages.class));
     }
 
     @Test
@@ -372,7 +372,7 @@ class ReindexMessageReceiverTest {
         OqmMessage oqmMessage1 = createTestOqmMessage();
         OqmMessage oqmMessage2 = createTestOqmMessage();
 
-        when(recordIndexerApi.indexWorker(any(RecordChangedMessages.class)))
+        when(recordIndexerApi.processRecordChangedMessages(any(RecordChangedMessages.class)))
                 .thenReturn(ResponseEntity.ok(jobStatus));
 
         // Act
@@ -380,7 +380,7 @@ class ReindexMessageReceiverTest {
         reindexMessageReceiver.sendMessage(oqmMessage2);
 
         // Assert
-        verify(recordIndexerApi, times(2)).indexWorker(any(RecordChangedMessages.class));
+        verify(recordIndexerApi, times(2)).processRecordChangedMessages(any(RecordChangedMessages.class));
     }
 
     @Test
@@ -389,14 +389,14 @@ class ReindexMessageReceiverTest {
         when(dpsHeaders.getCorrelationId()).thenReturn(CORRELATION_ID);
         OqmMessage oqmMessage = createTestOqmMessage();
 
-        when(recordIndexerApi.indexWorker(any(RecordChangedMessages.class)))
+        when(recordIndexerApi.processRecordChangedMessages(any(RecordChangedMessages.class)))
                 .thenReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(jobStatus));
 
         // Act
         reindexMessageReceiver.sendMessage(oqmMessage);
 
         // Assert
-        verify(recordIndexerApi, times(1)).indexWorker(any(RecordChangedMessages.class));
+        verify(recordIndexerApi, times(1)).processRecordChangedMessages(any(RecordChangedMessages.class));
     }
 
     @Test
@@ -405,14 +405,14 @@ class ReindexMessageReceiverTest {
         when(dpsHeaders.getCorrelationId()).thenReturn(CORRELATION_ID);
         OqmMessage oqmMessage = createTestOqmMessage();
 
-        when(recordIndexerApi.indexWorker(any(RecordChangedMessages.class)))
+        when(recordIndexerApi.processRecordChangedMessages(any(RecordChangedMessages.class)))
                 .thenReturn(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(jobStatus));
 
         // Act
         reindexMessageReceiver.sendMessage(oqmMessage);
 
         // Assert
-        verify(recordIndexerApi, times(1)).indexWorker(any(RecordChangedMessages.class));
+        verify(recordIndexerApi, times(1)).processRecordChangedMessages(any(RecordChangedMessages.class));
     }
 
     // Helper methods

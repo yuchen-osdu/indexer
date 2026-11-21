@@ -14,40 +14,37 @@
 
 package org.opengroup.osdu.indexer.model.geojson.jackson;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.ObjectCodec;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.JsonNode;
 import org.opengroup.osdu.indexer.model.geojson.Feature;
 import org.opengroup.osdu.indexer.model.geojson.FeatureCollection;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FeatureCollectionDeserializer extends JsonDeserializer<FeatureCollection> {
+public class FeatureCollectionDeserializer extends ValueDeserializer<FeatureCollection> {
 
     @Override
-    public FeatureCollection deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+    public FeatureCollection deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
         FeatureCollection featureCollection = new FeatureCollection();
-        featureCollection.setFeatures(extractFeature(jsonParser));
+        featureCollection.setFeatures(extractFeature(jsonParser, deserializationContext));
         return featureCollection;
     }
 
-    private List<Feature> extractFeature(JsonParser jsonParser) throws IOException {
-        ObjectCodec codec = jsonParser.getCodec();
-        JsonNode featureCollection = codec.readTree(jsonParser);
+    private List<Feature> extractFeature(JsonParser jsonParser, DeserializationContext deserializationContext) {
+        JsonNode featureCollection = deserializationContext.readTree(jsonParser);
         JsonNode features = featureCollection.get(GeoJsonConstants.FEATURES);
 
         if(features == null){
-            throw new JsonParseException(jsonParser, "Missing feature field in the ");
+            throw new StreamReadException(jsonParser, "Missing feature field in the ");
         }
 
         final List<Feature> result = new ArrayList<>();
         for (JsonNode node : features) {
-            result.add(codec.treeToValue(node, Feature.class));
+            result.add(deserializationContext.readTreeAsValue(node, Feature.class));
         }
         return result;
     }

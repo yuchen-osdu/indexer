@@ -17,17 +17,19 @@
 package org.opengroup.osdu.indexer;
 
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.actuate.autoconfigure.elasticsearch.ElasticsearchRestHealthContributorAutoConfiguration;
-import org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration;
+import org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration;
+import org.springframework.boot.security.autoconfigure.actuate.web.servlet.ManagementWebSecurityAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
 @Configuration
 @ComponentScan({"org.opengroup.osdu.core.common","org.opengroup.osdu.indexer", "org.opengroup.osdu.is"})
-@SpringBootApplication(exclude = {ElasticsearchRestHealthContributorAutoConfiguration.class, SecurityAutoConfiguration.class, ManagementWebSecurityAutoConfiguration.class})
+// Spring Boot 4 moved the Elasticsearch health contributor to spring-boot-elasticsearch (not on the classpath) and no longer
+// guards UserDetailsServiceAutoConfiguration with @ConditionalOnBean(ObjectPostProcessor), so it is excluded explicitly
+@SpringBootApplication(exclude = {SecurityAutoConfiguration.class, ManagementWebSecurityAutoConfiguration.class, UserDetailsServiceAutoConfiguration.class})
 @PropertySource("classpath:swagger.properties")
 public class IndexerApplication {
     public static void main( String[] args )

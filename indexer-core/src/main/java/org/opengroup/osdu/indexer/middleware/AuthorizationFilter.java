@@ -17,12 +17,12 @@
 package org.opengroup.osdu.indexer.middleware;
 
 import lombok.extern.java.Log;
+import jakarta.inject.Inject;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.annotation.RequestScope;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.core.common.model.entitlements.AuthorizationResponse;
 import org.opengroup.osdu.core.common.provider.interfaces.IAuthorizationService;
-import org.springframework.stereotype.Component;
-import org.springframework.web.context.annotation.RequestScope;
-import jakarta.inject.Inject;
 
 @Log
 @Component("authorizationFilter")
@@ -34,6 +34,8 @@ public class AuthorizationFilter {
 
     private DpsHeaders headers;
 
+    // Core-plus request and messaging contexts each expose their own primary DpsHeaders bean.
+    @SuppressWarnings("java:S9352")
     @Inject
     AuthorizationFilter(DpsHeaders headers) {
         this.headers = headers;

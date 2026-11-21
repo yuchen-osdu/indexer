@@ -80,7 +80,7 @@ class SchemaChangedMessageReceiverTest {
 
         // Assert
         ArgumentCaptor<SchemaChangedMessages> captor = ArgumentCaptor.forClass(SchemaChangedMessages.class);
-        verify(recordIndexerApi, times(1)).schemaWorker(captor.capture());
+        verify(recordIndexerApi, times(1)).processSchemaChangedMessages(captor.capture());
 
         SchemaChangedMessages capturedMessage = captor.getValue();
         assertThat(capturedMessage.getMessageId()).isEqualTo(CORRELATION_ID);
@@ -99,7 +99,7 @@ class SchemaChangedMessageReceiverTest {
 
         // Assert
         ArgumentCaptor<SchemaChangedMessages> captor = ArgumentCaptor.forClass(SchemaChangedMessages.class);
-        verify(recordIndexerApi).schemaWorker(captor.capture());
+        verify(recordIndexerApi).processSchemaChangedMessages(captor.capture());
         assertThat(captor.getValue().getMessageId()).isEqualTo(CORRELATION_ID);
     }
 
@@ -117,7 +117,7 @@ class SchemaChangedMessageReceiverTest {
 
         // Assert
         ArgumentCaptor<SchemaChangedMessages> captor = ArgumentCaptor.forClass(SchemaChangedMessages.class);
-        verify(recordIndexerApi).schemaWorker(captor.capture());
+        verify(recordIndexerApi).processSchemaChangedMessages(captor.capture());
 
         String expectedDataJson = gson.toJson(testData);
         assertThat(captor.getValue().getData()).isEqualTo(expectedDataJson);  // Fixed: capturedMessage -> captor
@@ -137,7 +137,7 @@ class SchemaChangedMessageReceiverTest {
 
         // Assert
         ArgumentCaptor<SchemaChangedMessages> captor = ArgumentCaptor.forClass(SchemaChangedMessages.class);
-        verify(recordIndexerApi).schemaWorker(captor.capture());
+        verify(recordIndexerApi).processSchemaChangedMessages(captor.capture());
         assertThat(captor.getValue().getAttributes()).isEqualTo(testAttributes);
     }
 
@@ -151,7 +151,7 @@ class SchemaChangedMessageReceiverTest {
 
         // Assert
         ArgumentCaptor<SchemaChangedMessages> captor = ArgumentCaptor.forClass(SchemaChangedMessages.class);
-        verify(recordIndexerApi).schemaWorker(captor.capture());
+        verify(recordIndexerApi).processSchemaChangedMessages(captor.capture());
         assertThat(captor.getValue().getPublishTime()).isNotNull();
         assertThat(captor.getValue().getPublishTime()).isNotEmpty();
     }
@@ -166,7 +166,7 @@ class SchemaChangedMessageReceiverTest {
 
         // Assert
         ArgumentCaptor<SchemaChangedMessages> captor = ArgumentCaptor.forClass(SchemaChangedMessages.class);
-        verify(recordIndexerApi).schemaWorker(captor.capture());
+        verify(recordIndexerApi).processSchemaChangedMessages(captor.capture());
         assertThat(captor.getValue().getData()).isNull();
     }
 
@@ -180,7 +180,7 @@ class SchemaChangedMessageReceiverTest {
 
         // Assert
         ArgumentCaptor<SchemaChangedMessages> captor = ArgumentCaptor.forClass(SchemaChangedMessages.class);
-        verify(recordIndexerApi).schemaWorker(captor.capture());
+        verify(recordIndexerApi).processSchemaChangedMessages(captor.capture());
         assertThat(captor.getValue().getAttributes()).isNull();
     }
 
@@ -189,14 +189,14 @@ class SchemaChangedMessageReceiverTest {
         // Arrange
         OqmMessage oqmMessage = createTestOqmMessage();
         doThrow(new RuntimeException("API call failed"))
-                .when(recordIndexerApi).schemaWorker(any(SchemaChangedMessages.class));
+                .when(recordIndexerApi).processSchemaChangedMessages(any(SchemaChangedMessages.class));
 
         // Act & Assert
         assertThatThrownBy(() -> schemaChangedMessageReceiver.sendMessage(oqmMessage))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessage("API call failed");
 
-        verify(recordIndexerApi, times(1)).schemaWorker(any(SchemaChangedMessages.class));
+        verify(recordIndexerApi, times(1)).processSchemaChangedMessages(any(SchemaChangedMessages.class));
     }
 
     @Test
@@ -210,7 +210,7 @@ class SchemaChangedMessageReceiverTest {
         schemaChangedMessageReceiver.sendMessage(oqmMessage);
 
         // Assert
-        verify(recordIndexerApi, times(1)).schemaWorker(any(SchemaChangedMessages.class));
+        verify(recordIndexerApi, times(1)).processSchemaChangedMessages(any(SchemaChangedMessages.class));
     }
 
     @Test
@@ -235,7 +235,7 @@ class SchemaChangedMessageReceiverTest {
         schemaChangedMessageReceiver.sendMessage(oqmMessage);
 
         // Assert
-        verify(recordIndexerApi, times(1)).schemaWorker(any(SchemaChangedMessages.class));
+        verify(recordIndexerApi, times(1)).processSchemaChangedMessages(any(SchemaChangedMessages.class));
     }
 
     @Test
@@ -244,14 +244,14 @@ class SchemaChangedMessageReceiverTest {
         OqmMessage oqmMessage = createTestOqmMessage();
         JobStatus jobStatus = new JobStatus();
         ResponseEntity<JobStatus> acceptedResponse = new ResponseEntity<>(jobStatus, HttpStatus.ACCEPTED);
-        when(recordIndexerApi.schemaWorker(any(SchemaChangedMessages.class)))
+        when(recordIndexerApi.processSchemaChangedMessages(any(SchemaChangedMessages.class)))
                 .thenReturn((ResponseEntity) acceptedResponse);
 
         // Act
         schemaChangedMessageReceiver.sendMessage(oqmMessage);
 
         // Assert
-        verify(recordIndexerApi, times(1)).schemaWorker(any(SchemaChangedMessages.class));
+        verify(recordIndexerApi, times(1)).processSchemaChangedMessages(any(SchemaChangedMessages.class));
         assertEquals(HttpStatus.ACCEPTED, acceptedResponse.getStatusCode());
         assertNotNull(acceptedResponse.getBody());
     }
@@ -272,7 +272,7 @@ class SchemaChangedMessageReceiverTest {
 
         // Assert
         ArgumentCaptor<SchemaChangedMessages> captor = ArgumentCaptor.forClass(SchemaChangedMessages.class);
-        verify(recordIndexerApi).schemaWorker(captor.capture());
+        verify(recordIndexerApi).processSchemaChangedMessages(captor.capture());
 
         String expectedDataJson = gson.toJson(complexData);
         assertThat(captor.getValue().getData()).isEqualTo(expectedDataJson);
@@ -293,7 +293,7 @@ class SchemaChangedMessageReceiverTest {
 
         // Assert
         ArgumentCaptor<SchemaChangedMessages> captor = ArgumentCaptor.forClass(SchemaChangedMessages.class);
-        verify(recordIndexerApi).schemaWorker(captor.capture());
+        verify(recordIndexerApi).processSchemaChangedMessages(captor.capture());
         assertThat(captor.getValue().getAttributes()).containsAllEntriesOf(attributes);
     }
 
@@ -306,7 +306,7 @@ class SchemaChangedMessageReceiverTest {
         schemaChangedMessageReceiver.sendMessage(oqmMessage);
 
         // Verify logging occurred (requires logging test setup)
-        verify(recordIndexerApi).schemaWorker(any(SchemaChangedMessages.class));
+        verify(recordIndexerApi).processSchemaChangedMessages(any(SchemaChangedMessages.class));
     }
 
     @Test
@@ -320,7 +320,7 @@ class SchemaChangedMessageReceiverTest {
 
         // Assert
         ArgumentCaptor<SchemaChangedMessages> captor = ArgumentCaptor.forClass(SchemaChangedMessages.class);
-        verify(recordIndexerApi).schemaWorker(captor.capture());
+        verify(recordIndexerApi).processSchemaChangedMessages(captor.capture());
         assertThat(captor.getValue().getMessageId()).isNull();
     }
 
@@ -335,7 +335,7 @@ class SchemaChangedMessageReceiverTest {
 
         // Assert
         ArgumentCaptor<SchemaChangedMessages> captor = ArgumentCaptor.forClass(SchemaChangedMessages.class);
-        verify(recordIndexerApi).schemaWorker(captor.capture());
+        verify(recordIndexerApi).processSchemaChangedMessages(captor.capture());
         assertThat(captor.getValue().getMessageId()).isEmpty();
     }
 
@@ -344,7 +344,7 @@ class SchemaChangedMessageReceiverTest {
         // Arrange
         OqmMessage oqmMessage = createTestOqmMessage();
         doThrow(new IOException("Network error"))
-                .when(recordIndexerApi).schemaWorker(any(SchemaChangedMessages.class));
+                .when(recordIndexerApi).processSchemaChangedMessages(any(SchemaChangedMessages.class));
 
         // Act & Assert
         assertThatThrownBy(() -> schemaChangedMessageReceiver.sendMessage(oqmMessage))
@@ -356,13 +356,13 @@ class SchemaChangedMessageReceiverTest {
     void sendMessage_shouldCallApiExactlyOnceEvenWithSuccessResponse() throws Exception {
         OqmMessage oqmMessage = createTestOqmMessage();
         ResponseEntity<?> successResponse = ResponseEntity.ok().build();
-        doReturn(successResponse).when(recordIndexerApi).schemaWorker(any(SchemaChangedMessages.class));
+        doReturn(successResponse).when(recordIndexerApi).processSchemaChangedMessages(any(SchemaChangedMessages.class));
 
         // Act
         schemaChangedMessageReceiver.sendMessage(oqmMessage);
 
         // Assert
-        verify(recordIndexerApi, times(1)).schemaWorker(any(SchemaChangedMessages.class));
+        verify(recordIndexerApi, times(1)).processSchemaChangedMessages(any(SchemaChangedMessages.class));
     }
 
     @Test
@@ -379,7 +379,7 @@ class SchemaChangedMessageReceiverTest {
 
         // Assert
         ArgumentCaptor<SchemaChangedMessages> captor = ArgumentCaptor.forClass(SchemaChangedMessages.class);
-        verify(recordIndexerApi).schemaWorker(captor.capture());
+        verify(recordIndexerApi).processSchemaChangedMessages(captor.capture());
         assertThat(captor.getValue().getData()).isNotNull();
         assertThat(captor.getValue().getData().length()).isGreaterThan(0);
     }
@@ -396,7 +396,7 @@ class SchemaChangedMessageReceiverTest {
 
         // Assert
         ArgumentCaptor<SchemaChangedMessages> captor = ArgumentCaptor.forClass(SchemaChangedMessages.class);
-        verify(recordIndexerApi).schemaWorker(captor.capture());
+        verify(recordIndexerApi).processSchemaChangedMessages(captor.capture());
         assertThat(captor.getValue().getData()).contains("特殊字符");
     }
 
@@ -410,7 +410,7 @@ class SchemaChangedMessageReceiverTest {
         schemaChangedMessageReceiver.sendMessage(oqmMessage);
 
         // Assert
-        verify(recordIndexerApi, times(2)).schemaWorker(any(SchemaChangedMessages.class));
+        verify(recordIndexerApi, times(2)).processSchemaChangedMessages(any(SchemaChangedMessages.class));
     }
 
     // Helper methods

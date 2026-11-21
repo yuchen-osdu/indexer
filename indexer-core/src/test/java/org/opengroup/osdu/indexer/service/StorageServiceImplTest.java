@@ -14,6 +14,9 @@
 
 package org.opengroup.osdu.indexer.service;
 
+import org.junit.Rule;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -24,7 +27,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
@@ -63,6 +66,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 public class StorageServiceImplTest {
+
+    @Rule
+    public MockitoRule mockitoRule = MockitoJUnit.rule();
     @Mock
     private IUrlFetchService urlFetchService;
     @Mock
@@ -111,7 +117,7 @@ public class StorageServiceImplTest {
         ids = Arrays.asList(RECORD_ID1, RECORDS_ID2);
 
         when(configurationProperties.getStorageRecordsBatchSize()).thenReturn(20);
-        when(xcollaborationHolder.isFeatureEnabledAndHeaderExists()).thenReturn(false);
+        when(xcollaborationHolder.isXcollaborationHeaderExists()).thenReturn(false);
     }
 
     @Test
@@ -201,6 +207,23 @@ public class StorageServiceImplTest {
 
         assertEquals(0, storageRecords.getRecords().size());
         verify(this.log).warning("stale records found with older kind, skipping indexing | record ids: testid");
+    }
+
+    @Test
+    public void should_propagateClientError_whenStorageRejectsRecordIds() throws URISyntaxException {
+        HttpResponse httpResponse = mock(HttpResponse.class);
+        when(httpResponse.getResponseCode()).thenReturn(400);
+        when(httpResponse.getBody()).thenReturn(
+                "{\"code\":400,\"reason\":\"Validation error.\",\"message\":\"Invalid record format: 'false'\"}");
+        when(configurationProperties.getStorageQueryRecordHost()).thenReturn("storageUrl");
+        when(this.httpClientHandler.sendRequest(any(), any())).thenReturn(httpResponse);
+
+        try {
+            this.sut.getStorageRecords(new ArrayList<>(ids));
+            fail("expected AppException");
+        } catch (AppException e) {
+            assertEquals(400, e.getError().getCode());
+        }
     }
 
     @Test

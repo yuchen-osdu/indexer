@@ -14,7 +14,7 @@
 
 package org.opengroup.osdu.indexer.model.geojson;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonDeserialize;
 import java.util.List;
 import lombok.NoArgsConstructor;
 import org.opengroup.osdu.indexer.model.geojson.jackson.GeoJsonConstants;

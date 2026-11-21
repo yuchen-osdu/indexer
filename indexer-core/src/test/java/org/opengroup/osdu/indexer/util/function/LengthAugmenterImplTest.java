@@ -15,8 +15,8 @@
 
 package org.opengroup.osdu.indexer.util.function;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
@@ -45,7 +45,7 @@ public class LengthAugmenterImplTest {
     ObjectMapper mapper = new ObjectMapper();
 
     @Before
-    public void setup() throws JsonProcessingException {
+    public void setup() throws JacksonException {
         valueExtraction = new ValueExtraction();
         valueExtraction.setValuePath("Len(VirtualProperties.DefaultLocation.Wgs84Coordinates)");
         String json = """
@@ -139,7 +139,7 @@ public class LengthAugmenterImplTest {
     }
 
     @Test
-    public void getPropertyValues_with_empty_shape() throws JsonProcessingException {
+    public void getPropertyValues_with_empty_shape() throws JacksonException {
         String json = """
         {"type": "geometrycollection", "geometries": []}
         """;
@@ -151,7 +151,7 @@ public class LengthAugmenterImplTest {
     }
 
     @Test
-    public void getPropertyValues_with_unsupported_type_of_shape() throws JsonProcessingException {
+    public void getPropertyValues_with_unsupported_type_of_shape() throws JacksonException {
         String json = """
                 {
                       "type": "geometrycollection",

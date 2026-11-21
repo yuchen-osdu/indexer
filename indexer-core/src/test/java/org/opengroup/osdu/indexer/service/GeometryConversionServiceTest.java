@@ -14,6 +14,9 @@
 
 package org.opengroup.osdu.indexer.service;
 
+import org.junit.Rule;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import com.google.gson.internal.LinkedTreeMap;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,6 +33,9 @@ import static org.junit.Assert.assertNull;
 
 @RunWith(SpringRunner.class)
 public class GeometryConversionServiceTest {
+
+    @Rule
+    public MockitoRule mockitoRule = MockitoJUnit.rule();
 
     @InjectMocks
     private GeometryConversionService sut;
@@ -120,8 +126,8 @@ public class GeometryConversionServiceTest {
 
         Map<String, Double> result = this.sut.tryGetGeopoint(positionTreeMap);
 
-        assertEquals(new Double(10.0), result.get("lon"));
-        assertEquals(new Double(20.0), result.get("lat"));
+        assertEquals(Double.valueOf(10.0), result.get("lon"));
+        assertEquals(Double.valueOf(20.0), result.get("lat"));
     }
 
     @Test

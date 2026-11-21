@@ -15,8 +15,9 @@
 
 package org.opengroup.osdu.indexer.util.function;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.jsontype.NamedType;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.jsontype.NamedType;
 import com.google.common.base.Strings;
 import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
 import org.opengroup.osdu.core.common.model.indexer.StorageType;
@@ -126,14 +127,15 @@ public abstract class BaseShapeFunction implements IAugmenterFunction {
 
     private synchronized ObjectMapper getDeserializerMapper() {
         if (deserializerMapper == null) {
-            deserializerMapper = new ObjectMapper();
-            deserializerMapper.registerSubtypes(new NamedType(GeometryCollection.class, GeoJsonConstants.GEOMETRY_COLLECTION));
-            deserializerMapper.registerSubtypes(new NamedType(Polygon.class, GeoJsonConstants.POLYGON));
-            deserializerMapper.registerSubtypes(new NamedType(MultiPolygon.class, GeoJsonConstants.MULTI_POLYGON));
-            deserializerMapper.registerSubtypes(new NamedType(LineString.class, GeoJsonConstants.LINE_STRING));
-            deserializerMapper.registerSubtypes(new NamedType(MultiLineString.class, GeoJsonConstants.MULTI_LINE_STRING));
-            deserializerMapper.registerSubtypes(new NamedType(Point.class, GeoJsonConstants.POINT));
-            deserializerMapper.registerSubtypes(new NamedType(MultiPoint.class, GeoJsonConstants.MULTI_POINT));
+            deserializerMapper = JsonMapper.builderWithJackson2Defaults()
+                    .registerSubtypes(new NamedType(GeometryCollection.class, GeoJsonConstants.GEOMETRY_COLLECTION))
+                    .registerSubtypes(new NamedType(Polygon.class, GeoJsonConstants.POLYGON))
+                    .registerSubtypes(new NamedType(MultiPolygon.class, GeoJsonConstants.MULTI_POLYGON))
+                    .registerSubtypes(new NamedType(LineString.class, GeoJsonConstants.LINE_STRING))
+                    .registerSubtypes(new NamedType(MultiLineString.class, GeoJsonConstants.MULTI_LINE_STRING))
+                    .registerSubtypes(new NamedType(Point.class, GeoJsonConstants.POINT))
+                    .registerSubtypes(new NamedType(MultiPoint.class, GeoJsonConstants.MULTI_POINT))
+                    .build();
         }
         return deserializerMapper;
     }

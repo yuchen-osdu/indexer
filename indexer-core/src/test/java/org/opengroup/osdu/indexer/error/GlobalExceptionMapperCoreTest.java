@@ -25,8 +25,19 @@ import org.opengroup.osdu.core.common.model.http.AppException;
 import org.opengroup.osdu.core.common.model.http.RequestStatus;
 import org.opengroup.osdu.indexer.schema.converter.exeption.SchemaProcessingException;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.mock.http.MockHttpInputMessage;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.core.MethodParameter;
+import org.springframework.web.bind.MissingRequestHeaderException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import jakarta.validation.ValidationException;
 
@@ -47,7 +58,7 @@ public class GlobalExceptionMapperCoreTest {
         AppException exception = new AppException(409, "any reason", "any message");
 
         ResponseEntity<Object> response = sut.handleAppException(exception);
-        assertEquals(409, response.getStatusCodeValue());
+        assertEquals(409, response.getStatusCode().value());
         assertEquals(exception.getError(), response.getBody());
     }
 
@@ -56,7 +67,7 @@ public class GlobalExceptionMapperCoreTest {
         NotFoundException exception = new NotFoundException("any message");
 
         ResponseEntity<Object> response = sut.handleNotFoundException(exception);
-        assertEquals(404, response.getStatusCodeValue());
+        assertEquals(404, response.getStatusCode().value());
         assertTrue(response.getBody().toString().contains("any message"));
     }
 
@@ -65,7 +76,7 @@ public class GlobalExceptionMapperCoreTest {
         Exception exception = new Exception("any message");
 
         ResponseEntity<Object> response = sut.handleGeneralException(exception);
-        assertEquals(500, response.getStatusCodeValue());
+        assertEquals(500, response.getStatusCode().value());
         assertEquals("AppError(code=500, reason=Server error., message=An unknown error has occurred., errors=null, debuggingInfo=null, originalException=java.lang.Exception: any message)", response.getBody().toString());
     }
 
@@ -74,7 +85,7 @@ public class GlobalExceptionMapperCoreTest {
         ValidationException exception = new ValidationException();
 
         ResponseEntity<Object> response = sut.handleValidationException(exception);
-        assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatusCodeValue());
+        assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatusCode().value());
     }
 
     @Test
@@ -82,7 +93,7 @@ public class GlobalExceptionMapperCoreTest {
         AccessDeniedException exception = new AccessDeniedException("Access is denied.");
 
         ResponseEntity<Object> response = sut.handleAccessDeniedException(exception);
-        assertEquals(HttpStatus.SC_FORBIDDEN, response.getStatusCodeValue());
+        assertEquals(HttpStatus.SC_FORBIDDEN, response.getStatusCode().value());
     }
 
     @Test
@@ -90,7 +101,7 @@ public class GlobalExceptionMapperCoreTest {
         AppException exception = new AppException(RequestStatus.INVALID_RECORD, "Invalid request", "Successful Storage service response with wrong json");
 
         ResponseEntity<Object> response = sut.handleAppException(exception);
-        assertEquals(RequestStatus.INVALID_RECORD, response.getStatusCodeValue());
+        assertEquals(RequestStatus.INVALID_RECORD, response.getStatusCode().value());
     }
 
     @Test
@@ -106,7 +117,55 @@ public class GlobalExceptionMapperCoreTest {
         IOException ioException = new IOException("Not broken yet");
 
         ResponseEntity response = this.sut.handleIOException(ioException);
-        assertEquals(HttpStatus.SC_SERVICE_UNAVAILABLE, response.getStatusCodeValue());
+        assertEquals(HttpStatus.SC_SERVICE_UNAVAILABLE, response.getStatusCode().value());
+    }
+
+    @Test
+    public void should_returnAppErrorJson_when_mediaTypeIsUnsupported() {
+        HttpMediaTypeNotSupportedException exception = new HttpMediaTypeNotSupportedException("Content-Type 'null' is not supported.");
+
+        ResponseEntity<Object> response = sut.handleHttpMediaTypeNotSupported(exception, new HttpHeaders(), org.springframework.http.HttpStatus.UNSUPPORTED_MEDIA_TYPE, null);
+        assertEquals(HttpStatus.SC_UNSUPPORTED_MEDIA_TYPE, response.getStatusCode().value());
+        assertTrue(response.getBody().toString().contains("Unsupported media type."));
+    }
+
+    @Test
+    public void should_returnBadRequest_when_requestBodyIsMissing() {
+        HttpMessageNotReadableException exception = new HttpMessageNotReadableException("Failed to read request", new MockHttpInputMessage(new byte[0]));
+
+        ResponseEntity<Object> response = sut.handleHttpMessageNotReadable(exception, new HttpHeaders(), org.springframework.http.HttpStatus.BAD_REQUEST, null);
+        assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatusCode().value());
+        assertTrue(response.getBody().toString().contains("Request is not valid."));
+    }
+
+    @Test
+    public void should_returnBadRequest_when_queryParameterCannotBeConverted() {
+        MethodArgumentTypeMismatchException exception = new MethodArgumentTypeMismatchException("null", Boolean.class, "force_clean", null, new IllegalArgumentException("bad"));
+
+        ResponseEntity<Object> response = sut.handleMethodArgumentTypeMismatch(exception);
+        assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatusCode().value());
+        assertTrue(response.getBody().toString().contains("force_clean"));
+    }
+
+    @Test
+    public void should_returnBadRequest_when_requiredHeaderIsMissing() {
+        MethodParameter parameter = mock(MethodParameter.class);
+        when(parameter.getNestedParameterType()).thenReturn((Class) String.class);
+        MissingRequestHeaderException exception = new MissingRequestHeaderException("data-partition-id", parameter);
+
+        ResponseEntity<Object> response = sut.handleServletRequestBindingException(
+                exception, new HttpHeaders(), org.springframework.http.HttpStatus.BAD_REQUEST, null);
+        assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatusCode().value());
+        assertTrue(response.getBody().toString().contains("data-partition-id"));
+    }
+
+    @Test
+    public void should_returnBadRequest_when_requiredQueryParameterIsMissing() {
+        MissingServletRequestParameterException exception = new MissingServletRequestParameterException("kind", "String");
+
+        ResponseEntity<Object> response = sut.handleMissingServletRequestParameter(exception, new HttpHeaders(), org.springframework.http.HttpStatus.BAD_REQUEST, null);
+        assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatusCode().value());
+        assertTrue(response.getBody().toString().contains("kind"));
     }
 
     @Test
@@ -114,6 +173,6 @@ public class GlobalExceptionMapperCoreTest {
         SchemaProcessingException schemaProcessingException = new SchemaProcessingException("error processing schema");
         
         ResponseEntity response = this.sut.handleSchemaProcessingException(schemaProcessingException);
-        assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatusCodeValue());
+        assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatusCode().value());
     }
 }
