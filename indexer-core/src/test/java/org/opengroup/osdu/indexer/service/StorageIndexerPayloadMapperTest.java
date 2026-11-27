@@ -16,8 +16,8 @@
 
 package org.opengroup.osdu.indexer.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import org.junit.BeforeClass;
@@ -46,8 +46,10 @@ import org.opengroup.osdu.indexer.util.parser.*;
 import org.opengroup.osdu.indexer.util.BooleanFeatureFlagClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.json.JsonMapper;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.nio.charset.StandardCharsets;
@@ -100,10 +102,10 @@ public class StorageIndexerPayloadMapperTest {
     @Autowired
     private VirtualPropertiesSchemaCache virtualPropertiesSchemaCache;
 
-    @MockBean
+    @MockitoBean
     protected IFeatureFlag featureFlagChecker;
 
-    @MockBean
+    @MockitoBean
     protected BooleanFeatureFlagClient partitionFlagChecker;
 
     @BeforeClass
@@ -476,9 +478,9 @@ public class StorageIndexerPayloadMapperTest {
 
     private SchemaRoot parserJsonString(final String schemaServiceFormat) {
         try {
-            ObjectMapper objectMapper = Jackson2ObjectMapperBuilder.json().build();
+            ObjectMapper objectMapper = JsonMapper.builder().findAndAddModules().disable(MapperFeature.DEFAULT_VIEW_INCLUSION).disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
             return objectMapper.readValue(schemaServiceFormat, SchemaRoot.class);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException _) {
             throw new SchemaProcessingException("Failed to parse the schema");
         }
     }

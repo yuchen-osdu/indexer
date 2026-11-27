@@ -14,6 +14,9 @@
 
 package org.opengroup.osdu.indexer.cache.partitionsafe;
 
+import org.junit.Rule;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -27,6 +30,9 @@ import static org.mockito.Mockito.*;
 
 @RunWith(SpringRunner.class)
 public class IndexCacheTest {
+
+    @Rule
+    public MockitoRule mockitoRule = MockitoJUnit.rule();
 
     @Mock
     private IIndexCache cache;

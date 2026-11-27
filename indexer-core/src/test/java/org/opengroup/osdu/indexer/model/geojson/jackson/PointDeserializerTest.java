@@ -15,10 +15,10 @@
 
 package org.opengroup.osdu.indexer.model.geojson.jackson;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.jsontype.NamedType;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.jsontype.NamedType;
 import lombok.SneakyThrows;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -37,12 +37,13 @@ public class PointDeserializerTest {
 
     @BeforeClass
     public static void setup() {
-        objectMapper = new ObjectMapper();
-        objectMapper.registerSubtypes(new NamedType(Point.class, GeoJsonConstants.POINT));
+        objectMapper = JsonMapper.builder()
+                .registerSubtypes(new NamedType(Point.class, GeoJsonConstants.POINT))
+                .build();
     }
 
     @Test
-    public void deserialize_2d_point() throws JsonProcessingException {
+    public void deserialize_2d_point() throws JacksonException {
         String shapeJson = getGeoShapeFromFile("point_2d.json");
         Point point = objectMapper.readValue(shapeJson, Point.class);
         Assert.assertNotNull(point);
@@ -52,7 +53,7 @@ public class PointDeserializerTest {
     }
 
     @Test
-    public void deserialize_3d_point() throws JsonProcessingException {
+    public void deserialize_3d_point() throws JacksonException {
         String shapeJson = getGeoShapeFromFile("point_3d.json");
         Point point = objectMapper.readValue(shapeJson, Point.class);
         Assert.assertNotNull(point);

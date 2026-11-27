@@ -15,6 +15,7 @@
 package org.opengroup.osdu.indexer.api;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -33,6 +34,7 @@ import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.core.common.model.indexer.SchemaChangedMessages;
 import org.opengroup.osdu.core.common.model.search.RecordChangedMessages;
 import org.opengroup.osdu.core.common.provider.interfaces.IRequestInfo;
+import org.opengroup.osdu.indexer.SwaggerDoc;
 import org.opengroup.osdu.indexer.service.IndexerService;
 import org.opengroup.osdu.indexer.service.SchemaEventsProcessor;
 import org.springframework.http.HttpStatus;
@@ -114,9 +116,17 @@ public class RecordIndexerApiTest {
         should_return400_schemaWorkerTest(messageWithIncorrectJsonFormat, "Unable to parse request payload.");
     }
 
+    @Test
+    public void should_return400_givenNullSchemaMessage_schemaWorkerTest() {
+        AppException exception = assertThrows(AppException.class, () -> this.sut.schemaWorker(null));
+
+        assertEquals(HttpStatus.BAD_REQUEST.value(), exception.getError().getCode());
+        assertEquals(SwaggerDoc.REQUEST_VALIDATION_NOT_NULL_BODY, exception.getError().getMessage());
+    }
+
     private void should_return200_indexerWorkerTest(String message) throws Exception {
         ResponseEntity response = this.sut.indexWorker(createRecordChangedMessage(message));
-        assertEquals(HttpStatus.OK.value(), response.getStatusCodeValue());
+        assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
     }
 
     private void should_return400_indexerWorkerTest(String message, String errorMessage) {
@@ -137,7 +147,7 @@ public class RecordIndexerApiTest {
 
     private void should_return200_schemaWorkerTest(String message) throws Exception {
         ResponseEntity response = this.sut.schemaWorker(createSchemaChangedMessage(message));
-        assertEquals(HttpStatus.OK.value(), response.getStatusCodeValue());
+        assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
     }
 
     private void should_return400_schemaWorkerTest(String message, String errorMessage) {

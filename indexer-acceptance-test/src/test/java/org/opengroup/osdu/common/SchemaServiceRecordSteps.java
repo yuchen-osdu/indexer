@@ -17,42 +17,54 @@
 package org.opengroup.osdu.common;
 
 import io.cucumber.datatable.DataTable;
-import org.opengroup.osdu.models.Setup;
+import lombok.extern.slf4j.Slf4j;
+import org.opengroup.osdu.core.test.client.ClientException;
+import org.opengroup.osdu.models.SharedConfigurationIndexValidator;
+import org.opengroup.osdu.models.TestIndex;
+import org.opengroup.osdu.models.TestIndexSetup;
 import org.opengroup.osdu.models.schema.PersistentSchemaTestIndex;
-import org.opengroup.osdu.util.ElasticUtils;
-import org.opengroup.osdu.util.HTTPClient;
 
 import java.util.List;
-import java.util.Map;
 
+@Slf4j
 public class SchemaServiceRecordSteps extends RecordSteps {
+    private static final String SHARED_CONFIGURATION_KIND = "osdu:wks:reference-data--IndexPropertyPathConfiguration:1.1.1";
     private static boolean runStatefulScenario = false;
 
-    public SchemaServiceRecordSteps(HTTPClient httpClient, ElasticUtils elasticUtils) {
-        super(httpClient, elasticUtils);
+    public SchemaServiceRecordSteps() {
+        super();
     }
 
     public void the_schema_is_created_with_the_following_kind(DataTable dataTable) {
         if(!SchemaServiceRecordSteps.runStatefulScenario) {
-            List<Setup> inputList = dataTable.asList(Setup.class);
+            List<TestIndexSetup> inputList = dataTable.asList(TestIndexSetup.class);
             inputList.forEach(this::setup);
-            super.addShutDownHook();
         }
     }
 
-    public void i_set_scenarios_as_stateful(boolean stateful) throws Throwable {
+    public void i_set_scenarios_as_stateful(boolean stateful) {
         SchemaServiceRecordSteps.runStatefulScenario = stateful;
     }
 
-    private void setup(Setup input) {
-        PersistentSchemaTestIndex testIndex = new PersistentSchemaTestIndex(super.elasticUtils, super.httpClient, this);
+    private void setup(TestIndexSetup input) {
+        PersistentSchemaTestIndex testIndex = new PersistentSchemaTestIndex(elasticClient, indexerClient, stringHttpClient, this);
         testIndex.setIndex(generateActualName(input.getIndex(), super.getTimeStamp()));
         testIndex.setSchemaFile(input.getSchemaFile());
-        testIndex.setHttpClient(super.httpClient);
         testIndex.setupSchema();
         testIndex.setKind(testIndex.getSchemaModel().getSchemaInfo().getSchemaIdentity().getId());
 
         super.getInputIndexMap().put(testIndex.getKind(), testIndex);
+
+        // Shared across runs and pipelines; deleting it removes configurations other runs rely on
+        if (SHARED_CONFIGURATION_KIND.equals(testIndex.getKind())) {
+            SharedConfigurationIndexValidator.ensureValid(
+                    testIndex.getKind(),
+                    testIndex.getIndex(),
+                    schemaClient,
+                    elasticClient,
+                    indexerClient);
+            return;
+        }
 
         // Delete any pre-existing index, then wait for the async schema event
         // (fired by setupSchema above) to be processed and potentially recreate
@@ -67,12 +79,29 @@ public class SchemaServiceRecordSteps extends RecordSteps {
     }
 
     private void deleteIndex(String kind) {
-        this.indexerClientUtil.deleteIndex(kind);
+        try {
+            indexerClient.deleteIndex(kind);
+        } catch (ClientException e) {
+            log.warn("Index for kind '{}' not found during pre-test cleanup (may not exist yet): {}", kind, e.getMessage());
+        }
     }
 
-    @Override
-    protected String generateRecordId(Map<String, Object> testRecord) {
-        return generateActualId(testRecord.get("id").toString(), getTimeStamp(), testRecord.get("kind").toString());
+    public void the_schema_is_updated_with_the_following_kind(DataTable dataTable) {
+        List<TestIndexSetup> inputList = dataTable.asList(TestIndexSetup.class);
+        inputList.forEach(this::updateSchema);
+    }
+
+    private void updateSchema(TestIndexSetup input) {
+        String actualKind = generateActualName(input.getKind(), getTimeStamp());
+        TestIndex existingTestIndex = getInputIndexMap().get(actualKind);
+
+        if (!(existingTestIndex instanceof PersistentSchemaTestIndex testIndex)) {
+            throw new AssertionError(
+                "Cannot update schema - no PersistentSchemaTestIndex registered for kind: " + actualKind);
+        }
+
+        testIndex.setSchemaFile(input.getSchemaFile());
+        testIndex.updateSchema();
     }
 
     @Override

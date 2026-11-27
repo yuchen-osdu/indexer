@@ -14,6 +14,9 @@
 
 package org.opengroup.osdu.indexer.api;
 
+import org.junit.Rule;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -35,6 +38,9 @@ import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
 public class PartitionSetupApiTest {
+
+    @Rule
+    public MockitoRule mockitoRule = MockitoJUnit.rule();
 
     @Mock
     private AuditLogger auditLogger;

@@ -15,6 +15,9 @@
 
 package org.opengroup.osdu.indexer.schema.converter;
 
+import org.junit.Rule;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import com.google.gson.Gson;
 import org.junit.Assert;
 import org.junit.Before;
@@ -37,6 +40,9 @@ import static org.mockito.Mockito.*;
 
 @RunWith(SpringRunner.class)
 public class VirtualPropertiesSchemaCacheImplTest {
+
+    @Rule
+    public MockitoRule mockitoRule = MockitoJUnit.rule();
     @Mock
     private ISchemaCache schemaCache;
     @InjectMocks

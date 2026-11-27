@@ -72,7 +72,7 @@ import org.opengroup.osdu.indexer.util.CustomIndexAnalyzerSetting;
 import org.opengroup.osdu.indexer.util.ElasticClientHandler;
 import org.opengroup.osdu.indexer.util.TypeMapper;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
@@ -106,7 +106,7 @@ public class IndexerMappingServiceTest {
     private ElasticIndexNameResolver elasticIndexNameResolver;
     @Mock
     private XcollaborationHolder xcollaborationHolder;
-    @MockBean
+    @MockitoBean
     private IFeatureFlag featureFlag;
     @Mock
     private CustomIndexAnalyzerSetting customIndexAnalyzerSetting;
@@ -136,7 +136,7 @@ public class IndexerMappingServiceTest {
         when(this.restClient.performRequest(any())).thenReturn(response);
         when(this.response.getStatusLine()).thenReturn(statusLine);
         when(this.statusLine.getStatusCode()).thenReturn(200);
-        when(xcollaborationHolder.isFeatureEnabledAndHeaderExists()).thenReturn(false);
+        when(xcollaborationHolder.isXcollaborationHeaderExists()).thenReturn(false);
 
         when(this.elasticsearchClient.indices()).thenReturn(this.indicesClient);
         GetMappingResponse mappingResponse = mock(GetMappingResponse.class);
@@ -318,7 +318,6 @@ public class IndexerMappingServiceTest {
         final String cacheKey = String.format("metaAttributeMappingSynced-%s", index);
         final String mapping = "{\"dynamic\":\"false\",\"properties\":{\"acl\":{\"properties\":{\"owners\":{\"type\":\"keyword\"},\"viewers\":{\"type\":\"keyword\"}}},\"ancestry\":{\"properties\":{\"parents\":{\"type\":\"keyword\"}}},\"authority\":{\"type\":\"constant_keyword\",\"value\":\"opendes\"},\"createTime\":{\"type\":\"date\"},\"createUser\":{\"type\":\"keyword\"},\"data\":{\"properties\":{\"message\":{\"type\":\"text\",\"fields\":{\"keyword\":{\"type\":\"keyword\",\"null_value\":\"null\",\"ignore_above\":256}}}}},\"id\":{\"type\":\"keyword\"},\"index\":{\"properties\":{\"lastUpdateTime\":{\"type\":\"date\"},\"statusCode\":{\"type\":\"integer\"},\"trace\":{\"type\":\"text\"}}},\"kind\":{\"type\":\"keyword\"},\"legal\":{\"properties\":{\"legaltags\":{\"type\":\"keyword\"},\"otherRelevantDataCountries\":{\"type\":\"keyword\"},\"status\":{\"type\":\"keyword\"}}},\"modifyTime\":{\"type\":\"date\"},\"modifyUser\":{\"type\":\"keyword\"},\"namespace\":{\"type\":\"keyword\"},\"source\":{\"type\":\"constant_keyword\",\"value\":\"test\"},\"tags\":{\"type\":\"flattened\"},\"type\":{\"type\":\"keyword\"},\"version\":{\"type\":\"long\"},\"x-acl\":{\"type\":\"keyword\"},\"bagOfWords\":{\"search_analyzer\":\"whitespace\",\"analyzer\":\"detailExtractor\",\"store\":true,\"type\":\"text\",\"fields\":{\"autocomplete\":{\"type\":\"completion\",\"analyzer\":\"detailExtractor\",\"search_analyzer\":\"whitespace\",\"max_input_length\":256}}}}}";
         doReturn(mapping).when(this.sut).getIndexMapping(elasticsearchClient, index);
-        when(this.featureFlag.isFeatureEnabled(BAG_OF_WORDS_FEATURE_NAME)).thenReturn(false);
 
         when(this.elasticsearchClient.indices()).thenReturn(this.indicesClient);
         GetMappingResponse mappingResponse = mock(GetMappingResponse.class);
@@ -332,7 +331,6 @@ public class IndexerMappingServiceTest {
 
         verify(this.indexCache, times(1)).get(cacheKey);
         verify(this.indexCache, times(1)).put(cacheKey, true);
-        verify(this.featureFlag, times(1)).isFeatureEnabled(BAG_OF_WORDS_FEATURE_NAME);
         try (MockedStatic<TypeMapper> theMock = Mockito.mockStatic(TypeMapper.class)) {
             theMock.verifyNoInteractions();
         }

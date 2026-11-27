@@ -41,7 +41,7 @@ public class ReindexMessageReceiver extends IndexerOqmMessageReceiver {
   protected void sendMessage(OqmMessage oqmMessage) throws Exception {
     RecordChangedMessages indexWorkerRequestBody = getIndexWorkerRequestBody(oqmMessage);
     log.debug("Reindex job message body: {}", indexWorkerRequestBody);
-    ResponseEntity<JobStatus> jobStatusResponse = recordIndexerApi.indexWorker(indexWorkerRequestBody);
+    ResponseEntity<JobStatus> jobStatusResponse = recordIndexerApi.processRecordChangedMessages(indexWorkerRequestBody);
     log.debug("Job status: {}", jobStatusResponse);
   }
 

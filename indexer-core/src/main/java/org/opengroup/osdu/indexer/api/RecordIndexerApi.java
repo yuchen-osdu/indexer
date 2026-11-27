@@ -27,6 +27,7 @@ import org.opengroup.osdu.core.common.model.indexer.RecordReindexRequest;
 import org.opengroup.osdu.core.common.model.indexer.SchemaChangedMessages;
 import org.opengroup.osdu.core.common.model.indexer.SchemaInfo;
 import org.opengroup.osdu.core.common.model.search.RecordChangedMessages;
+import org.opengroup.osdu.core.common.model.search.SearchServiceRole;
 import org.opengroup.osdu.core.common.provider.interfaces.IRequestInfo;
 import org.opengroup.osdu.indexer.SwaggerDoc;
 import org.opengroup.osdu.indexer.service.IndexerService;
@@ -34,6 +35,7 @@ import org.opengroup.osdu.indexer.service.ReindexService;
 import org.opengroup.osdu.indexer.service.SchemaEventsProcessor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -64,11 +66,20 @@ public class RecordIndexerApi {
 
     // THIS IS AN INTERNAL USE API ONLY
     // THAT MEANS WE DON'T DOCUMENT IT IN SWAGGER, ACCESS IS LIMITED TO CLOUD TASK QUEUE CALLS ONLY
+    @PreAuthorize("@authorizationFilter.hasPermission('" + SearchServiceRole.ADMIN + "')")
     @PostMapping(path = "/index-worker", consumes = "application/json")
     @Operation(hidden = true, summary = "", description = "")
     public ResponseEntity<JobStatus> indexWorker(
              @NotNull(message = SwaggerDoc.REQUEST_VALIDATION_NOT_NULL_BODY)
              @Valid @RequestBody RecordChangedMessages recordChangedMessages) throws Exception {
+        return processRecordChangedMessages(recordChangedMessages);
+    }
+
+    /**
+     * In-process entry point for message subscribers that already run with the service account.
+     * Skips the HTTP endpoint authorization check, which would cost an Entitlements call per message.
+     */
+    public ResponseEntity<JobStatus> processRecordChangedMessages(RecordChangedMessages recordChangedMessages) throws Exception {
 
         populateCorrelationIdIfExist(recordChangedMessages);
 
@@ -108,6 +119,7 @@ public class RecordIndexerApi {
 
     // THIS IS AN INTERNAL USE API ONLY
     // THAT MEANS WE DON'T DOCUMENT IT IN SWAGGER, ACCESS IS LIMITED TO CLOUD TASK QUEUE CALLS ONLY
+    @PreAuthorize("@authorizationFilter.hasPermission('" + SearchServiceRole.ADMIN + "')")
     @PostMapping("/reindex-worker")
     @Operation(hidden = true, summary = "", description = "")
     public ResponseEntity<?> reindex(
@@ -118,13 +130,24 @@ public class RecordIndexerApi {
 
     // THIS IS AN INTERNAL USE API ONLY
     // THAT MEANS WE DON'T DOCUMENT IT IN SWAGGER, ACCESS IS LIMITED TO CLOUD TASK QUEUE CALLS ONLY
+    @PreAuthorize("@authorizationFilter.hasPermission('" + SearchServiceRole.ADMIN + "')")
     @PostMapping("/schema-worker")
     @Operation(hidden = true, summary = "", description = "")
     public ResponseEntity<?> schemaWorker(
             @NotNull(message = SwaggerDoc.REQUEST_VALIDATION_NOT_NULL_BODY)
             @Valid @RequestBody SchemaChangedMessages schemaChangedMessage) throws IOException {
+        return processSchemaChangedMessages(schemaChangedMessage);
+    }
+
+    /**
+     * In-process entry point for message subscribers that already run with the service account.
+     * Skips the HTTP endpoint authorization check, which would cost an Entitlements call per message.
+     */
+    public ResponseEntity<?> processSchemaChangedMessages(SchemaChangedMessages schemaChangedMessage) throws IOException {
         if (schemaChangedMessage == null) {
             log.warning("schema change messages is null");
+            throw new AppException(org.apache.http.HttpStatus.SC_BAD_REQUEST, "Invalid request",
+                    SwaggerDoc.REQUEST_VALIDATION_NOT_NULL_BODY);
         }
 
         if (schemaChangedMessage.missingAccountId()) {

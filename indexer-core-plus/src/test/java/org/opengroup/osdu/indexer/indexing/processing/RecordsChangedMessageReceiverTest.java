@@ -93,13 +93,13 @@ class RecordsChangedMessageReceiverTest {
         // Arrange
         OqmMessage oqmMessage = createValidOqmMessage();
         ResponseEntity<JobStatus> response = new ResponseEntity<>(new JobStatus(), HttpStatus.OK);
-        when(recordIndexerApi.indexWorker(any(RecordChangedMessages.class))).thenReturn(response);
+        when(recordIndexerApi.processRecordChangedMessages(any(RecordChangedMessages.class))).thenReturn(response);
 
         // Act
         receiver.sendMessage(oqmMessage);
 
         // Assert
-        verify(recordIndexerApi, times(1)).indexWorker(any(RecordChangedMessages.class));
+        verify(recordIndexerApi, times(1)).processRecordChangedMessages(any(RecordChangedMessages.class));
     }
 
     @Test
@@ -109,7 +109,7 @@ class RecordsChangedMessageReceiverTest {
         ResponseEntity<JobStatus> response = new ResponseEntity<>(new JobStatus(), HttpStatus.OK);
 
         ArgumentCaptor<RecordChangedMessages> captor = ArgumentCaptor.forClass(RecordChangedMessages.class);
-        when(recordIndexerApi.indexWorker(captor.capture())).thenReturn(response);
+        when(recordIndexerApi.processRecordChangedMessages(captor.capture())).thenReturn(response);
 
         // Act
         receiver.sendMessage(oqmMessage);
@@ -126,7 +126,7 @@ class RecordsChangedMessageReceiverTest {
         ResponseEntity<JobStatus> response = new ResponseEntity<>(new JobStatus(), HttpStatus.OK);
 
         ArgumentCaptor<RecordChangedMessages> captor = ArgumentCaptor.forClass(RecordChangedMessages.class);
-        when(recordIndexerApi.indexWorker(captor.capture())).thenReturn(response);
+        when(recordIndexerApi.processRecordChangedMessages(captor.capture())).thenReturn(response);
 
         // Act
         receiver.sendMessage(oqmMessage);
@@ -144,7 +144,7 @@ class RecordsChangedMessageReceiverTest {
         ResponseEntity<JobStatus> response = new ResponseEntity<>(new JobStatus(), HttpStatus.OK);
 
         ArgumentCaptor<RecordChangedMessages> captor = ArgumentCaptor.forClass(RecordChangedMessages.class);
-        when(recordIndexerApi.indexWorker(captor.capture())).thenReturn(response);
+        when(recordIndexerApi.processRecordChangedMessages(captor.capture())).thenReturn(response);
 
         // Act
         receiver.sendMessage(oqmMessage);
@@ -161,7 +161,7 @@ class RecordsChangedMessageReceiverTest {
         ResponseEntity<JobStatus> response = new ResponseEntity<>(new JobStatus(), HttpStatus.OK);
 
         ArgumentCaptor<RecordChangedMessages> captor = ArgumentCaptor.forClass(RecordChangedMessages.class);
-        when(recordIndexerApi.indexWorker(captor.capture())).thenReturn(response);
+        when(recordIndexerApi.processRecordChangedMessages(captor.capture())).thenReturn(response);
 
         // Act
         receiver.sendMessage(oqmMessage);
@@ -182,7 +182,7 @@ class RecordsChangedMessageReceiverTest {
         ResponseEntity<JobStatus> response = new ResponseEntity<>(new JobStatus(), HttpStatus.OK);
 
         ArgumentCaptor<RecordChangedMessages> captor = ArgumentCaptor.forClass(RecordChangedMessages.class);
-        when(recordIndexerApi.indexWorker(captor.capture())).thenReturn(response);
+        when(recordIndexerApi.processRecordChangedMessages(captor.capture())).thenReturn(response);
 
         // Act
         receiver.sendMessage(oqmMessage);
@@ -204,7 +204,7 @@ class RecordsChangedMessageReceiverTest {
         ResponseEntity<JobStatus> response = new ResponseEntity<>(new JobStatus(), HttpStatus.OK);
 
         ArgumentCaptor<RecordChangedMessages> captor = ArgumentCaptor.forClass(RecordChangedMessages.class);
-        when(recordIndexerApi.indexWorker(captor.capture())).thenReturn(response);
+        when(recordIndexerApi.processRecordChangedMessages(captor.capture())).thenReturn(response);
 
         // Act
         receiver.sendMessage(oqmMessage);
@@ -222,13 +222,13 @@ class RecordsChangedMessageReceiverTest {
         OqmMessage oqmMessage = createValidOqmMessage();
         JobStatus jobStatus = new JobStatus();
         ResponseEntity<JobStatus> response = new ResponseEntity<>(jobStatus, HttpStatus.OK);
-        when(recordIndexerApi.indexWorker(any(RecordChangedMessages.class))).thenReturn(response);
+        when(recordIndexerApi.processRecordChangedMessages(any(RecordChangedMessages.class))).thenReturn(response);
 
         // Act
         receiver.sendMessage(oqmMessage);
 
         // Assert
-        verify(recordIndexerApi, times(1)).indexWorker(any(RecordChangedMessages.class));
+        verify(recordIndexerApi, times(1)).processRecordChangedMessages(any(RecordChangedMessages.class));
         // Verify the response was successful and no exception was thrown
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -239,13 +239,13 @@ class RecordsChangedMessageReceiverTest {
         // Arrange
         OqmMessage oqmMessage = createValidOqmMessage();
         ResponseEntity<JobStatus> response = new ResponseEntity<>(new JobStatus(), HttpStatus.CREATED);
-        when(recordIndexerApi.indexWorker(any(RecordChangedMessages.class))).thenReturn(response);
+        when(recordIndexerApi.processRecordChangedMessages(any(RecordChangedMessages.class))).thenReturn(response);
 
         // Act
         receiver.sendMessage(oqmMessage);
 
         // Assert
-        verify(recordIndexerApi, times(1)).indexWorker(any(RecordChangedMessages.class));
+        verify(recordIndexerApi, times(1)).processRecordChangedMessages(any(RecordChangedMessages.class));
     }
 
     @Test
@@ -253,27 +253,27 @@ class RecordsChangedMessageReceiverTest {
         // Arrange
         OqmMessage oqmMessage = createValidOqmMessage();
         ResponseEntity<JobStatus> response = new ResponseEntity<>(new JobStatus(), HttpStatus.ACCEPTED);
-        when(recordIndexerApi.indexWorker(any(RecordChangedMessages.class))).thenReturn(response);
+        when(recordIndexerApi.processRecordChangedMessages(any(RecordChangedMessages.class))).thenReturn(response);
 
         // Act
         receiver.sendMessage(oqmMessage);
 
         // Assert
-        verify(recordIndexerApi, times(1)).indexWorker(any(RecordChangedMessages.class));
+        verify(recordIndexerApi, times(1)).processRecordChangedMessages(any(RecordChangedMessages.class));
     }
 
     @Test
     void shouldHandleNullJobStatusInResponse() throws Exception {
         // Arrange
         OqmMessage oqmMessage = createValidOqmMessage();
-        ResponseEntity<JobStatus> response = new ResponseEntity<>(null, HttpStatus.OK);
-        when(recordIndexerApi.indexWorker(any(RecordChangedMessages.class))).thenReturn(response);
+        ResponseEntity<JobStatus> response = new ResponseEntity<>((JobStatus) null, HttpStatus.OK);
+        when(recordIndexerApi.processRecordChangedMessages(any(RecordChangedMessages.class))).thenReturn(response);
 
         // Act
         receiver.sendMessage(oqmMessage);
 
         // Assert
-        verify(recordIndexerApi, times(1)).indexWorker(any(RecordChangedMessages.class));
+        verify(recordIndexerApi, times(1)).processRecordChangedMessages(any(RecordChangedMessages.class));
     }
 
     // ==================== Test 13-17: Exception Handling ====================
@@ -283,7 +283,7 @@ class RecordsChangedMessageReceiverTest {
         // Arrange
         OqmMessage oqmMessage = createValidOqmMessage();
         RuntimeException expectedException = new RuntimeException("Index worker failed");
-        when(recordIndexerApi.indexWorker(any(RecordChangedMessages.class))).thenThrow(expectedException);
+        when(recordIndexerApi.processRecordChangedMessages(any(RecordChangedMessages.class))).thenThrow(expectedException);
 
         // Act & Assert
         RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
@@ -298,7 +298,7 @@ class RecordsChangedMessageReceiverTest {
         // Arrange
         OqmMessage oqmMessage = createValidOqmMessage();
         Exception expectedException = new Exception("Checked exception");
-        when(recordIndexerApi.indexWorker(any(RecordChangedMessages.class))).thenThrow(expectedException);
+        when(recordIndexerApi.processRecordChangedMessages(any(RecordChangedMessages.class))).thenThrow(expectedException);
 
         // Act & Assert
         assertThrows(Exception.class, () -> {
@@ -311,7 +311,7 @@ class RecordsChangedMessageReceiverTest {
         // Arrange
         OqmMessage oqmMessage = createValidOqmMessage();
         NullPointerException expectedException = new NullPointerException("Null encountered");
-        when(recordIndexerApi.indexWorker(any(RecordChangedMessages.class))).thenThrow(expectedException);
+        when(recordIndexerApi.processRecordChangedMessages(any(RecordChangedMessages.class))).thenThrow(expectedException);
 
         // Act & Assert
         assertThrows(NullPointerException.class, () -> {
@@ -324,7 +324,7 @@ class RecordsChangedMessageReceiverTest {
         // Arrange
         OqmMessage oqmMessage = createValidOqmMessage();
         IllegalArgumentException expectedException = new IllegalArgumentException("Invalid argument");
-        when(recordIndexerApi.indexWorker(any(RecordChangedMessages.class))).thenThrow(expectedException);
+        when(recordIndexerApi.processRecordChangedMessages(any(RecordChangedMessages.class))).thenThrow(expectedException);
 
         // Act & Assert
         assertThrows(IllegalArgumentException.class, () -> {
@@ -337,7 +337,7 @@ class RecordsChangedMessageReceiverTest {
         // Arrange
         OqmMessage oqmMessage = createValidOqmMessage();
         IllegalStateException expectedException = new IllegalStateException("Invalid state");
-        when(recordIndexerApi.indexWorker(any(RecordChangedMessages.class))).thenThrow(expectedException);
+        when(recordIndexerApi.processRecordChangedMessages(any(RecordChangedMessages.class))).thenThrow(expectedException);
 
         // Act & Assert
         assertThrows(IllegalStateException.class, () -> {
@@ -354,7 +354,7 @@ class RecordsChangedMessageReceiverTest {
         OqmMessage message2 = createOqmMessageWithId("message-2");
         OqmMessage message3 = createOqmMessageWithId("message-3");
         ResponseEntity<JobStatus> response = new ResponseEntity<>(new JobStatus(), HttpStatus.OK);
-        when(recordIndexerApi.indexWorker(any(RecordChangedMessages.class))).thenReturn(response);
+        when(recordIndexerApi.processRecordChangedMessages(any(RecordChangedMessages.class))).thenReturn(response);
 
         // Act
         receiver.sendMessage(message1);
@@ -362,7 +362,7 @@ class RecordsChangedMessageReceiverTest {
         receiver.sendMessage(message3);
 
         // Assert
-        verify(recordIndexerApi, times(3)).indexWorker(any(RecordChangedMessages.class));
+        verify(recordIndexerApi, times(3)).processRecordChangedMessages(any(RecordChangedMessages.class));
     }
 
     @Test
@@ -381,7 +381,7 @@ class RecordsChangedMessageReceiverTest {
 
         ResponseEntity<JobStatus> response = new ResponseEntity<>(new JobStatus(), HttpStatus.OK);
         ArgumentCaptor<RecordChangedMessages> captor = ArgumentCaptor.forClass(RecordChangedMessages.class);
-        when(recordIndexerApi.indexWorker(captor.capture())).thenReturn(response);
+        when(recordIndexerApi.processRecordChangedMessages(captor.capture())).thenReturn(response);
 
         // Act
         receiver.sendMessage(oqmMessage);
@@ -402,7 +402,7 @@ class RecordsChangedMessageReceiverTest {
 
         ResponseEntity<JobStatus> response = new ResponseEntity<>(new JobStatus(), HttpStatus.OK);
         ArgumentCaptor<RecordChangedMessages> captor = ArgumentCaptor.forClass(RecordChangedMessages.class);
-        when(recordIndexerApi.indexWorker(captor.capture())).thenReturn(response);
+        when(recordIndexerApi.processRecordChangedMessages(captor.capture())).thenReturn(response);
 
         // Act
         receiver.sendMessage(oqmMessage);
@@ -424,7 +424,7 @@ class RecordsChangedMessageReceiverTest {
         OqmMessage oqmMessage = createValidOqmMessage();
         ResponseEntity<JobStatus> response = new ResponseEntity<>(new JobStatus(), HttpStatus.OK);
         ArgumentCaptor<RecordChangedMessages> captor = ArgumentCaptor.forClass(RecordChangedMessages.class);
-        when(recordIndexerApi.indexWorker(captor.capture())).thenReturn(response);
+        when(recordIndexerApi.processRecordChangedMessages(captor.capture())).thenReturn(response);
 
         // Act
         receiver.sendMessage(oqmMessage);
@@ -453,7 +453,7 @@ class RecordsChangedMessageReceiverTest {
 
         ResponseEntity<JobStatus> response = new ResponseEntity<>(new JobStatus(), HttpStatus.OK);
         ArgumentCaptor<RecordChangedMessages> captor = ArgumentCaptor.forClass(RecordChangedMessages.class);
-        when(recordIndexerApi.indexWorker(captor.capture())).thenReturn(response);
+        when(recordIndexerApi.processRecordChangedMessages(captor.capture())).thenReturn(response);
 
         // Act
         receiver.sendMessage(oqmMessage);
@@ -475,7 +475,7 @@ class RecordsChangedMessageReceiverTest {
 
         ResponseEntity<JobStatus> response = new ResponseEntity<>(new JobStatus(), HttpStatus.OK);
         ArgumentCaptor<RecordChangedMessages> captor = ArgumentCaptor.forClass(RecordChangedMessages.class);
-        when(recordIndexerApi.indexWorker(captor.capture())).thenReturn(response);
+        when(recordIndexerApi.processRecordChangedMessages(captor.capture())).thenReturn(response);
 
         // Act
         receiver.sendMessage(oqmMessage);
@@ -491,7 +491,7 @@ class RecordsChangedMessageReceiverTest {
         OqmMessage message1 = createOqmMessageWithId("message-1");
         OqmMessage message2 = createOqmMessageWithId("message-2");
         ResponseEntity<JobStatus> response = new ResponseEntity<>(new JobStatus(), HttpStatus.OK);
-        when(recordIndexerApi.indexWorker(any(RecordChangedMessages.class))).thenReturn(response);
+        when(recordIndexerApi.processRecordChangedMessages(any(RecordChangedMessages.class))).thenReturn(response);
 
         // Act
         receiver.sendMessage(message1);
@@ -499,7 +499,7 @@ class RecordsChangedMessageReceiverTest {
 
         // Assert
         verify(dpsHeaders, times(2)).getCorrelationId();
-        verify(recordIndexerApi, times(2)).indexWorker(any(RecordChangedMessages.class));
+        verify(recordIndexerApi, times(2)).processRecordChangedMessages(any(RecordChangedMessages.class));
     }
 
     // ==================== Helper Methods ====================

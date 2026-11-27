@@ -17,26 +17,23 @@
 
 package org.opengroup.osdu.indexer.model.geojson.jackson;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.ObjectCodec;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonNode;
-import java.io.IOException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.JsonNode;
 import java.util.ArrayList;
 import java.util.List;
 import org.opengroup.osdu.indexer.model.geojson.Position;
 
-public class CoordinatesDeserializer extends JsonDeserializer<List<Position>> {
+public class CoordinatesDeserializer extends ValueDeserializer<List<Position>> {
 
     @Override
-    public List<Position> deserialize(JsonParser jsonParser, DeserializationContext ctxt) throws IOException {
+    public List<Position> deserialize(JsonParser jsonParser, DeserializationContext ctxt) {
         ArrayList<Position> positions = new ArrayList<>();
-        ObjectCodec codec = jsonParser.getCodec();
-        JsonNode positionsNode = codec.readTree(jsonParser);
+        JsonNode positionsNode = ctxt.readTree(jsonParser);
         if (positionsNode.isArray()) {
             for (JsonNode node : positionsNode) {
-                positions.add(codec.treeToValue(node, Position.class));
+                positions.add(ctxt.readTreeAsValue(node, Position.class));
             }
         }
         return positions;

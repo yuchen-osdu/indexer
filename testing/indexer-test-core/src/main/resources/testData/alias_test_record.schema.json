@@ -1,0 +1,71 @@
+{
+  "schemaInfo": {
+    "schemaIdentity": {
+      "authority": "tenant1",
+      "source": "indexer<timestamp>",
+      "entityType": "alias-test--Integration",
+      "schemaVersionMajor": "1",
+      "schemaVersionMinor": "0",
+      "schemaVersionPatch": "0"
+    },
+    "status": "DEVELOPMENT"
+  },
+  "schema": {
+    "properties": {
+      "data": {
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "Field": {
+                "type": "string"
+              },
+              "Basin": {
+                "type": "string"
+              },
+              "County": {
+                "type": "string"
+              },
+              "State": {
+                "type": "string"
+              },
+              "Country": {
+                "type": "string"
+              },
+              "WellStatus": {
+                "type": "string"
+              },
+              "OriginalOperator": {
+                "type": "string"
+              },
+              "WellName": {
+                "type": "string"
+              },
+              "WellType": {
+                "type": "string"
+              },
+              "TestAttribute": {
+                "type": "string"
+              },
+              "LegacyAttribute": {
+                "type": "string"
+              },
+              "Score": {
+                "type": "integer"
+              },
+              "Established": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        ]
+      },
+      "id": {
+        "description": "The unique identifier of the document in the system.",
+        "title": "Entity ID",
+        "type": "string"
+      }
+    }
+  }
+}

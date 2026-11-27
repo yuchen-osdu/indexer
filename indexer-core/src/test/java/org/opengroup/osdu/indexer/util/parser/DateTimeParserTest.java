@@ -14,6 +14,9 @@
 
 package org.opengroup.osdu.indexer.util.parser;
 
+import org.junit.Rule;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -24,6 +27,9 @@ import static org.junit.Assert.assertNull;
 
 @RunWith(SpringRunner.class)
 public class DateTimeParserTest {
+
+    @Rule
+    public MockitoRule mockitoRule = MockitoJUnit.rule();
     @InjectMocks
     private DateTimeParser sut;
 

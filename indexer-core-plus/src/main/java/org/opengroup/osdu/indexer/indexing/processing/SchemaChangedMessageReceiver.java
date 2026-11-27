@@ -44,7 +44,7 @@ public class SchemaChangedMessageReceiver extends IndexerOqmMessageReceiver {
   protected void sendMessage(OqmMessage oqmMessage) throws Exception {
     SchemaChangedMessages schemaChangedMessage = getSchemaWorkerRequestBody(oqmMessage);
     log.debug("Schema changed job message body: {}", schemaChangedMessage);
-    ResponseEntity<?> schemaChangeResponse = recordIndexerApi.schemaWorker(schemaChangedMessage);
+    ResponseEntity<?> schemaChangeResponse = recordIndexerApi.processSchemaChangedMessages(schemaChangedMessage);
     log.debug("Schema changed job status: {}", schemaChangeResponse);
   }
 

@@ -14,6 +14,9 @@
 
 package org.opengroup.osdu.indexer.api;
 
+import org.junit.Rule;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,6 +29,9 @@ import static junit.framework.TestCase.assertEquals;
 @RunWith(SpringRunner.class)
 public class HealthCheckApiTest {
 
+    @Rule
+    public MockitoRule mockitoRule = MockitoJUnit.rule();
+
     @InjectMocks
     private HealthCheckApi sut;
 
@@ -36,11 +42,11 @@ public class HealthCheckApiTest {
 
     @Test
     public void should_returnHttp200_when_checkLiveness() {
-        assertEquals(HttpStatus.OK.value(), this.sut.livenessCheck().getStatusCodeValue());
+        assertEquals(HttpStatus.OK.value(), this.sut.livenessCheck().getStatusCode().value());
     }
 
     @Test
     public void should_returnHttp200_when_checkReadiness() {
-        assertEquals(HttpStatus.OK.value(), this.sut.readinessCheck().getStatusCodeValue());
+        assertEquals(HttpStatus.OK.value(), this.sut.readinessCheck().getStatusCode().value());
     }
 }

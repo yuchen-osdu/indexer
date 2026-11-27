@@ -15,10 +15,11 @@
 
 package org.opengroup.osdu.indexer.util.geo.decimator;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.jsontype.NamedType;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.jsontype.NamedType;
 import org.opengroup.osdu.indexer.model.geojson.*;
 import org.opengroup.osdu.indexer.model.geojson.jackson.GeoJsonConstants;
 import org.springframework.stereotype.Component;
@@ -35,11 +36,11 @@ public class GeoShapeDecimator {
     private GeometryDecimator decimator;
 
     public GeoShapeDecimator() {
-        serializerMapper = new ObjectMapper();
+        serializerMapper = JsonMapper.builderWithJackson2Defaults().build();
         deserializerMapper = createDeserializerMapper();
     }
 
-    public DecimatedResult decimateShapeObj(Map<String, Object> shapeObj) throws JsonProcessingException {
+    public DecimatedResult decimateShapeObj(Map<String, Object> shapeObj) throws JacksonException {
         DecimatedResult result = new DecimatedResult();
         String type = (String)shapeObj.getOrDefault(GeoJsonConstants.TYPE, null);
         if(type != null && type.equals(GeoJsonConstants.GEOMETRY_COLLECTION)) {
@@ -57,14 +58,14 @@ public class GeoShapeDecimator {
 
     @NotNull
     private static ObjectMapper createDeserializerMapper() {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerSubtypes(new NamedType(GeometryCollection.class, GeoJsonConstants.GEOMETRY_COLLECTION));
-        mapper.registerSubtypes(new NamedType(Polygon.class, GeoJsonConstants.POLYGON));
-        mapper.registerSubtypes(new NamedType(MultiPolygon.class, GeoJsonConstants.MULTI_POLYGON));
-        mapper.registerSubtypes(new NamedType(LineString.class, GeoJsonConstants.LINE_STRING));
-        mapper.registerSubtypes(new NamedType(MultiLineString.class, GeoJsonConstants.MULTI_LINE_STRING));
-        mapper.registerSubtypes(new NamedType(Point.class, GeoJsonConstants.POINT));
-        mapper.registerSubtypes(new NamedType(MultiPoint.class, GeoJsonConstants.MULTI_POINT));
-        return mapper;
+        return JsonMapper.builderWithJackson2Defaults()
+                .registerSubtypes(new NamedType(GeometryCollection.class, GeoJsonConstants.GEOMETRY_COLLECTION))
+                .registerSubtypes(new NamedType(Polygon.class, GeoJsonConstants.POLYGON))
+                .registerSubtypes(new NamedType(MultiPolygon.class, GeoJsonConstants.MULTI_POLYGON))
+                .registerSubtypes(new NamedType(LineString.class, GeoJsonConstants.LINE_STRING))
+                .registerSubtypes(new NamedType(MultiLineString.class, GeoJsonConstants.MULTI_LINE_STRING))
+                .registerSubtypes(new NamedType(Point.class, GeoJsonConstants.POINT))
+                .registerSubtypes(new NamedType(MultiPoint.class, GeoJsonConstants.MULTI_POINT))
+                .build();
     }
 }

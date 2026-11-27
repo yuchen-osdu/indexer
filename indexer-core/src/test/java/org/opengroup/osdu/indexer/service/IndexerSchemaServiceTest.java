@@ -18,6 +18,7 @@ import static java.util.Map.entry;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -34,7 +35,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.io.BufferedReader;
@@ -164,19 +165,15 @@ public class IndexerSchemaServiceTest {
     }
 
     @Test
-    public void should_throw500_givenInvalidSchemaCacheHit_getIndexerInputSchemaTest() {
-        try {
-            String invalidSchema = "{}}";
-            when(schemaService.getSchema(any())).thenReturn(invalidSchema);
+    public void should_throw500_givenInvalidSchemaCacheHit_getIndexerInputSchemaTest() throws Exception {
+        String invalidSchema = "{}}";
+        when(schemaService.getSchema(any())).thenReturn(invalidSchema);
 
-            this.sut.getIndexerInputSchema(kind, false);
-            fail("Should throw exception");
-        } catch (AppException e) {
-            assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, e.getError().getCode());
-            assertEquals("An error has occurred while normalizing the schema.", e.getError().getMessage());
-        } catch (Exception e) {
-            fail("Should not throw exception" + e.getMessage());
-        }
+        AppException exception = assertThrows(AppException.class,
+                () -> this.sut.getIndexerInputSchema(kind, false));
+
+        assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, exception.getError().getCode());
+        assertEquals("An error has occurred while normalizing the schema.", exception.getError().getMessage());
     }
 
     @Test

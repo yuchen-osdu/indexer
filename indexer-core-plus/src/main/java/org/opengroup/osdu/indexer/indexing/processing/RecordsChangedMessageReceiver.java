@@ -42,7 +42,7 @@ public class RecordsChangedMessageReceiver extends IndexerOqmMessageReceiver {
   protected void sendMessage(OqmMessage oqmMessage) throws Exception {
     RecordChangedMessages indexWorkerRequestBody = getIndexWorkerRequestBody(oqmMessage);
     log.debug("Job message body: {}", indexWorkerRequestBody);
-    ResponseEntity<JobStatus> jobStatusResponse = recordIndexerApi.indexWorker(
+    ResponseEntity<JobStatus> jobStatusResponse = recordIndexerApi.processRecordChangedMessages(
         indexWorkerRequestBody);
     log.debug("Job status: {}", jobStatusResponse);
   }

@@ -14,6 +14,9 @@
 
 package org.opengroup.osdu.indexer.util;
 
+import org.junit.Rule;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.junit.Test;
@@ -38,6 +41,9 @@ import static org.junit.Assert.*;
 
 @RunWith(SpringRunner.class)
 public class JobStatusTest {
+
+    @Rule
+    public MockitoRule mockitoRule = MockitoJUnit.rule();
 
     private final String recordChangedMessages = "[{\"id\":\"tenant1:doc:test1\",\"kind\":\"tenant1:testindexer1:well:1.0.0\",\"op\":\"purge\"}," +
             "{\"id\":\"tenant1:doc:test2\",\"kind\":\"tenant1:testindexer12:well:1.0.0\",\"op\":\"create\"}]";

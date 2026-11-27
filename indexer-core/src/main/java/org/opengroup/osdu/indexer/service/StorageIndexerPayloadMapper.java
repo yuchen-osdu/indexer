@@ -15,7 +15,7 @@
 
 package org.opengroup.osdu.indexer.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import tools.jackson.core.JacksonException;
 import org.apache.commons.beanutils.NestedNullException;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.http.HttpStatus;
@@ -268,7 +268,7 @@ public class StorageIndexerPayloadMapper {
         if(originalGeoShapeProperty != null) {
             try {
                 decimateGeoShape(originalGeoShapeProperty, dataCollectorMap);
-            } catch (JsonProcessingException ex) {
+            } catch (JacksonException ex) {
                 this.log.warning(String.format("record-id: %s | error decimating geoshape | error: %s", recordId, ex.getMessage()));
             }
         }
@@ -282,7 +282,7 @@ public class StorageIndexerPayloadMapper {
         return null;
     }
 
-    private void decimateGeoShape(String originalGeoShapeProperty, Map<String, Object> dataCollectorMap) throws JsonProcessingException {
+    private void decimateGeoShape(String originalGeoShapeProperty, Map<String, Object> dataCollectorMap) throws JacksonException {
         if(originalGeoShapeProperty == null || !dataCollectorMap.containsKey(originalGeoShapeProperty))
             return;
 

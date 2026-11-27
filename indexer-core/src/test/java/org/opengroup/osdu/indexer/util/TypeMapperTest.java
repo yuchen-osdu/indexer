@@ -149,6 +149,19 @@ public class TypeMapperTest {
     }
 
     @Test
+    public void validate_constantMetaAttribute_indexerMapping_isNotShared() {
+        for (RecordMetaAttribute attribute : Arrays.asList(RecordMetaAttribute.AUTHORITY, RecordMetaAttribute.SOURCE)) {
+            Map<String, Object> first = (Map<String, Object>) TypeMapper.getMetaAttributeIndexerMapping(attribute.getValue(), "first");
+            Map<String, Object> second = (Map<String, Object>) TypeMapper.getMetaAttributeIndexerMapping(attribute.getValue(), "second");
+
+            assertNotSame(first, second);
+            assertEquals("first", first.get("value"));
+            assertEquals("second", second.get("value"));
+            assertFalse(((Map<String, Object>) TypeMapper.getIndexerType(attribute)).containsKey("value"));
+        }
+    }
+
+    @Test
     public void validate_dataAttribute_ofTextType_indexerMapping() {
         Object textMapping = TypeMapper.getDataAttributeIndexerMapping(ElasticType.TEXT.getValue(), false, false, false);
         Map<String, Object> textAttributeIndexMapping = (Map<String, Object>) textMapping;

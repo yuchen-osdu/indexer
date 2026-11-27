@@ -15,8 +15,10 @@
 
 package org.opengroup.osdu.indexer.util.function;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import lombok.SneakyThrows;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,10 +48,11 @@ public class AreaAugmenterImplTest {
 
     private ValueExtraction valueExtraction;
     private Object shapeObject;
-    ObjectMapper mapper = new ObjectMapper();
+    // The shape fixture is followed by unrelated content, which Jackson 3 rejects by default
+    ObjectMapper mapper = JsonMapper.builder().disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS).build();
 
     @Before
-    public void setup() throws JsonProcessingException {
+    public void setup() throws JacksonException {
         valueExtraction = new ValueExtraction();
         valueExtraction.setValuePath("Area(VirtualProperties.DefaultLocation.Wgs84Coordinates)");
         String json = getJsonFromFile();
@@ -124,7 +127,7 @@ public class AreaAugmenterImplTest {
     }
 
     @Test
-    public void getPropertyValues_with_empty_shape() throws JsonProcessingException {
+    public void getPropertyValues_with_empty_shape() throws JacksonException {
         String json = """
         {"type": "geometrycollection", "geometries": []}
         """;
@@ -136,7 +139,7 @@ public class AreaAugmenterImplTest {
     }
 
     @Test
-    public void getPropertyValues_with_unsupported_type_of_shape() throws JsonProcessingException {
+    public void getPropertyValues_with_unsupported_type_of_shape() throws JacksonException {
         String json = """
                 {
                      "type": "geometrycollection",

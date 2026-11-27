@@ -20,7 +20,6 @@ package org.opengroup.osdu.indexer.util;
 
 import static org.opengroup.osdu.core.common.feature.PartitionFeatureFlagImpl.FF_SOURCE_DATA_PARTITION;
 import static org.opengroup.osdu.indexer.config.IndexerConfigurationProperties.BAG_OF_WORDS_FEATURE_NAME;
-import static org.opengroup.osdu.indexer.config.IndexerConfigurationProperties.COLLABORATIONS_FEATURE_NAME;
 import static org.opengroup.osdu.indexer.config.IndexerConfigurationProperties.KEYWORD_LOWER_FEATURE_NAME;
 import static org.opengroup.osdu.indexer.config.IndexerConfigurationProperties.MAP_BOOL2STRING_FEATURE_NAME;
 import static org.opengroup.osdu.indexer.model.Constants.AS_INGESTED_COORDINATES_FEATURE_NAME;
@@ -55,16 +54,6 @@ public class FeatureFlagStateConfiguration {
   public FeatureFlagStateResolver bagOfWordsFFResolver() {
     return CommonFeatureFlagStateResolverUtil.buildCommonFFStateResolver(
         BAG_OF_WORDS_FEATURE_NAME,
-        tenantInfoService,
-        featureFlagService
-    );
-  }
-
-  @Bean
-  @RequestScope
-  public FeatureFlagStateResolver collaborationFFResolver() {
-    return CommonFeatureFlagStateResolverUtil.buildCommonFFStateResolver(
-        COLLABORATIONS_FEATURE_NAME,
         tenantInfoService,
         featureFlagService
     );
@@ -129,8 +118,8 @@ public class FeatureFlagStateConfiguration {
               .name(MAP_BOOL2STRING_FEATURE_NAME)
               .source(featureFlagService.source() + " +  " + FF_SOURCE_DATA_PARTITION)
               .enabled(
-                  featureFlagService.isFeatureEnabled(MAP_BOOL2STRING_FEATURE_NAME, tenantInfo.getName())
-                      || booleanFeatureFlagClient.isEnabled(MAP_BOOL2STRING_FEATURE_NAME, false, tenantInfo.getName())
+                      featureFlagService.isFeatureEnabled(MAP_BOOL2STRING_FEATURE_NAME, tenantInfo.getName())
+                              || booleanFeatureFlagClient.isEnabled(MAP_BOOL2STRING_FEATURE_NAME, false, tenantInfo.getName())
               )
               .build())
           .toList();

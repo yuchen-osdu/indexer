@@ -102,7 +102,7 @@ public class TypeMapper {
     }
 
     private static Object getConstantIndexerType(String key, String value) {
-        Map<String, Object> constantAttribute = (Map<String, Object>) metaAttributeIndexerType.get(key);
+        Map<String, Object> constantAttribute = new HashMap<>((Map<String, Object>) metaAttributeIndexerType.get(key));
         constantAttribute.put("value", value);
         return constantAttribute;
     }
